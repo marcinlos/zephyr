@@ -6,10 +6,12 @@ prefix = .
 exec_prefix = ${prefix}
 srcdir = ${prefix}/src
 bindir = ${exec_prefix}/bin
+example = example
+exampledir = ${exec_prefix}/${example}
+
 
 vpath %.cpp ${srcdir} 
-
-SLICE = slice2cpp
+vpath %.cpp ${prefix}/${example}
 
 # Insert your program definition(s) here
 # Example:
@@ -17,13 +19,14 @@ SLICE = slice2cpp
 #    foo_SRCS = fooer.c error_msg.c
 #    all_LDFLAGS = -pthread
 
-PROGRAMS = zephyr
+PROGRAMS = zephyr demo
 
 zephyr_SRCS = Zephyr.cpp
+demo_SRCS = example.cpp
 
-all_LDFLAGS =
+all_LDFLAGS = -lglfw -lGLEW
 
-CXXFLAGS= -O2 -g -Wall
+CXXFLAGS= -std=c++11 -O2 -g -Wall
 
 # End of program definitions 
 
@@ -47,15 +50,15 @@ all: ${EXECS}
 ${EXECS}: ${bindir}/%: $${$$*_OBJS}
 	${CXX} -o $@ $^ ${all_LDFLAGS} ${$*_LDFLAGS}
 
-${OBJS}: ${bindir}/%.o: %.cpp | ${bindir} 
+${OBJS}: ${bindir}/%.o: %.cpp | ${bindir} ${exampledir}
 	${CXX} ${CPPFLAGS} ${CXXFLAGS} -c -o $@ $^
 
 ${bindir}:
 	mkdir ${bindir}
+
+${exampledir}:
+	mkdir ${exampledir}
 	
-${gendir}:
-	mkdir ${gendir}
-  
 .PHONY: clean
 clean:
 	${RM} ${EXECS} ${OBJS}
