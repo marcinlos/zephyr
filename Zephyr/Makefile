@@ -21,7 +21,12 @@ vpath %.cpp ${prefix}/${example}
 
 PROGRAMS = zephyr demo
 
-zephyr_SRCS = Zephyr.cpp
+zephyr_SRCS = 						\
+	Zephyr.cpp 						\
+	core/Task.cpp					\
+	core/Scheduler.cpp
+	
+	
 demo_SRCS = example.cpp
 
 all_LDFLAGS = -lglfw -lGLEW
@@ -50,14 +55,17 @@ all: ${EXECS}
 ${EXECS}: ${bindir}/%: $${$$*_OBJS}
 	${CXX} -o $@ $^ ${all_LDFLAGS} ${$*_LDFLAGS}
 
-${OBJS}: ${bindir}/%.o: %.cpp | ${bindir} ${exampledir}
+${OBJS}: ${bindir}/%.o: %.cpp | ${bindir} ${bindir}/example ${bindir}/core
 	${CXX} ${CPPFLAGS} ${CXXFLAGS} -c -o $@ $^
 
 ${bindir}:
 	mkdir ${bindir}
-
-${exampledir}:
-	mkdir ${exampledir}
+	
+${bindir}/example: | ${bindir}
+	mkdir ${bindir}/example
+	
+${bindir}/core: | ${bindir}
+	mkdir ${bindir}/core
 	
 .PHONY: clean
 clean:
