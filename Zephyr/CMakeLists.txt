@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
-project(Zephyr)
+project(Zephyr CXX)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(SRC src/zephyr)
 
 add_executable(game
@@ -23,4 +24,6 @@ target_link_libraries(demo GL GLEW glfw)
 
 include_directories("${PROJECT_BINARY_DIR}/src")
 
+
 add_definitions(-std=c++11)
+
