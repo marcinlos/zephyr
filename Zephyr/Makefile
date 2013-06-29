@@ -33,6 +33,8 @@ all_LDFLAGS = -lglfw -lGLEW
 
 CXXFLAGS= -std=c++11 -O2 -g -Wall
 
+CPPFLAGS+= -I${srcdir}
+
 # End of program definitions 
 
 SRCS = ${foreach prog,${PROGRAMS},${${prog}_SRCS}} 

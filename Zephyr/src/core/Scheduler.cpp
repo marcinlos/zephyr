@@ -51,33 +51,9 @@ void Scheduler::run()
     // main loop
     while (is_running_)
     {
-        std::lock_guard<std::mutex> lock(loop_mutex_);
-
-        for (const task_info& task : active_)
-        {
-            try
-            {
-                task.task->update();
-            }
-            catch (const std::exception& e)
-            {
-                std::cerr << "[Scheduler] In " << task.name << ": ";
-                std::cerr << "exception: " << e.what() << std::endl;
-            }
-            catch (...)
-            {
-                std::cerr << "[Scheduler] In " << task.name << ": ";
-                std::cerr << "Unknown exception!" << std::endl;
-            }
-        }
+        update_all_();
+        execute_delayed_operations_();
     }
-}
-
-void Scheduler::async_run()
-{
-    // simply execute the run function in other thread
-    auto job = std::bind(&Scheduler::run, this);
-    std::thread worker(job);
 }
 
 void Scheduler::stop()
@@ -220,13 +196,34 @@ void Scheduler::Executor::operator ()(const notify_cmd& cmd)
     scheduler->do_notify_(cmd.condition);
 }
 
+void Scheduler::update_all_()
+{
+    for (const task_info& task : active_)
+    {
+        try
+        {
+            task.task->update();
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << "[Scheduler] In " << task.name << ": ";
+            std::cerr << "exception: " << e.what() << std::endl;
+        }
+        catch (...)
+        {
+            std::cerr << "[Scheduler] In " << task.name << ": ";
+            std::cerr << "Unknown exception!" << std::endl;
+        }
+    }
+}
+
 void Scheduler::post_operation_(operation&& op)
 {
     std::lock_guard<std::recursive_mutex> lock(operations_mutex_);
     operation_queue_.push(std::move(op));
 }
 
-void Scheduler::run_delayed_operations_()
+void Scheduler::execute_delayed_operations_()
 {
     std::lock_guard<std::recursive_mutex> lock(operations_mutex_);
 
@@ -267,7 +264,7 @@ auto Scheduler::get_condition_queue_(const queue_id& id) -> task_queue&
     if (i == suspended_.end())
     {
         // create & insert
-        i = suspended_.insert({id, task_queue()}).first;
+        i = suspended_.insert(std::make_pair(id, task_queue())).first;
     }
     return i->second;
 }

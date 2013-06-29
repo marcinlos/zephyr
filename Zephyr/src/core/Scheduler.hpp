@@ -5,8 +5,8 @@
  *      Author: los
  */
 
-#ifndef SCHEDULER_HPP_
-#define SCHEDULER_HPP_
+#ifndef ZEPHYR_CORE_SCHEDULER_HPP_
+#define ZEPHYR_CORE_SCHEDULER_HPP_
 
 #include "Task.hpp"
 #include <string>
@@ -23,6 +23,9 @@ namespace zephyr
 namespace core
 {
 
+/**
+ * Generic task scheduler, the very bottom of the application.
+ */
 class Scheduler
 {
 public:
@@ -33,6 +36,7 @@ public:
     /** Type of the task pointer */
     typedef std::shared_ptr<Task> task_ptr;
 
+    /** Creates a new scheduler */
     Scheduler();
 
     void startTask(const task_id& name, int priority, const task_ptr& task);
@@ -45,8 +49,6 @@ public:
 
     void run();
 
-    void async_run();
-
     void stop();
 
 private:
@@ -56,8 +58,6 @@ private:
         task_id name;
         int priority;
         task_ptr task;
-
-        //task_info(const task_id& name, int priority, const task_ptr& task)
     };
 
     /**
@@ -119,11 +119,14 @@ private:
         void operator ()(const notify_cmd& cmd);
     } executor;
 
+    /** Loops through active tasks and calls `update()` */
+    void update_all_();
+
     /** Schedules the operation */
     void post_operation_(operation&& op);
 
     /** Executes operations stored in the queue */
-    void run_delayed_operations_();
+    void execute_delayed_operations_();
 
     /** Performs a single delayed operation */
     void perform_operation_(const operation& op);
@@ -152,8 +155,6 @@ private:
     /** List of wait conditions and associated suspended tasks */
     std::unordered_map<queue_id, task_queue> suspended_;
 
-    /** Mutex protecting main loop execution */
-    std::mutex loop_mutex_;
     /**
      * Mutex protecting pending operations list. It's recursive to allow
      * operations inside task callbacks for scheduling event.
@@ -170,4 +171,4 @@ private:
 } /* namespace core */
 } /* namespace zephyr */
 
-#endif /* SCHEDULER_HPP_ */
+#endif /* ZEPHYR_CORE_SCHEDULER_HPP_ */
