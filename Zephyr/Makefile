@@ -9,6 +9,9 @@ bindir = ${exec_prefix}/bin
 example = example
 exampledir = ${exec_prefix}/${example}
 
+zephyr = zephyr
+zephyrbindir = ${bindir}/${zephyr}
+
 
 vpath %.cpp ${srcdir} 
 vpath %.cpp ${prefix}/${example}
@@ -19,12 +22,14 @@ vpath %.cpp ${prefix}/${example}
 #    foo_SRCS = fooer.c error_msg.c
 #    all_LDFLAGS = -pthread
 
-PROGRAMS = zephyr demo
+PROGRAMS = game demo
 
-zephyr_SRCS = 						\
-	Zephyr.cpp 						\
-	core/Task.cpp					\
-	core/Scheduler.cpp
+game_SRCS = 								\
+	Zephyr.cpp		 						\
+	zephyr/Root.cpp							\
+	zephyr/core/Task.cpp					\
+	zephyr/core/Scheduler.cpp				\
+	zephyr/core/Config.cpp					
 	
 	
 demo_SRCS = example.cpp
@@ -57,18 +62,26 @@ all: ${EXECS}
 ${EXECS}: ${bindir}/%: $${$$*_OBJS}
 	${CXX} -o $@ $^ ${all_LDFLAGS} ${$*_LDFLAGS}
 
-${OBJS}: ${bindir}/%.o: %.cpp | ${bindir} ${bindir}/example ${bindir}/core
+${OBJS}: ${bindir}/%.o: %.cpp | make_dirs
 	${CXX} ${CPPFLAGS} ${CXXFLAGS} -c -o $@ $^
 
+.PHONY: make_dirs
+
+make_dirs: | ${zephyrbindir}/core ${bindir}/example
+
 ${bindir}:
-	mkdir ${bindir}
+	mkdir $@
+	
+${zephyrbindir}: | ${bindir}
+	mkdir $@
 	
 ${bindir}/example: | ${bindir}
-	mkdir ${bindir}/example
+	mkdir $@
 	
-${bindir}/core: | ${bindir}
-	mkdir ${bindir}/core
+${zephyrbindir}/core: | ${zephyrbindir}
+	mkdir $@
 	
 .PHONY: clean
 clean:
-	${RM} ${EXECS} ${OBJS}
+	${RM} ${EXECS} ${OBJS} 
+	rm -rf ${bindir}

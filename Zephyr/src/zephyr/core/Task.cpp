@@ -5,7 +5,7 @@
  *      Author: los
  */
 
-#include "Task.hpp"
+#include <zephyr/core/Task.hpp>
 
 
 namespace zephyr
@@ -38,6 +38,6 @@ Task::~Task()
     // empty
 }
 
-} // core
-} // zephyr
+} /* namespace core */
+} /* namespace core */
 

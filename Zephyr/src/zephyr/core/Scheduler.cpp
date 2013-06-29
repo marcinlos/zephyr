@@ -5,7 +5,7 @@
  *      Author: los
  */
 
-#include "Scheduler.hpp"
+#include <zephyr/core/Scheduler.hpp>
 #include <thread>
 #include <stdexcept>
 #include <algorithm>

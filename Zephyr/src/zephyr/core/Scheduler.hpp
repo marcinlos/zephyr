@@ -8,7 +8,7 @@
 #ifndef ZEPHYR_CORE_SCHEDULER_HPP_
 #define ZEPHYR_CORE_SCHEDULER_HPP_
 
-#include "Task.hpp"
+#include <zephyr/core/Task.hpp>
 #include <string>
 #include <memory>
 #include <mutex>

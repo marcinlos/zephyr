@@ -8,10 +8,15 @@
 #ifndef ZEPHYR_CORE_TASK_HPP_
 #define ZEPHYR_CORE_TASK_HPP_
 
+#include <memory>
+
 namespace zephyr
 {
 namespace core
 {
+
+/** Pointer type holding the task */
+typedef std::shared_ptr<class Task> TaskPtr;
 
 /**
  * Base class for tasks scheduled for execution in the main loop. Each
@@ -55,7 +60,7 @@ public:
 
 };
 
-} // core
-} // zephyr
+} /* namespace core */
+} /* namespace core */
 
 #endif /* ZEPHYR_CORE_TASK_HPP_ */

@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#include <core/Scheduler.hpp>
+#include <zephyr/Root.hpp>
 #include <example/Speaker.hpp>
 
 using namespace glm;
@@ -14,8 +14,10 @@ using namespace zephyr;
 
 int main(int argc, char* argv[])
 {
-    core::Scheduler scheduler;
-    scheduler.startTask("SpeakerA", 1, std::make_shared<Speaker>("Dupa"));
-    scheduler.run();
+    Root root;
+    core::Scheduler& sched = root.scheduler;
+    core::TaskPtr task = std::make_shared<Speaker>("Dupa");
+    sched.startTask("SpeakerA", 1, task);
+    root.run();
     return 0;
 }
