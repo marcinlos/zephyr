@@ -10,11 +10,16 @@
 namespace zephyr
 {
 
-Root::Root()
+
+Root::Root(const std::string& config_path)
 {
-    // TODO Auto-generated constructor stub
+    config_.loadXML(config_path);
 }
 
+Root::Root(std::istream& config_stream)
+{
+    config_.loadXML(config_stream);
+}
 
 void Root::run()
 {

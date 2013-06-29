@@ -18,6 +18,7 @@
 #include <unordered_map>
 #include <boost/variant.hpp>
 
+
 namespace zephyr
 {
 namespace core
@@ -139,7 +140,7 @@ private:
 
     /** Inserts the task in the appropriate place in the task list */
     void insert_into_active_list_(task_info&& task);
-    
+
     /** Searches for task with supplied id and removes it */
     task_list::iterator search_in_active_list_(const task_id& id);
 

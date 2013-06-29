@@ -14,8 +14,8 @@ using namespace zephyr;
 
 int main(int argc, char* argv[])
 {
-    Root root;
-    core::Scheduler& sched = root.scheduler;
+    Root root("config.xml");
+    core::Scheduler& sched = root.scheduler();
     core::TaskPtr task = std::make_shared<Speaker>("Dupa");
     sched.startTask("SpeakerA", 1, task);
     root.run();
