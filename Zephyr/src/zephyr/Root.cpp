@@ -6,6 +6,7 @@
  */
 
 #include <zephyr/Root.hpp>
+#include <iostream>
 
 namespace zephyr
 {
@@ -13,6 +14,7 @@ namespace zephyr
 
 Root::Root(const std::string& config_path)
 {
+    std::cout << "[Root] Reading configuration from \"" << config_path << "\"";
     config_.loadXML(config_path);
 }
 

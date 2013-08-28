@@ -32,8 +32,10 @@ class Scheduler
 public:
     /** Type of the task identifier */
     typedef std::string task_id;
+    
     /** Type of the waiting condition identifier */
     typedef std::string queue_id;
+    
     /** Type of the task pointer */
     typedef std::shared_ptr<Task> task_ptr;
 
