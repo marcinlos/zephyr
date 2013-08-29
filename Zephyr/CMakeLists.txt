@@ -7,18 +7,18 @@ set(SRC src/zephyr)
 add_executable(game
     ${SRC}/Root.hpp
     ${SRC}/Root.cpp
-    src/zephyr/core/Scheduler.hpp
-    src/zephyr/core/Scheduler.cpp
-    src/zephyr/core/Task.hpp
-    src/zephyr/core/Task.cpp
-    src/zephyr/core/Config.hpp
-    src/zephyr/core/Config.cpp
-    src/zephyr/gfx/Window.cpp
-    src/zephyr/gfx/BufferSwapper.cpp
+    ${SRC}/core/Scheduler.hpp
+    ${SRC}/core/Scheduler.cpp
+    ${SRC}/core/Task.hpp
+    ${SRC}/core/Task.cpp
+    ${SRC}/core/Config.hpp
+    ${SRC}/core/Config.cpp
+    ${SRC}/gfx/Window.cpp
+    ${SRC}/gfx/BufferSwapper.cpp
     src/example/Speaker.hpp
     src/Zephyr.cpp)
 
-target_link_libraries(game GLEW GLU glfw3 GL X11 Xxf86vm Xrandr pthread Xi )
+target_link_libraries(game GLEW GLU glfw3 GL X11 Xxf86vm Xrandr pthread Xi)
 
 add_executable(demo
     example/example.cpp)
@@ -32,9 +32,8 @@ add_definitions(-std=c++11)
 
 # Unit testing
 
-add_subdirectory(gtest/)
-include_directories(/home/los/bin/gtest-1.7.0/include) 
-#link_directories(/home/los/bin/gtest-1.7.0/lib)
+add_subdirectory(gmock)
+include_directories(gmock/include gmock/gtest/include) 
 
 enable_testing()
 
@@ -43,7 +42,7 @@ add_executable(runUnitTests
     test/failing.cpp
 )
 
-target_link_libraries(runUnitTests gtest gtest_main)
+target_link_libraries(runUnitTests gmock gmock_main)
 
 add_test(
     NAME someTest

@@ -23,7 +23,7 @@ public:
     
     void pollEvents();
     
-    void swapBuffers();
+    void swapBuffers() const;
     
 private:
     GLFWwindow* window_; 
