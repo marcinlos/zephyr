@@ -9,8 +9,7 @@
 #include <string>
 #include <iostream>
 
-class Speaker: public zephyr::core::Task
-{
+class Speaker: public zephyr::core::Task {
 private:
     std::string text;
     int counter;
@@ -19,39 +18,32 @@ private:
 
 public:
     Speaker(const std::string& text)
-    : text(text)
-    , counter(0)
+    : text(text), counter(0)
     { }
 
     // Override
-    virtual void start() override
-    {
+    virtual void start() override {
         std::cout << "[Speaker] " << text << ": start" << std::endl;
     }
 
     // Override
-    virtual void stop() override
-    {
+    virtual void stop() override {
         std::cout << "[Speaker] " << text << ": stop" << std::endl;
     }
 
     // Override
-    virtual void suspend() override
-    {
+    virtual void suspend() override {
         std::cout << "[Speaker] " << text << ": suspend" << std::endl;
     }
 
     // Override
-    virtual void resume() override
-    {
+    virtual void resume() override {
         std::cout << "[Speaker] " << text << ": resmue" << std::endl;
     }
 
     // Override
-    virtual void update() override
-    {
-        if ((counter = (counter + 1) % DELAY) == 0)
-        {
+    virtual void update() override {
+        if ((counter = (counter + 1) % DELAY) == 0) {
             std::cout << "[Speaker] " << text << ": tick" << std::endl;
         }
     }

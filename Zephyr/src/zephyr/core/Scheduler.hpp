@@ -19,7 +19,12 @@ namespace zephyr {
 namespace core {
 
 /**
- * Generic task scheduler, the very bottom of the application.
+ * Generic task scheduler, the very bottom of the application. Scheduler
+ * manages tasks. Each task is updated in every iteration. Each task has
+ * a priority - the lower the priority, the earlier is the task updated.
+ *
+ * Tasks may be suspended, resumed and stopped. Suspended task waits for
+ * certain condition, specified as string.
  */
 class Scheduler {
 public:
@@ -35,16 +40,45 @@ public:
     /** Creates a new scheduler */
     Scheduler();
 
+    /**
+     * Adds task to the scheduler, according to the specified priority.
+     *
+     * @param name Name of the task
+     * @param priority Priority of the task
+     * @param task Task itself
+     */
     void startTask(const task_id& name, int priority, const task_ptr& task);
 
+    /**
+     * Permanently stops the task with specified name.
+     *
+     * @param name Name of the task to stop
+     */
     void stopTask(const task_id& name);
 
+    /**
+     * Suspends specified tasks, makes it wait for the specified condition.
+     *
+     * @param name Name of the task to suspend
+     * @param condition Condition to wait for
+     */
     void suspendTask(const task_id& name, const queue_id& condition);
 
+    /**
+     * Resumes all tasks waiting for the specified condition.
+     *
+     * @param condition Condition to signal
+     */
     void notify(const queue_id& condition);
 
+    /**
+     * Executes scheduler main loop in the current thread.
+     */
     void run();
 
+    /**
+     * Asynchronously stops scheduler execution.
+     */
     void stop();
 
 private:
@@ -80,13 +114,16 @@ private:
     /// @}
 
     /** Type of the heterogenous operation container */
-    typedef boost::variant<start_task_cmd, stop_task_cmd, suspend_task_cmd,
-            notify_cmd> operation;
+    typedef boost::variant<
+        start_task_cmd,
+        stop_task_cmd,
+        suspend_task_cmd,
+        notify_cmd
+    > operation;
 
     /** Functions performing actual work */
     /// @{
-    void do_start_task_(const task_id& name, int priority,
-            const task_ptr& task);
+    void do_start_task_(const task_id& name, int priority, const task_ptr& task);
     void do_stop_task_(const task_id& name);
     void do_suspend_task_(const task_id& name, const queue_id& condition);
     void do_notify_(const queue_id& condition);
@@ -97,8 +134,8 @@ private:
         Scheduler* const scheduler;
 
         Executor(Scheduler* scheduler)
-                : scheduler(scheduler) {
-        }
+        : scheduler(scheduler)
+        { }
 
         void operator ()(const start_task_cmd& cmd);
         void operator ()(const stop_task_cmd& cmd);

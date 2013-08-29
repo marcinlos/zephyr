@@ -25,6 +25,11 @@ public:
      */
     Window(int width, int height, const std::string& title);
     
+    /**
+     * Releases the window resources.
+     */
+    ~Window();
+
     void pollEvents();
     
     /**

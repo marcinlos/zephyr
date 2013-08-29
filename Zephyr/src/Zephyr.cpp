@@ -1,3 +1,4 @@
+
 #include <iostream>
 
 #define GLEW_STATIC
@@ -25,8 +26,10 @@ int main(int argc, char* argv[]) {
     int width = root.config().get("zephyr.window.width", 800);
     int height = root.config().get("zephyr.window.height", 600);
     std::string title = root.config().get<std::string>("zephyr.window.title");
+
     std::cout << "Window size: " << width << "x" << height << std::endl;
     gfx::Window window(width, height, title);
+
     core::TaskPtr swapper = std::make_shared<gfx::BufferSwapper>(window);
     sched.startTask("swapper", 2, swapper);
 

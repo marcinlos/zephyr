@@ -7,8 +7,9 @@ namespace zephyr {
 namespace core {
 
 Scheduler::Scheduler()
-        : executor(this), is_running_(false) {
-}
+: executor(this)
+, is_running_(false)
+{ }
 
 void Scheduler::startTask(const task_id& name, int priority,
         const task_ptr& task) {

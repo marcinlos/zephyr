@@ -20,7 +20,6 @@ add_executable(game
     ${SRC}/glfw/init.cpp
     ${SRC}/gfx/Window.cpp
     ${SRC}/gfx/BufferSwapper.cpp
-    src/example/Speaker.hpp
     src/Zephyr.cpp)
 
     
