@@ -1,8 +1,5 @@
-/*
- * Speaker.hpp
- *
- *  Created on: Jun 28, 2013
- *      Author: los
+/**
+ * @file Speaker.hpp
  */
 
 #ifndef SPEAKER_HPP_

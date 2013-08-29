@@ -1,9 +1,3 @@
-/*
- * Task.cpp
- *
- *  Created on: Jun 27, 2013
- *      Author: los
- */
 
 #include <zephyr/core/Task.hpp>
 

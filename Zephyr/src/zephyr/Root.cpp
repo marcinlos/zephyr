@@ -1,9 +1,3 @@
-/*
- * Root.cpp
- *
- *  Created on: Jun 29, 2013
- *      Author: los
- */
 
 #include <zephyr/Root.hpp>
 #include <iostream>

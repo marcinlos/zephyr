@@ -1,9 +1,3 @@
-/*
- * init.cpp
- * 
- *  Created on: July 30, 2013
- *      Author: los
- */
 
 #include <iostream>
 #define GLEW_STATIC

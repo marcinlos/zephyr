@@ -1,9 +1,3 @@
-/*
- * Window.cpp
- *
- *  Created on: Jun 30, 2013
- *      Author: los
- */
 
 #include <stdexcept>
 #include <zephyr/gfx/Window.hpp>

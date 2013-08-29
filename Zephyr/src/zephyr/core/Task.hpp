@@ -1,8 +1,5 @@
-/*
- * Task.hpp
- *
- *  Created on: Jun 27, 2013
- *      Author: los
+/**
+ * @file Task.hpp
  */
 
 #ifndef ZEPHYR_CORE_TASK_HPP_

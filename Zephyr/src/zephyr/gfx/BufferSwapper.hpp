@@ -1,6 +1,7 @@
 /**
  * @file BufferSwapper.hpp
  */
+
 #ifndef ZEPHYR_GFX_BUFFERSWAPPER_H_
 #define ZEPHYR_GFX_BUFFERSWAPPER_H_
 

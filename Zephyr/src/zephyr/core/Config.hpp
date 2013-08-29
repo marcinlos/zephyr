@@ -1,8 +1,5 @@
-/*
- * Config.hpp
- *
- *  Created on: Jun 29, 2013
- *      Author: los
+/**
+ * @file Config.hpp
  */
 
 #ifndef ZEPHYR_CORE_CONFIG_HPP_

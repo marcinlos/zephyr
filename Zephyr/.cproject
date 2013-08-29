@@ -637,7 +637,6 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="org.eclipse.cdt.core.pathentry">
-		<pathentry excluding="[Subprojects]" kind="src" path=""/>
 		<pathentry include="/home/los/git/zephyr/Zephyr/src" kind="inc" path="" system="true"/>
 		<pathentry include="/home/los/git/zephyr/Zephyr/gmock/include" kind="inc" path="" system="true"/>
 		<pathentry include="/home/los/git/zephyr/Zephyr/gmock/gtest/include" kind="inc" path="" system="true"/>
@@ -889,6 +888,9 @@
 		<pathentry kind="mac" name="__x86_64__" path="" value="1"/>
 		<pathentry kind="mac" name="linux" path="" value="1"/>
 		<pathentry kind="mac" name="unix" path="" value="1"/>
+		<pathentry excluding="[Subprojects]|src/|test/" kind="src" path=""/>
+		<pathentry kind="src" path="src"/>
+		<pathentry kind="src" path="test"/>
 		<pathentry excluding="**/CMakeFiles/" kind="out" path=""/>
 		<pathentry kind="con" path="org.eclipse.cdt.make.core.DISCOVERED_SCANNER_INFO"/>
 	</storageModule>

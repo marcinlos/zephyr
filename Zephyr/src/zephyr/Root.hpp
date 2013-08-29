@@ -1,8 +1,5 @@
-/*
- * Root.hpp
- *
- *  Created on: Jun 29, 2013
- *      Author: los
+/**
+ * @file Root.hpp
  */
 
 #ifndef ZEPHYR_ROOT_HPP_

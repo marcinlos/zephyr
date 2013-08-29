@@ -1,8 +1,5 @@
-/*
- * Window.hpp
- *
- *  Created on: Jun 30, 2013
- *      Author: los
+/**
+ * @file Window.hpp
  */
 
 #ifndef ZEPHYR_GFX_WINDOW_H_

@@ -1,8 +1,5 @@
-/*
- * Scheduler.hpp
- *
- *  Created on: Jun 27, 2013
- *      Author: los
+/**
+ * @file Scheduler.hpp
  */
 
 #ifndef ZEPHYR_CORE_SCHEDULER_HPP_

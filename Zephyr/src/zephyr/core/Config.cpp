@@ -1,9 +1,3 @@
-/*
- * Config.cpp
- *
- *  Created on: Jun 29, 2013
- *      Author: los
- */
 
 #include <zephyr/core/Config.hpp>
 #include <boost/property_tree/xml_parser.hpp>
