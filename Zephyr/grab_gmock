@@ -1,0 +1,21 @@
+#!/bin/bash
+
+DIR="$(cd "$(dirname $( readlink -f "${0}" ) )" && pwd )"
+
+echo "dir: ${DIR}"
+GMOCK_DIR=${DIR}/gmock
+GTEST_DIR=${GMOCK_DIR}/gtest
+
+svn co http://googlemock.googlecode.com/svn/trunk gmock
+
+OPTS="-isystem ${GTEST_DIR}/include -I${GTEST_DIR}
+     -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR}
+     -pthread"
+
+echo "Options: ${OPTS}"
+
+cd gmock
+
+g++ ${OPTS} -c ${GTEST_DIR}/src/gtest-all.cc
+g++ ${OPTS} -c ${GMOCK_DIR}/src/gmock-all.cc
+ar -rv libgmock.a gtest-all.o gmock-all.o

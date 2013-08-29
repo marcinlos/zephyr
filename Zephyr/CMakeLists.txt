@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 project(Zephyr CXX)
 
+# We use C++11
+add_definitions(-std=c++11)
+
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(SRC src/zephyr)
 
@@ -18,6 +21,10 @@ add_executable(game
     src/example/Speaker.hpp
     src/Zephyr.cpp)
 
+    
+include_directories("${PROJECT_BINARY_DIR}/src")
+
+# Required libraries. Order matters!
 target_link_libraries(game GLEW GLU glfw3 GL X11 Xxf86vm Xrandr pthread Xi)
 
 add_executable(demo
@@ -25,18 +32,15 @@ add_executable(demo
 
 target_link_libraries(demo GL GLEW glfw)
 
-include_directories("${PROJECT_BINARY_DIR}/src")
-
-
-add_definitions(-std=c++11)
 
 # Unit testing
+enable_testing()
 
+# Need to include gmock as it is
 add_subdirectory(gmock)
 include_directories(gmock/include gmock/gtest/include) 
 
-enable_testing()
-
+# Unit test executable
 add_executable(runUnitTests
     test/tests.cpp
     test/failing.cpp
@@ -44,6 +48,7 @@ add_executable(runUnitTests
 
 target_link_libraries(runUnitTests gmock gmock_main)
 
+# Test definitions
 add_test(
     NAME someTest
     COMMAND runUnitTests
