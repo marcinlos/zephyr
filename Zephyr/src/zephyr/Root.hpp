@@ -8,11 +8,9 @@
 #include <zephyr/core/Scheduler.hpp>
 #include <zephyr/core/Config.hpp>
 
-namespace zephyr
-{
+namespace zephyr {
 
-class Root
-{
+class Root {
 public:
     /** Initializes the engine using data from the XML configuration file */
     Root(const std::string& config_stream);
@@ -23,15 +21,19 @@ public:
     /** Runs the main loop */
     void run();
 
-    /** 
-     * @return Task scheduler 
+    /**
+     * @return Task scheduler
      */
-    core::Scheduler& scheduler() { return scheduler_; }
+    core::Scheduler& scheduler() {
+        return scheduler_;
+    }
 
-    /** 
-     * @return Configuration 
+    /**
+     * @return Configuration
      */
-    core::Config& config() { return config_; }
+    core::Config& config() {
+        return config_;
+    }
 
 private:
     core::Scheduler scheduler_;
@@ -40,4 +42,5 @@ private:
 };
 
 } /* namespace zephyr */
+
 #endif /* ZEPHYR_ROOT_HPP_ */

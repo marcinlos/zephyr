@@ -7,10 +7,8 @@
 
 #include <memory>
 
-namespace zephyr
-{
-namespace core
-{
+namespace zephyr {
+namespace core {
 
 /** Pointer type holding the task */
 typedef std::shared_ptr<class Task> TaskPtr;
@@ -19,8 +17,7 @@ typedef std::shared_ptr<class Task> TaskPtr;
  * Base class for tasks scheduled for execution in the main loop. Each
  * iteration, `update()` is called.
  */
-class Task
-{
+class Task {
 public:
 
     /**

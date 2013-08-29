@@ -9,17 +9,14 @@
 #include <istream>
 #include <boost/property_tree/ptree.hpp>
 
-namespace zephyr
-{
-namespace core
-{
+namespace zephyr {
+namespace core {
 
 /**
  * Generic configuration manager. Supports reading and writing configuration
  * using files or arbitrary streams.
  */
-class Config
-{
+class Config {
 public:
 
     /**
@@ -37,7 +34,7 @@ public:
     void loadXML(std::istream& stream);
 
     /** Retrieves the value specified by the path */
-    template <typename T>
+    template<typename T>
     T get(const std::string& path) const;
 
     /**
@@ -46,7 +43,7 @@ public:
      *
      * @param [in] path Path denoting the property, e.g.
      */
-    template <typename T>
+    template<typename T>
     T get(const std::string& path, const T& def) const;
 
 private:
@@ -54,15 +51,13 @@ private:
     boost::property_tree::ptree properties;
 };
 
-template <typename T>
-T Config::get(const std::string& path) const
-{
+template<typename T>
+T Config::get(const std::string& path) const {
     return properties.get<T>(path);
 }
 
-template <typename T>
-T Config::get(const std::string& path, const T& def) const
-{
+template<typename T>
+T Config::get(const std::string& path, const T& def) const {
     return properties.get<T>(path, def);
 }
 

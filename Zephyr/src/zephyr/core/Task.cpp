@@ -1,34 +1,25 @@
-
 #include <zephyr/core/Task.hpp>
 
+namespace zephyr {
+namespace core {
 
-namespace zephyr
-{
-namespace core
-{
-
-void Task::start()
-{
+void Task::start() {
     // empty
 }
 
-void Task::stop()
-{
+void Task::stop() {
     // empty
 }
 
-void Task::suspend()
-{
+void Task::suspend() {
     // empty
 }
 
-void Task::resume()
-{
+void Task::resume() {
     // empty
 }
 
-Task::~Task()
-{
+Task::~Task() {
     // empty
 }
 

@@ -15,24 +15,20 @@
 #include <unordered_map>
 #include <boost/variant.hpp>
 
-
-namespace zephyr
-{
-namespace core
-{
+namespace zephyr {
+namespace core {
 
 /**
  * Generic task scheduler, the very bottom of the application.
  */
-class Scheduler
-{
+class Scheduler {
 public:
     /** Type of the task identifier */
     typedef std::string task_id;
-    
+
     /** Type of the waiting condition identifier */
     typedef std::string queue_id;
-    
+
     /** Type of the task pointer */
     typedef std::shared_ptr<Task> task_ptr;
 
@@ -53,8 +49,7 @@ public:
 
 private:
     /** Task data */
-    struct task_info
-    {
+    struct task_info {
         task_id name;
         int priority;
         task_ptr task;
@@ -64,54 +59,46 @@ private:
      * Structures for keeping delayed operations' arguments
      */
     /// @{
-    struct start_task_cmd
-    {
+    struct start_task_cmd {
         task_id name;
         int priority;
         task_ptr task;
     };
 
-    struct stop_task_cmd
-    {
+    struct stop_task_cmd {
         task_id name;
     };
 
-    struct suspend_task_cmd
-    {
+    struct suspend_task_cmd {
         task_id name;
         queue_id condition;
     };
 
-    struct notify_cmd
-    {
+    struct notify_cmd {
         queue_id condition;
     };
     /// @}
 
     /** Type of the heterogenous operation container */
-    typedef boost::variant<
-        start_task_cmd,
-        stop_task_cmd,
-        suspend_task_cmd,
-        notify_cmd
-    > operation;
+    typedef boost::variant<start_task_cmd, stop_task_cmd, suspend_task_cmd,
+            notify_cmd> operation;
 
     /** Functions performing actual work */
     /// @{
-    void do_start_task_(const task_id& name, int priority, const task_ptr& task);
+    void do_start_task_(const task_id& name, int priority,
+            const task_ptr& task);
     void do_stop_task_(const task_id& name);
     void do_suspend_task_(const task_id& name, const queue_id& condition);
     void do_notify_(const queue_id& condition);
     /// @}
 
     /** Helper class, executing the delayed operations */
-    struct Executor: public boost::static_visitor<void>
-    {
+    struct Executor: public boost::static_visitor<void> {
         Scheduler* const scheduler;
 
         Executor(Scheduler* scheduler)
-        : scheduler(scheduler)
-        { }
+                : scheduler(scheduler) {
+        }
 
         void operator ()(const start_task_cmd& cmd);
         void operator ()(const stop_task_cmd& cmd);

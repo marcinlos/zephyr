@@ -3,34 +3,26 @@
  */
 #include <zephyr/gfx/BufferSwapper.hpp>
 
+namespace zephyr {
+namespace gfx {
 
-namespace zephyr 
-{
-namespace gfx 
-{
-
-void BufferSwapper::start()
-{
+void BufferSwapper::start() {
     // empty
 }
 
-void BufferSwapper::stop()
-{
+void BufferSwapper::stop() {
     // empty
 }
 
-void BufferSwapper::suspend()
-{
-    // empty
-}
-    
-void BufferSwapper::resume()
-{
+void BufferSwapper::suspend() {
     // empty
 }
 
-void BufferSwapper::update()
-{
+void BufferSwapper::resume() {
+    // empty
+}
+
+void BufferSwapper::update() {
     window_.swapBuffers();
 }
 

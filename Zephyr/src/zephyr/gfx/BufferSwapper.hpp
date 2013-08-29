@@ -8,22 +8,19 @@
 #include <zephyr/core/Task.hpp>
 #include <zephyr/gfx/Window.hpp>
 
-namespace zephyr
-{
-namespace gfx
-{
+namespace zephyr {
+namespace gfx {
 
 /**
  * Task invoking Window#swapBuffers method for every update.
  */
-class BufferSwapper : public core::Task
-{
+class BufferSwapper: public core::Task {
 public:
-    
+
     BufferSwapper(const Window& window)
     : window_(window)
     { }
-    
+
     /** Empty */
     void start() override;
 
@@ -38,7 +35,7 @@ public:
 
     /** Swaps buffer of the associated window */
     void update() override;
-    
+
 private:
     /** Window whose buffers are swapped by this task */
     const Window& window_;

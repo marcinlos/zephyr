@@ -1,25 +1,19 @@
-
 #include <zephyr/Root.hpp>
 #include <iostream>
 
-namespace zephyr
-{
+namespace zephyr {
 
-
-Root::Root(const std::string& config_path)
-{
-    std::cout << "[Root] Reading configuration from \"" << config_path 
-        << "\"" << std::endl;
+Root::Root(const std::string& config_path) {
+    std::cout << "[Root] Reading configuration from \""
+            << config_path << "\"" << std::endl;
     config_.loadXML(config_path);
 }
 
-Root::Root(std::istream& config_stream)
-{
+Root::Root(std::istream& config_stream) {
     config_.loadXML(config_stream);
 }
 
-void Root::run()
-{
+void Root::run() {
     scheduler_.run();
 }
 
