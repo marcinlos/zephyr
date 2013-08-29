@@ -114,6 +114,16 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>[Subprojects]/gmock</name>
+			<type>2</type>
+			<location>/home/los/git/zephyr/Zephyr/gmock</location>
+		</link>
+		<link>
+			<name>[Subprojects]/gtest</name>
+			<type>2</type>
+			<location>/home/los/git/zephyr/Zephyr/gmock/gtest</location>
+		</link>
+		<link>
 			<name>[Targets]</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -194,6 +204,21 @@
 			<location>/home/los/git/zephyr/Zephyr/src/zephyr/core/Config.cpp</location>
 		</link>
 		<link>
+			<name>[Targets]/[exe] game/Source Files/init.cpp</name>
+			<type>1</type>
+			<location>/home/los/git/zephyr/Zephyr/src/zephyr/glfw/init.cpp</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] game/Source Files/Window.cpp</name>
+			<type>1</type>
+			<location>/home/los/git/zephyr/Zephyr/src/zephyr/gfx/Window.cpp</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] game/Source Files/BufferSwapper.cpp</name>
+			<type>1</type>
+			<location>/home/los/git/zephyr/Zephyr/src/zephyr/gfx/BufferSwapper.cpp</location>
+		</link>
+		<link>
 			<name>[Targets]/[exe] game/Source Files/Zephyr.cpp</name>
 			<type>1</type>
 			<location>/home/los/git/zephyr/Zephyr/src/Zephyr.cpp</location>
@@ -240,6 +265,226 @@
 		</link>
 		<link>
 			<name>[Targets]/[exe] game/Object Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] runUnitTests</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] runUnitTests/</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] runUnitTests/Source Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] runUnitTests/Source Files/tests.cpp</name>
+			<type>1</type>
+			<location>/home/los/git/zephyr/Zephyr/test/tests.cpp</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] runUnitTests/Source Files/failing.cpp</name>
+			<type>1</type>
+			<location>/home/los/git/zephyr/Zephyr/test/failing.cpp</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] runUnitTests/Header Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] runUnitTests/CMake Rules</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] runUnitTests/Resources</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] runUnitTests/Object Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock/</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock/Source Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock/Source Files/gtest-all.cc</name>
+			<type>1</type>
+			<location>/home/los/git/zephyr/Zephyr/gmock/gtest/src/gtest-all.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock/Source Files/gmock-all.cc</name>
+			<type>1</type>
+			<location>/home/los/git/zephyr/Zephyr/gmock/src/gmock-all.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock/Header Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock/CMake Rules</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock/Resources</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock/Object Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock_main</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock_main/</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock_main/Source Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock_main/Source Files/gtest-all.cc</name>
+			<type>1</type>
+			<location>/home/los/git/zephyr/Zephyr/gmock/gtest/src/gtest-all.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock_main/Source Files/gmock-all.cc</name>
+			<type>1</type>
+			<location>/home/los/git/zephyr/Zephyr/gmock/src/gmock-all.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock_main/Source Files/gmock_main.cc</name>
+			<type>1</type>
+			<location>/home/los/git/zephyr/Zephyr/gmock/src/gmock_main.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock_main/Header Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock_main/CMake Rules</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock_main/Resources</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gmock_main/Object Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest/</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest/Source Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest/Source Files/gtest-all.cc</name>
+			<type>1</type>
+			<location>/home/los/git/zephyr/Zephyr/gmock/gtest/src/gtest-all.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest/Header Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest/CMake Rules</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest/Resources</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest/Object Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest_main</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest_main/</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest_main/Source Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest_main/Source Files/gtest_main.cc</name>
+			<type>1</type>
+			<location>/home/los/git/zephyr/Zephyr/gmock/gtest/src/gtest_main.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest_main/Header Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest_main/CMake Rules</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest_main/Resources</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] gtest_main/Object Files</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
