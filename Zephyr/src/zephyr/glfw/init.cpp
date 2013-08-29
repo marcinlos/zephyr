@@ -14,10 +14,16 @@
 namespace
 {
 
+void errorCallback(int code, const char* description)
+{
+    std::cerr << "[Error " << code << "]: " << description << std::endl;
+}
+    
 struct InitGLFW
 {
     InitGLFW() 
     { 
+        glfwSetErrorCallback(errorCallback);
         if (!glfwInit())
         {
             std::cerr << "GLFW error!" << std::endl;

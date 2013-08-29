@@ -3,6 +3,7 @@ project(Zephyr CXX)
 
 # We use C++11
 add_definitions(-std=c++11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
 
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(SRC src/zephyr)
@@ -16,6 +17,7 @@ add_executable(game
     ${SRC}/core/Task.cpp
     ${SRC}/core/Config.hpp
     ${SRC}/core/Config.cpp
+    ${SRC}/glfw/init.cpp
     ${SRC}/gfx/Window.cpp
     ${SRC}/gfx/BufferSwapper.cpp
     src/example/Speaker.hpp

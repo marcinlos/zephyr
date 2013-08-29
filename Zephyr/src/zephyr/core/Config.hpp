@@ -60,13 +60,13 @@ private:
 template <typename T>
 T Config::get(const std::string& path) const
 {
-    properties.get<T>(path);
+    return properties.get<T>(path);
 }
 
 template <typename T>
 T Config::get(const std::string& path, const T& def) const
 {
-    properties.get<T>(path, def);
+    return properties.get<T>(path, def);
 }
 
 } /* namespace core */

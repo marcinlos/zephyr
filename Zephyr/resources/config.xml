@@ -2,6 +2,7 @@
   <window>
     <width>1024</width>
     <height>768</height>
+    <title>Zephyr</title>
     <fullscreen>no</fullscreen>
   </window>
 </zephyr>

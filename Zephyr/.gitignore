@@ -6,3 +6,4 @@
 /.kdev4/
 Zephyr.kdev4
 CTestTestfile.cmake
+gmock
