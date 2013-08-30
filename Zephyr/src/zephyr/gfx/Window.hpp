@@ -7,6 +7,7 @@
 
 #include <string>
 #include <GLFW/glfw3.h>
+#include <zephyr/input/InputListener.hpp>
 
 namespace zephyr
 {
@@ -30,7 +31,9 @@ public:
      */
     ~Window();
 
-    void pollEvents();
+    void setListener(input::InputListener* inputListener);
+
+    void pollEvents() const;
     
     /**
      * Swaps graphic buffers of the window.
@@ -38,7 +41,58 @@ public:
     void swapBuffers() const;
     
 private:
-    GLFWwindow* window_; 
+    /** Underlying window object */
+    GLFWwindow* window_;
+
+    /** Listener receiving information about user input */
+    input::InputListener* inputListener_;
+
+
+    void mouseButtonHandler(int button, int action, int mods);
+
+    void cursorMoveHandler(double x, double y);
+
+    void cursorEnterHandler(int entered);
+
+    void scrollHandler(double dx, double dy);
+
+    void keyHandler(int key, int scancode, int action, int mods);
+
+    void setupListeners();
+
+    /**
+     * Helper function, extracts @ref Window pointer from GLFWwindow.
+     */
+    static Window* getWindow(GLFWwindow* window);
+
+    /**
+     * Static member function used as mouse button press/release events callback.
+     */
+    static void mouseButtonHandler(GLFWwindow* window, int button, int action,
+            int mods);
+
+    /**
+     * Static member function used as mouse move callback.
+     */
+    static void cursorMoveHandler(GLFWwindow* window, double x, double y);
+
+    /**
+     * Static member function used as callback for events caused by cursor
+     * entering/leaving the window.
+     */
+    static void cursorEnterHandler(GLFWwindow* window, int entered);
+
+    /**
+     * Static member function used as callback for scrolling events.
+     */
+    static void scrollHandler(GLFWwindow* window, double dx, double dy);
+
+    /**
+     * Static member function used as callback for keyboard events.
+     */
+    static void keyHandler(GLFWwindow* window, int key, int scancode,
+            int action, int mods);
+
 };
 
 } /* namespace gfx */
