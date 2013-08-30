@@ -38,10 +38,14 @@ enable_testing()
 add_subdirectory(gmock)
 include_directories(gmock/include gmock/gtest/include) 
 
+set(TSRC test/zephyr)
+
 # Unit test executable
 add_executable(runUnitTests
-    test/tests.cpp
-    test/failing.cpp
+    ${SRC}/core/MessageDispatcher.cpp
+    ${TSRC}/core/MessageDispatcher_test.cpp
+    ${SRC}/core/MessageQueue.cpp
+    ${TSRC}/core/MessageQueue_test.cpp
 )
 
 target_link_libraries(runUnitTests gmock gmock_main)

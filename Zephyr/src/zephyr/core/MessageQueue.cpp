@@ -18,13 +18,15 @@ Message MessageQueue::pop() {
     return popMessageNoLock();
 }
 
-
 Message MessageQueue::popMessageNoLock() {
-    Message message = messages_.front();
-    messages_.pop();
-    return message;
+    if (!messages_.empty()) {
+        Message message = messages_.front();
+        messages_.pop();
+        return message;
+    } else {
+        throw std::runtime_error("Cannot take message from empty queue");
+    }
 }
-
 
 } /* namespace core */
 } /* namespace zephyr */

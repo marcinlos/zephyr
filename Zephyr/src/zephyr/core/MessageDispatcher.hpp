@@ -16,6 +16,7 @@ namespace core {
 
 class MessageDispatcher {
 public:
+
     typedef std::function<void (const Message&)> Handler;
 
     void registerHandler(std::uint32_t name, Handler handler);
@@ -23,8 +24,6 @@ public:
     void dispatch(const Message& message);
 
 private:
-
-
 
     std::unordered_multimap<std::uint32_t, Handler> handlers_;
 

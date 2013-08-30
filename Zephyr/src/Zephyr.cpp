@@ -14,6 +14,8 @@
 #include <zephyr/gfx/BufferSwapper.hpp>
 #include <example/Speaker.hpp>
 
+#include <zephyr/input/KeyEvent.hpp>
+
 using namespace zephyr;
 
 int main(int argc, char* argv[]) {
