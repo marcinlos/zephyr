@@ -18,10 +18,10 @@ namespace window {
 WindowSystem::WindowSystem(Context ctx)
 : config_(ctx.config)
 {
-    std::cout << "Initializing the window subsystem" << std::endl;
+    std::cout << "[Window] Initializing the subsystem" << std::endl;
     window_ = createWindow();
     runTasks(ctx.scheduler);
-    std::cout << "Window subsystem initialized" << std::endl;
+    std::cout << "[Window] Subsystem initialized" << std::endl;
 }
 
 
@@ -31,14 +31,16 @@ std::unique_ptr<Window> WindowSystem::createWindow() {
     int height = config_.get("zephyr.window.height", 600);
     std::string title = config_.get<std::string>("zephyr.window.title");
 
-    std::cout << "Window size: " << width << "x" << height << std::endl;
+    std::cout << "[Window] Size: " << width << "x" << height << std::endl;
     return util::make_unique<Window>(width, height, title);
 }
 
 void WindowSystem::runTasks(core::Scheduler& scheduler) {
+    std::cout << "[Window] Registering swapper - " << SWAPPER_PRIORITY << std::endl;
     core::TaskPtr swapper = std::make_shared<BufferSwapper>(*window_);
     scheduler.startTask(SWAPPER_NAME, SWAPPER_PRIORITY, swapper);
 
+    std::cout << "[Window] Registering poller - " << WINDOW_POLLER_PRIORITY << std::endl;
     core::TaskPtr poller = std::make_shared<EventPoller>(*window_);
     scheduler.startTask(WINDOW_POLLER_NAME, WINDOW_POLLER_PRIORITY, poller);
 }

@@ -7,6 +7,8 @@
 #include <memory>
 
 
+#include <zephyr/gfx/HackyRenderer.hpp>
+
 namespace zephyr {
 
 using namespace core;
@@ -27,14 +29,19 @@ Root::Root(std::istream& configStream) {
 
 void Root::setup() {
     std::cout << "[Root] Creating dispatch task" << std::endl;
-    Context ctx {config_, messageQueue_, dispatcher_, scheduler_};
     runCoreTasks();
+
+    Context ctx {config_, messageQueue_, dispatcher_, scheduler_};
     window_ = std::move(util::make_unique<window::WindowSystem>(ctx));
+
+    TaskPtr task = std::make_shared<gfx::HackyRenderer>(ctx);
+    scheduler_.startTask("hacky-renderer", 500000, task);
 
     std::cout << "[Root] Initialization completed" << std::endl;
 }
 
 void Root::runCoreTasks() {
+
     TaskPtr task = std::make_shared<DispatcherTask>(messageQueue_, dispatcher_);
     scheduler_.startTask(DISPATCHER_NAME, DISPATCHER_PRIORITY, task);
 }
