@@ -14,7 +14,7 @@ namespace zephyr {
 namespace core {
 
 /**
- * Thread-safe queue holding messages.
+ * Thread-safe queue for internal communication via messages.
  */
 class MessageQueue {
 public:

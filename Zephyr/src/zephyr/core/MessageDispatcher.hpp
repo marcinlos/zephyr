@@ -13,21 +13,42 @@
 namespace zephyr {
 namespace core {
 
-
+/**
+ * Synchronous message dispatcher. Receivers can register callback.
+ */
 class MessageDispatcher {
 public:
 
+    /** Type of the callbacks invoked during dispatching */
     typedef std::function<void (const Message&)> Handler;
 
-    void registerHandler(std::uint32_t name, Handler handler);
+    /**
+     * Adds new handler callback for the specified receiver.
+     *
+     * @param receiver Id of the receiver category
+     * @param handler Callback used to deliver the message
+     */
+    void registerHandler(std::uint32_t receiver, Handler handler);
 
-    void dispatch(const Message& message);
+    /**
+     * Dispatches synchronously the specified message.
+     */
+    virtual void dispatch(const Message& message);
+
+    virtual ~MessageDispatcher() { }
 
 private:
-
+    /** Mapping (id -> handlers) */
     std::unordered_multimap<std::uint32_t, Handler> handlers_;
 
 };
+
+template <typename Class>
+void registerHandler(MessageDispatcher& dispatcher, std::uint32_t receiver,
+        Class* object, void (Class::*handler)(const Message&)) {
+    auto callback = std::bind(handler, object, std::placeholders::_1);
+    dispatcher.registerHandler(receiver, callback);
+}
 
 } /* namespace core */
 } /* namespace zephyr */

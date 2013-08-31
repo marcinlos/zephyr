@@ -10,8 +10,9 @@
 namespace zephyr {
 namespace core {
 
-void MessageDispatcher::registerHandler(std::uint32_t name, Handler handler) {
-    handlers_.emplace(name, handler);
+void MessageDispatcher::registerHandler(std::uint32_t receiver,
+        Handler handler) {
+    handlers_.emplace(receiver, handler);
 }
 
 void MessageDispatcher::dispatch(const Message& message) {

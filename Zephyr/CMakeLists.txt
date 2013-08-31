@@ -50,6 +50,9 @@ add_executable(runUnitTests
     ${TSRC}/core/MessageDispatcher_test.cpp
     ${SRC}/core/MessageQueue.cpp
     ${TSRC}/core/MessageQueue_test.cpp
+    ${SRC}/core/Task.cpp
+    ${SRC}/core/DispatcherTask.cpp
+    ${TSRC}/core/DispatcherTask_test.cpp
 )
 
 target_link_libraries(runUnitTests gmock gmock_main)

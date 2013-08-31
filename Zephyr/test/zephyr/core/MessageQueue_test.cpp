@@ -1,8 +1,5 @@
-/*
- * MessageQueue_test.cpp
- *
- *  Created on: Aug 29, 2013
- *      Author: los
+/**
+ * @file MessageQueue_test.cpp
  */
 
 #include <zephyr/core/MessageQueue.hpp>
@@ -40,6 +37,7 @@ TEST(MessageQueueTest, CanFetchPostedMessage) {
     EXPECT_EQ(message.target, popped.target);
     EXPECT_EQ(message.type, popped.type);
 }
+
 
 } /* namespace core */
 } /* namespace zephyr */

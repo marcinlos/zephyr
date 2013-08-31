@@ -1,8 +1,5 @@
-/*
- * MessageDispatcher_test.cpp
- *
- *  Created on: Aug 29, 2013
- *      Author: los
+/**
+ * @file MessageDispatcher_test.cpp
  */
 
 #include <zephyr/core/MessageDispatcher.hpp>
@@ -11,6 +8,7 @@
 #include <gtest/gtest.h>
 
 using ::testing::_;
+using namespace std::placeholders;
 
 namespace zephyr {
 namespace core {
@@ -25,10 +23,7 @@ TEST(MessageDispatcherTest, CanDeliverMessage) {
     HandlerMock mock;
     EXPECT_CALL(mock, handle(_));
 
-    using namespace std::placeholders;
-
-    auto callback = std::bind(&HandlerMock::handle, &mock, _1);
-    dispatcher.registerHandler(666, callback);
+    registerHandler(dispatcher, 666, &mock, &HandlerMock::handle);
     dispatcher.dispatch({666, 10, std::string("some string")});
 }
 
@@ -37,8 +32,6 @@ TEST(MessageDispatcherTest, CanDeliverMessageToMultipleListeners) {
     HandlerMock firstMock, secondMock;
     EXPECT_CALL(firstMock, handle(_));
     EXPECT_CALL(secondMock, handle(_));
-
-    using namespace std::placeholders;
 
     auto firstCallback = std::bind(&HandlerMock::handle, &firstMock, _1);
     auto secondCallback = std::bind(&HandlerMock::handle, &secondMock, _1);
