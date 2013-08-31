@@ -32,6 +32,22 @@ TEST(MessageDispatcherTest, CanDeliverMessage) {
     dispatcher.dispatch({666, 10, std::string("some string")});
 }
 
+TEST(MessageDispatcherTest, CanDeliverMessageToMultipleListeners) {
+    MessageDispatcher dispatcher;
+    HandlerMock firstMock, secondMock;
+    EXPECT_CALL(firstMock, handle(_));
+    EXPECT_CALL(secondMock, handle(_));
+
+    using namespace std::placeholders;
+
+    auto firstCallback = std::bind(&HandlerMock::handle, &firstMock, _1);
+    auto secondCallback = std::bind(&HandlerMock::handle, &secondMock, _1);
+
+    dispatcher.registerHandler(666, firstCallback);
+    dispatcher.registerHandler(666, secondCallback);
+    dispatcher.dispatch({666, 10, std::string("some string")});
+}
+
 
 
 } /* namespace core */
