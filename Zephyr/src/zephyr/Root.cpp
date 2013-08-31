@@ -5,6 +5,8 @@
 #include <zephyr/gfx/BufferSwapper.hpp>
 #include <zephyr/gfx/EventPoller.hpp>
 
+#include <zephyr/time/TimeSource.hpp>
+
 #include <zephyr/util/make_unique.hpp>
 
 #include <iostream>
@@ -31,31 +33,16 @@ Root::Root(std::istream& configStream) {
 
 void Root::setup() {
     std::cout << "[Root] Creating dispatch task" << std::endl;
-
-    window_ = createWindow();
+    Context ctx {config_, messageQueue_, dispatcher_, scheduler_};
     runCoreTasks();
+    window_ = util::make_unique<gfx::WindowSystem>(ctx);
 
     std::cout << "[Root] Initialization completed" << std::endl;
-}
-
-std::unique_ptr<gfx::Window> Root::createWindow() {
-    int width = config_.get("zephyr.window.width", 800);
-    int height = config_.get("zephyr.window.height", 600);
-    std::string title = config_.get<std::string>("zephyr.window.title");
-
-    std::cout << "Window size: " << width << "x" << height << std::endl;
-    return util::make_unique<gfx::Window>(width, height, title);
 }
 
 void Root::runCoreTasks() {
     TaskPtr task = std::make_shared<DispatcherTask>(messageQueue_, dispatcher_);
     scheduler_.startTask(DISPATCHER_NAME, DISPATCHER_PRIORITY, task);
-
-    core::TaskPtr swapper = std::make_shared<gfx::BufferSwapper>(*window_);
-    scheduler_.startTask(SWAPPER_NAME, SWAPPER_PRIORITY, swapper);
-
-    core::TaskPtr poller = std::make_shared<gfx::EventPoller>(*window_);
-    scheduler_.startTask(WINDOW_POLLER_NAME, WINDOW_POLLER_PRIORITY, poller);
 }
 
 void Root::run() {

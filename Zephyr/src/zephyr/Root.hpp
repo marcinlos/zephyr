@@ -9,7 +9,8 @@
 #include <zephyr/core/Config.hpp>
 #include <zephyr/core/MessageQueue.hpp>
 #include <zephyr/core/DispatcherTask.hpp>
-#include <zephyr/gfx/Window.hpp>
+#include <zephyr/gfx/WindowSystem.hpp>
+#include <zephyr/time/TimeSource.hpp>
 #include <string>
 
 namespace zephyr {
@@ -81,17 +82,14 @@ private:
     core::MessageQueue messageQueue_;
     core::MessageDispatcher dispatcher_;
 
-    std::unique_ptr<gfx::Window> window_;
+    time::TimeSource timeSource_;
+
+    std::unique_ptr<gfx::WindowSystem> window_;
 
     /**
      * Initializes all the immediately necessary subsystems.
      * */
     void setup();
-
-    /**
-     * Creates window subsystem.
-     */
-    std::unique_ptr<gfx::Window> createWindow();
 
     /**
      * Creates and runs crucial tasks:

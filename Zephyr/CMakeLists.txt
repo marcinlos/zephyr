@@ -22,6 +22,7 @@ add_executable(game
     ${SRC}/glfw/init.cpp
     ${SRC}/glfw/input_adapter.cpp
     ${SRC}/gfx/Window.cpp
+    ${SRC}/gfx/WindowSystem.cpp
     ${SRC}/input/Key.cpp
     ${SRC}/Root.cpp
     src/Zephyr.cpp)
