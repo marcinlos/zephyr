@@ -60,8 +60,21 @@ private:
     core::MessageDispatcher dispatcher_;
 
     std::unique_ptr<gfx::Window> window_;
-public:
+
+    /**
+     * Initializes all the immediately necessary subsystems.
+     * */
     void setup();
+
+    /**
+     * Creates window subsystem.
+     */
+    std::unique_ptr<gfx::Window> createWindow();
+
+    /**
+     * Creates and runs crucial tasks:
+     */
+    void runCoreTasks();
 
 };
 
