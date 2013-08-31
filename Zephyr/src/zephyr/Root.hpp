@@ -9,6 +9,7 @@
 #include <zephyr/core/Config.hpp>
 #include <zephyr/core/MessageQueue.hpp>
 #include <zephyr/core/DispatcherTask.hpp>
+#include <zephyr/gfx/Window.hpp>
 #include <string>
 
 namespace zephyr {
@@ -19,7 +20,7 @@ public:
     /** Name of the dispatcher task, as registered in the schedulre */
     static constexpr char DISPATCHER_NAME[] = "dispatcher-task";
 
-    static const int DISPATCH_PRIORITY = 100;
+    static const int DISPATCHER_PRIORITY = 100;
 
     /** Initializes the engine using data from the XML configuration file */
     Root(const std::string& configStream);
@@ -58,7 +59,9 @@ private:
     core::MessageQueue messageQueue_;
     core::MessageDispatcher dispatcher_;
 
-    void setupDispatchTask();
+    std::unique_ptr<gfx::Window> window_;
+public:
+    void setup();
 
 };
 

@@ -13,7 +13,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(SRC src/zephyr)
 
 add_executable(game
-    ${SRC}/Root.cpp
     ${SRC}/core/Scheduler.cpp
     ${SRC}/core/Task.cpp
     ${SRC}/core/MessageQueue.cpp
@@ -22,6 +21,7 @@ add_executable(game
     ${SRC}/core/Config.cpp
     ${SRC}/glfw/init.cpp
     ${SRC}/gfx/Window.cpp
+    ${SRC}/Root.cpp
     src/Zephyr.cpp)
 
     

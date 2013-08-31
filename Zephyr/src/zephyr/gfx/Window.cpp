@@ -18,6 +18,7 @@ Window::Window(int width, int height, const std::string& title)
         throw std::runtime_error("Window initialization failure");
     }
     glfwSetWindowUserPointer(window_, this);
+    glfwMakeContextCurrent(window_);
     setupListeners();
 }
 
