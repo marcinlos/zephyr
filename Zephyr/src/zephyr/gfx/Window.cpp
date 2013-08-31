@@ -1,5 +1,10 @@
-#include <stdexcept>
+/**
+ * @file Window.cpp
+ */
+
 #include <zephyr/gfx/Window.hpp>
+#include <zephyr/glfw/input_adapter.hpp>
+#include <stdexcept>
 #include <iostream>
 
 namespace zephyr {
@@ -101,7 +106,9 @@ void Window::scrollHandler(double dx, double dy) {
 }
 
 void Window::keyHandler(int key, int scancode, int action, int mods) {
-    KeyEvent event { Key::UP, KeyEvent::Type::DOWN, Mod::SHIFT };
+    KeyEvent event = glfw::eventFromGLFW(key, action, mods);
+
+    std::cout << event << std::endl;
 
     if (inputListener_ != nullptr) {
         inputListener_->keyEvent(event);

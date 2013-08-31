@@ -7,6 +7,7 @@
 
 #include <zephyr/input/Key.hpp>
 #include <zephyr/input/Mod.hpp>
+#include <zephyr/util/format.hpp>
 #include <iostream>
 
 
@@ -30,6 +31,25 @@ struct KeyEvent {
     Type type;
     Mod mod;
 };
+
+inline const char* to_string(KeyEvent::Type type) {
+    switch (type) {
+    case KeyEvent::Type::DOWN:   return "down";
+    case KeyEvent::Type::UP:     return "up";
+    case KeyEvent::Type::REPEAT: return "repeat";
+    default:
+        throw std::runtime_error("Invalid key event type");
+    }
+}
+
+inline std::ostream& operator << (std::ostream& os, KeyEvent::Type type) {
+    return os << to_string(type);
+}
+
+inline std::ostream& operator << (std::ostream& os, const KeyEvent& event) {
+    return os << util::format("KeyEvent{key={}, {}, with={}}", event.key,
+            event.type, event.mod);
+}
 
 
 } /* namespace input */

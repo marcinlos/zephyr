@@ -10,11 +10,11 @@
 #include <string>
 #include <utility>
 
-namespace mahler {
+namespace zephyr {
 namespace util {
 
 /** String used to denote places where arguments are to be inserted */
-constexpr std::string PLACEHOLDER = "{}";
+const std::string PLACEHOLDER = "{}";
 
 namespace {
 
