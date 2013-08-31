@@ -21,6 +21,7 @@ add_executable(game
     ${SRC}/core/Config.cpp
     ${SRC}/glfw/init.cpp
     ${SRC}/gfx/Window.cpp
+    ${SRC}/input/Key.cpp
     ${SRC}/Root.cpp
     src/Zephyr.cpp)
 

@@ -7,6 +7,8 @@
 #ifndef ZEPHYR_INPUT_KEY_HPP_
 #define ZEPHYR_INPUT_KEY_HPP_
 
+#include <iostream>
+
 namespace zephyr {
 namespace input {
 
@@ -125,8 +127,14 @@ enum class Key {
     LAST = UNKNOWN
 };
 
+constexpr const char* to_string(Key key);
+
+inline std::ostream& operator << (std::ostream& os, Key key) {
+    return os << to_string(key);
 }
-}
+
+} /* namespace input */
+} /* namespace zephyr */
 
 
 #endif /* ZEPHYR_INPUT_KEY_HPP_ */
