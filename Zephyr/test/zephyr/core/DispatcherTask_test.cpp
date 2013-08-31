@@ -2,7 +2,7 @@
  * @file DispatcherTask_test.cpp
  */
 
-#include <zephyr/core/DispatcherTask.h>
+#include <zephyr/core/DispatcherTask.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

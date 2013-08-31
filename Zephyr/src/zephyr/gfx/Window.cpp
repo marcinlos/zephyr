@@ -39,6 +39,7 @@ void Window::setupListeners() {
     glfwSetCursorEnterCallback(window_, &Window::cursorEnterHandler);
     glfwSetScrollCallback(window_, &Window::scrollHandler);
     glfwSetKeyCallback(window_, &Window::keyHandler);
+    std::cout << "Callback installed" << std::endl;
 }
 
 void Window::setListener(input::InputListener* inputListener) {
@@ -65,8 +66,8 @@ void Window::cursorMoveHandler(GLFWwindow* window, double x, double y) {
 
 void Window::cursorEnterHandler(GLFWwindow* window, int entered) {
     if (Window* wnd = getWindow(window)) {
-            wnd->cursorEnterHandler(entered);
-        }
+        wnd->cursorEnterHandler(entered);
+    }
 }
 
 void Window::scrollHandler(GLFWwindow* window, double dx, double dy) {

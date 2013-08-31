@@ -18,6 +18,7 @@ add_executable(game
     ${SRC}/core/Task.cpp
     ${SRC}/core/MessageQueue.cpp
     ${SRC}/core/MessageDispatcher.cpp
+    ${SRC}/core/DispatcherTask.cpp
     ${SRC}/core/Config.cpp
     ${SRC}/glfw/init.cpp
     ${SRC}/gfx/Window.cpp

@@ -1,5 +1,5 @@
 
-#include <zephyr/core/DispatcherTask.h>
+#include <zephyr/core/DispatcherTask.hpp>
 #include <vector>
 #include <iterator>
 

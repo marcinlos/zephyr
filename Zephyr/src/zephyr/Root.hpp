@@ -7,13 +7,22 @@
 
 #include <zephyr/core/Scheduler.hpp>
 #include <zephyr/core/Config.hpp>
+#include <zephyr/core/MessageQueue.hpp>
+#include <zephyr/core/DispatcherTask.hpp>
+#include <string>
 
 namespace zephyr {
 
 class Root {
 public:
+
+    /** Name of the dispatcher task, as registered in the schedulre */
+    static constexpr char DISPATCHER_NAME[] = "dispatcher-task";
+
+    static const int DISPATCH_PRIORITY = 100;
+
     /** Initializes the engine using data from the XML configuration file */
-    Root(const std::string& config_stream);
+    Root(const std::string& configStream);
 
     /** Initializes the engine using data from the XML configuration stream */
     Root(std::istream& config);
@@ -35,9 +44,21 @@ public:
         return config_;
     }
 
+    /**
+     * @return Message dispatcher
+     */
+    core::MessageDispatcher& dispatcher() {
+        return dispatcher_;
+    }
+
 private:
     core::Scheduler scheduler_;
     core::Config config_;
+
+    core::MessageQueue messageQueue_;
+    core::MessageDispatcher dispatcher_;
+
+    void setupDispatchTask();
 
 };
 
