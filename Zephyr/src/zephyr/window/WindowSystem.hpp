@@ -5,13 +5,13 @@
 #ifndef ZEPHYR_GFX_WINDOWSYSTEM_HPP_
 #define ZEPHYR_GFX_WINDOWSYSTEM_HPP_
 
-#include <zephyr/gfx/Window.hpp>
+#include <zephyr/window/Window.hpp>
 #include <zephyr/Context.hpp>
 #include <memory>
 
 
 namespace zephyr {
-namespace gfx {
+namespace window {
 
 /**
  * Handles details of window creation and integration with the rest of the
@@ -42,12 +42,12 @@ public:
 private:
     core::Config& config_;
 
-    std::unique_ptr<gfx::Window> window_;
+    std::unique_ptr<Window> window_;
 
     /**
      * Creates window subsystem.
      */
-    std::unique_ptr<gfx::Window> createWindow();
+    std::unique_ptr<Window> createWindow();
 
     /**
      * Runs window-specific tasks.

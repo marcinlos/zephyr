@@ -5,14 +5,14 @@
  *      Author: los
  */
 
-#include <zephyr/gfx/WindowSystem.hpp>
-#include <zephyr/gfx/BufferSwapper.hpp>
-#include <zephyr/gfx/EventPoller.hpp>
+#include <zephyr/window/WindowSystem.hpp>
+#include <zephyr/window/BufferSwapper.hpp>
+#include <zephyr/window/EventPoller.hpp>
 #include <zephyr/util/make_unique.hpp>
 #include <iostream>
 
 namespace zephyr {
-namespace gfx {
+namespace window {
 
 
 WindowSystem::WindowSystem(Context ctx)
@@ -26,20 +26,20 @@ WindowSystem::WindowSystem(Context ctx)
 
 
 
-std::unique_ptr<gfx::Window> WindowSystem::createWindow() {
+std::unique_ptr<Window> WindowSystem::createWindow() {
     int width = config_.get("zephyr.window.width", 800);
     int height = config_.get("zephyr.window.height", 600);
     std::string title = config_.get<std::string>("zephyr.window.title");
 
     std::cout << "Window size: " << width << "x" << height << std::endl;
-    return util::make_unique<gfx::Window>(width, height, title);
+    return util::make_unique<Window>(width, height, title);
 }
 
 void WindowSystem::runTasks(core::Scheduler& scheduler) {
-    core::TaskPtr swapper = std::make_shared<gfx::BufferSwapper>(*window_);
+    core::TaskPtr swapper = std::make_shared<BufferSwapper>(*window_);
     scheduler.startTask(SWAPPER_NAME, SWAPPER_PRIORITY, swapper);
 
-    core::TaskPtr poller = std::make_shared<gfx::EventPoller>(*window_);
+    core::TaskPtr poller = std::make_shared<EventPoller>(*window_);
     scheduler.startTask(WINDOW_POLLER_NAME, WINDOW_POLLER_PRIORITY, poller);
 }
 
@@ -48,5 +48,5 @@ void WindowSystem::runTasks(core::Scheduler& scheduler) {
 constexpr char WindowSystem::SWAPPER_NAME[];
 constexpr char WindowSystem::WINDOW_POLLER_NAME[];
 
-} /* namespace gfx */
+} /* namespace window */
 } /* namespace zephyr */

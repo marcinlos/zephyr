@@ -9,8 +9,9 @@
 #include <zephyr/core/Config.hpp>
 #include <zephyr/core/MessageQueue.hpp>
 #include <zephyr/core/DispatcherTask.hpp>
-#include <zephyr/gfx/WindowSystem.hpp>
+#include <zephyr/window/WindowSystem.hpp>
 #include <zephyr/time/TimeSource.hpp>
+#include <memory>
 #include <string>
 
 namespace zephyr {
@@ -84,7 +85,7 @@ private:
 
     time::TimeSource timeSource_;
 
-    std::unique_ptr<gfx::WindowSystem> window_;
+    std::unique_ptr<window::WindowSystem> window_;
 
     /**
      * Initializes all the immediately necessary subsystems.

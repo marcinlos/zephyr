@@ -2,28 +2,28 @@
  * @file BufferSwapper.hpp
  */
 
-#ifndef ZEPHYR_GFX_EVENTPOLLER_H_
-#define ZEPHYR_GFX_EVENTPOLLER_H_
+#ifndef ZEPHYR_GFX_BUFFERSWAPPER_H_
+#define ZEPHYR_GFX_BUFFERSWAPPER_H_
 
 #include <zephyr/core/Task.hpp>
-#include <zephyr/gfx/Window.hpp>
+#include <zephyr/window/Window.hpp>
 
 namespace zephyr {
-namespace gfx {
+namespace window {
 
 /**
  * Task invoking Window#swapBuffers method for every update.
  */
-class EventPoller : public core::Task {
+class BufferSwapper : public core::Task {
 public:
 
-    EventPoller(const Window& window)
+    BufferSwapper(const Window& window)
     : window_(window)
     { }
 
     /** Swaps buffer of the associated window */
     void update() override {
-        window_.pollEvents();
+        window_.swapBuffers();
     };
 
 private:
@@ -31,8 +31,8 @@ private:
     const Window& window_;
 };
 
-}
-}
+} /* namespace window */
+} /* namespace zephyr */
 
-#endif /* ZEPHYR_GFX_EVENTPOLLER_H_ */
+#endif /* ZEPHYR_GFX_BUFFERSWAPPER_H_ */
 

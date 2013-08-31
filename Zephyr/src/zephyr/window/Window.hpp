@@ -9,10 +9,8 @@
 #include <GLFW/glfw3.h>
 #include <zephyr/input/InputListener.hpp>
 
-namespace zephyr
-{
-namespace gfx
-{
+namespace zephyr {
+namespace window {
 
 /**
  * System-level window, providing basic graphics output functionality.
@@ -102,7 +100,7 @@ private:
 
 };
 
-} /* namespace gfx */
+} /* namespace window */
 } /* namespace zephyr */
 
 #endif /* ZEPHYR_GFX_WINDOW_H_ */

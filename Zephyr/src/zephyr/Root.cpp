@@ -1,14 +1,8 @@
 
 #include <zephyr/Root.hpp>
 #include <zephyr/core/DispatcherTask.hpp>
-#include <zephyr/gfx/Window.hpp>
-#include <zephyr/gfx/BufferSwapper.hpp>
-#include <zephyr/gfx/EventPoller.hpp>
-
 #include <zephyr/time/TimeSource.hpp>
-
 #include <zephyr/util/make_unique.hpp>
-
 #include <iostream>
 #include <memory>
 
@@ -35,7 +29,7 @@ void Root::setup() {
     std::cout << "[Root] Creating dispatch task" << std::endl;
     Context ctx {config_, messageQueue_, dispatcher_, scheduler_};
     runCoreTasks();
-    window_ = util::make_unique<gfx::WindowSystem>(ctx);
+    window_ = std::move(util::make_unique<window::WindowSystem>(ctx));
 
     std::cout << "[Root] Initialization completed" << std::endl;
 }

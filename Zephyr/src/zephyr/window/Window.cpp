@@ -2,13 +2,13 @@
  * @file Window.cpp
  */
 
-#include <zephyr/gfx/Window.hpp>
+#include <zephyr/window/Window.hpp>
 #include <zephyr/glfw/input_adapter.hpp>
 #include <stdexcept>
 #include <iostream>
 
 namespace zephyr {
-namespace gfx {
+namespace window {
 
 using input::KeyEvent;
 using input::Key;
@@ -124,5 +124,5 @@ void Window::closeHandler(GLFWwindow* window) {
 }
 
 
-} /* namespace gfx */
+} /* namespace window */
 } /* namespace zephyr */
