@@ -10,6 +10,10 @@
 namespace zephyr {
 namespace input {
 
+/**
+ * Enum type representing aribitrarily choosen, albeit fairly complete subset
+ * of keys on the keyboard.
+ */
 enum class Key {
     A,
     B,

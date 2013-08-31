@@ -32,9 +32,6 @@ Root::Root(std::istream& configStream) {
 void Root::setup() {
     std::cout << "[Root] Creating dispatch task" << std::endl;
 
-    TaskPtr task = std::make_shared<DispatcherTask>(messageQueue_, dispatcher_);
-    scheduler_.startTask(DISPATCHER_NAME, DISPATCHER_PRIORITY, task);
-
     window_ = createWindow();
     runCoreTasks();
 
@@ -51,6 +48,9 @@ std::unique_ptr<gfx::Window> Root::createWindow() {
 }
 
 void Root::runCoreTasks() {
+    TaskPtr task = std::make_shared<DispatcherTask>(messageQueue_, dispatcher_);
+    scheduler_.startTask(DISPATCHER_NAME, DISPATCHER_PRIORITY, task);
+
     core::TaskPtr swapper = std::make_shared<gfx::BufferSwapper>(*window_);
     scheduler_.startTask("swapper", 10000, swapper);
     core::TaskPtr poller = std::make_shared<gfx::EventPoller>(*window_);
