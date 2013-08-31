@@ -52,9 +52,10 @@ void Root::runCoreTasks() {
     scheduler_.startTask(DISPATCHER_NAME, DISPATCHER_PRIORITY, task);
 
     core::TaskPtr swapper = std::make_shared<gfx::BufferSwapper>(*window_);
-    scheduler_.startTask("swapper", 10000, swapper);
+    scheduler_.startTask(SWAPPER_NAME, SWAPPER_PRIORITY, swapper);
+
     core::TaskPtr poller = std::make_shared<gfx::EventPoller>(*window_);
-    scheduler_.startTask("wnd-event-poller", 10, poller);
+    scheduler_.startTask(WINDOW_POLLER_NAME, WINDOW_POLLER_PRIORITY, poller);
 }
 
 void Root::run() {
@@ -63,7 +64,11 @@ void Root::run() {
     std::cout << "[Root] Shutting down..." << std::endl;
 }
 
-// Static member definition
+/// Static member definitions
 constexpr char Root::DISPATCHER_NAME[];
+
+constexpr char Root::SWAPPER_NAME[];
+
+constexpr char Root::WINDOW_POLLER_NAME[];
 
 } /* namespace zephyr */
