@@ -6,6 +6,7 @@
 #define ZEPHYR_CORE_KEYEVENT_HPP_
 
 #include <zephyr/input/Key.hpp>
+#include <iostream>
 
 
 namespace zephyr {
@@ -39,6 +40,22 @@ struct KeyEvent {
     Type type;
     Mod mod;
 };
+
+
+inline const char* to_string(Mod mod) {
+    switch (mod) {
+    case NONE: return "none";
+    case SHIFT: return "shift";
+    case CTRL: return "ctrl";
+    case ALT: return "alt";
+    default:
+        throw std::invalid_argument("Invalid mod value");
+    }
+}
+
+inline std::ostream& operator << (std::ostream& os, Mod mod) {
+    return os << to_string(mod);
+}
 
 } /* namespace input */
 } /* namespace zephyr */
