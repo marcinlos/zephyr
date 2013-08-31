@@ -109,6 +109,7 @@ Key keyFromGLFW(int key) {
     case GLFW_KEY_KP_MULTIPLY:   return Key::PAD_TIMES;
     case GLFW_KEY_KP_DIVIDE:     return Key::PAD_DIV;
     case GLFW_KEY_KP_DECIMAL:    return Key::PAD_DECIMAL;
+    case GLFW_KEY_KP_ENTER:      return Key::PAD_RETURN;
     default:                     return Key::UNKNOWN;
     }
 }

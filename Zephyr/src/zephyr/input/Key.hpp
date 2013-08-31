@@ -117,6 +117,7 @@ enum class Key {
     PAD_TIMES,
     PAD_DIV,
     PAD_DECIMAL,
+    PAD_RETURN,
 
     UNKNOWN,
     LAST = UNKNOWN

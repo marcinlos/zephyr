@@ -1,5 +1,5 @@
 
-#include "Key.hpp"
+#include <zephyr/input/Key.hpp>
 
 namespace {
 
@@ -99,16 +99,13 @@ const char* strings[] = {
     "PAD7",
     "PAD8",
     "PAD9",
-    "PAD_UP",
-    "PAD_DOWN",
-    "PAD_LEFT",
-    "PAD_RIGHT",
     "PAD_PLUS",
     "PAD_MINUS",
     "PAD_TIMES",
     "PAD_DIV",
     "PAD_DECIMAL",
-    "PAD_PAGE_DOWN",
+    "PAD_RETURN",
+    "UNKNOWN",
 };
 
 template <typename T, std::size_t N>
