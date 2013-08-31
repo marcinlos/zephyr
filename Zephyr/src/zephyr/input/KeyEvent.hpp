@@ -6,22 +6,12 @@
 #define ZEPHYR_CORE_KEYEVENT_HPP_
 
 #include <zephyr/input/Key.hpp>
+#include <zephyr/input/Mod.hpp>
 #include <iostream>
 
 
 namespace zephyr {
 namespace input {
-
-/**
- * Modifier of the keyboard event, describing special keys held down during the
- * event.
- */
-enum Mod {
-    NONE  = 0x0,
-    SHIFT = 0x1,
-    CTRL  = 0x2,
-    ALT   = 0x4,
-};
 
 /**
  * Structure containing information about keyboard-related event. To be used
@@ -41,21 +31,6 @@ struct KeyEvent {
     Mod mod;
 };
 
-
-inline const char* to_string(Mod mod) {
-    switch (mod) {
-    case NONE: return "none";
-    case SHIFT: return "shift";
-    case CTRL: return "ctrl";
-    case ALT: return "alt";
-    default:
-        throw std::invalid_argument("Invalid mod value");
-    }
-}
-
-inline std::ostream& operator << (std::ostream& os, Mod mod) {
-    return os << to_string(mod);
-}
 
 } /* namespace input */
 } /* namespace zephyr */

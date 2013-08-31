@@ -112,22 +112,17 @@ enum class Key {
     PAD7,
     PAD8,
     PAD9,
-    PAD_UP,
-    PAD_DOWN,
-    PAD_LEFT,
-    PAD_RIGHT,
     PAD_PLUS,
     PAD_MINUS,
     PAD_TIMES,
     PAD_DIV,
     PAD_DECIMAL,
-    PAD_PAGE_DOWN,
 
     UNKNOWN,
     LAST = UNKNOWN
 };
 
-constexpr const char* to_string(Key key);
+const char* to_string(Key key);
 
 inline std::ostream& operator << (std::ostream& os, Key key) {
     return os << to_string(key);

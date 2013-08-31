@@ -20,6 +20,7 @@ add_executable(game
     ${SRC}/core/DispatcherTask.cpp
     ${SRC}/core/Config.cpp
     ${SRC}/glfw/init.cpp
+    ${SRC}/glfw/input_adapter.cpp
     ${SRC}/gfx/Window.cpp
     ${SRC}/input/Key.cpp
     ${SRC}/Root.cpp
@@ -49,12 +50,17 @@ set(TSRC test/zephyr)
 # Unit test executable
 add_executable(runUnitTests
     ${SRC}/core/MessageDispatcher.cpp
-    ${TSRC}/core/MessageDispatcher_test.cpp
     ${SRC}/core/MessageQueue.cpp
-    ${TSRC}/core/MessageQueue_test.cpp
     ${SRC}/core/Task.cpp
     ${SRC}/core/DispatcherTask.cpp
+    ${SRC}/input/Key.cpp
+    ${SRC}/glfw/input_adapter.cpp
+    
+    ${TSRC}/core/MessageDispatcher_test.cpp
+    ${TSRC}/core/MessageQueue_test.cpp
     ${TSRC}/core/DispatcherTask_test.cpp
+    ${TSRC}/input/Mod_test.cpp
+    ${TSRC}/glfw/input_adapter_test.cpp
 )
 
 target_link_libraries(runUnitTests gmock gmock_main)

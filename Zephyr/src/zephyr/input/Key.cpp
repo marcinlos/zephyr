@@ -125,13 +125,11 @@ constexpr const char* helper(std::uint16_t n) {
 namespace zephyr {
 namespace input {
 
-constexpr const char* to_string(Key key) {
+const char* to_string(Key key) {
     return helper(static_cast<std::uint16_t>(key));
 }
 
-
-
-}
-}
+} /* namespace input */
+} /* namespace zephyr */
 
 
