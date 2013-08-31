@@ -14,15 +14,26 @@ namespace zephyr {
 namespace core {
 
 /**
- *
+ * Thread-safe queue holding messages.
  */
 class MessageQueue {
 public:
 
+    /**
+     * Places the message in the queue.
+     *
+     * @param message Message to be put in the queue
+     */
     void post(const Message& message);
 
+    /**
+     * Checks whether the queue is empty.
+     */
     bool empty() const;
 
+    /**
+     * Removes the message from the front of the queue.
+     */
     Message pop();
 
     /**
