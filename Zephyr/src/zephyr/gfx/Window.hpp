@@ -48,15 +48,17 @@ private:
     input::InputListener* inputListener_;
 
 
-    void mouseButtonHandler(int button, int action, int mods);
+    void mouseHandler(int button, int action, int mods);
 
-    void cursorMoveHandler(double x, double y);
+    void cursorHandler(double x, double y);
 
-    void cursorEnterHandler(int entered);
+    void focusHandler(int entered);
 
     void scrollHandler(double dx, double dy);
 
     void keyHandler(int key, int scancode, int action, int mods);
+
+    void closeHandler();
 
     void setupListeners();
 
@@ -68,19 +70,19 @@ private:
     /**
      * Static member function used as mouse button press/release events callback.
      */
-    static void mouseButtonHandler(GLFWwindow* window, int button, int action,
+    static void mouseHandler(GLFWwindow* window, int button, int action,
             int mods);
 
     /**
      * Static member function used as mouse move callback.
      */
-    static void cursorMoveHandler(GLFWwindow* window, double x, double y);
+    static void cursorHandler(GLFWwindow* window, double x, double y);
 
     /**
      * Static member function used as callback for events caused by cursor
      * entering/leaving the window.
      */
-    static void cursorEnterHandler(GLFWwindow* window, int entered);
+    static void focusHandler(GLFWwindow* window, int entered);
 
     /**
      * Static member function used as callback for scrolling events.
@@ -92,6 +94,11 @@ private:
      */
     static void keyHandler(GLFWwindow* window, int key, int scancode,
             int action, int mods);
+
+    /**
+     * Static member function used as callback for closing the window.
+     */
+    static void closeHandler(GLFWwindow* window);
 
 };
 

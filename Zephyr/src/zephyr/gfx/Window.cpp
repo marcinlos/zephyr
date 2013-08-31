@@ -40,11 +40,13 @@ void Window::swapBuffers() const {
 }
 
 void Window::setupListeners() {
-    glfwSetMouseButtonCallback(window_, &Window::mouseButtonHandler);
-    glfwSetCursorPosCallback(window_, &Window::cursorMoveHandler);
-    glfwSetCursorEnterCallback(window_, &Window::cursorEnterHandler);
+    glfwSetMouseButtonCallback(window_, &Window::mouseHandler);
+    glfwSetCursorPosCallback(window_, &Window::cursorHandler);
+    glfwSetCursorEnterCallback(window_, &Window::focusHandler);
     glfwSetScrollCallback(window_, &Window::scrollHandler);
     glfwSetKeyCallback(window_, &Window::keyHandler);
+    glfwSetWindowCloseCallback(window_, &Window::closeHandler);
+
     std::cout << "Callback installed" << std::endl;
 }
 
@@ -52,52 +54,16 @@ void Window::setListener(input::InputListener* inputListener) {
     inputListener_ = inputListener;
 }
 
-Window* Window::getWindow(GLFWwindow* window) {
-    void* ptr = glfwGetWindowUserPointer(window);
-    return static_cast<Window*>(ptr);
-}
 
-void Window::mouseButtonHandler(GLFWwindow* window, int button, int action,
-        int mods) {
-    if (Window* wnd = getWindow(window)) {
-        wnd->mouseButtonHandler(button, action, mods);
-    }
-}
-
-void Window::cursorMoveHandler(GLFWwindow* window, double x, double y) {
-    if (Window* wnd = getWindow(window)) {
-        wnd->cursorMoveHandler(x, y);
-    }
-}
-
-void Window::cursorEnterHandler(GLFWwindow* window, int entered) {
-    if (Window* wnd = getWindow(window)) {
-        wnd->cursorEnterHandler(entered);
-    }
-}
-
-void Window::scrollHandler(GLFWwindow* window, double dx, double dy) {
-    if (Window* wnd = getWindow(window)) {
-        wnd->scrollHandler(dx, dy);
-    }
-}
-
-void Window::keyHandler(GLFWwindow* window, int key, int scancode, int action,
-        int mods) {
-    if (Window* wnd = getWindow(window)) {
-        wnd->keyHandler(key, scancode, action, mods);
-    }
-}
-
-void Window::mouseButtonHandler(int button, int action, int mods) {
+void Window::mouseHandler(int button, int action, int mods) {
     std::cout << "Mouse sth" << std::endl;
 }
 
-void Window::cursorMoveHandler(double x, double y) {
+void Window::cursorHandler(double x, double y) {
     std::cout << "Moving! (" << x << ", " << y << ")" << std::endl;
 }
 
-void Window::cursorEnterHandler(int entered) {
+void Window::focusHandler(int entered) {
     std::cout << "Entered? " << entered << std::endl;
 }
 
@@ -106,6 +72,7 @@ void Window::scrollHandler(double dx, double dy) {
 }
 
 void Window::keyHandler(int key, int scancode, int action, int mods) {
+    // Convert to more friendly format
     KeyEvent event = glfw::eventFromGLFW(key, action, mods);
 
     std::cout << event << std::endl;
@@ -114,6 +81,48 @@ void Window::keyHandler(int key, int scancode, int action, int mods) {
         inputListener_->keyEvent(event);
     }
 }
+
+void Window::closeHandler() {
+    std::cout << "Closing" << std::endl;
+}
+
+
+Window* Window::getWindow(GLFWwindow* window) {
+    void* ptr = glfwGetWindowUserPointer(window);
+
+    // Fail-fast behaviour, if the pointer is null something went really wrong
+    if (ptr) {
+        return static_cast<Window*>(ptr);
+    } else {
+        throw std::runtime_error("No pointer associated with window!");
+    }
+}
+
+void Window::mouseHandler(GLFWwindow* window, int button, int action, int mods) {
+    getWindow(window)->mouseHandler(button, action, mods);
+}
+
+void Window::cursorHandler(GLFWwindow* window, double x, double y) {
+    getWindow(window)->cursorHandler(x, y);
+}
+
+void Window::focusHandler(GLFWwindow* window, int entered) {
+    getWindow(window)->focusHandler(entered);
+}
+
+void Window::scrollHandler(GLFWwindow* window, double dx, double dy) {
+    getWindow(window)->scrollHandler(dx, dy);
+}
+
+void Window::keyHandler(GLFWwindow* window, int key, int scancode, int action,
+        int mods) {
+    getWindow(window)->keyHandler(key, scancode, action, mods);
+}
+
+void Window::closeHandler(GLFWwindow* window) {
+    getWindow(window)->closeHandler();
+}
+
 
 } /* namespace gfx */
 } /* namespace zephyr */
