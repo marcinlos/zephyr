@@ -47,7 +47,7 @@ private:
     /**
      * Creates window subsystem.
      */
-    std::unique_ptr<Window> createWindow();
+    std::unique_ptr<Window> createWindow(const Context& ctx);
 
     /**
      * Runs window-specific tasks.

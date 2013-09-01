@@ -7,6 +7,7 @@
 
 #include <zephyr/input/InputListener.hpp>
 #include <zephyr/input/Position.hpp>
+#include <zephyr/core/MessageQueue.hpp>
 #include <GLFW/glfw3.h>
 #include <memory>
 #include <string>
@@ -15,6 +16,13 @@ namespace zephyr {
 namespace window {
 
 typedef std::shared_ptr<input::InputListener> ListenerPtr;
+
+struct InitInfo {
+    int width;
+    int height;
+    std::string title;
+};
+
 
 /**
  * System-level window, providing basic graphics output functionality.
@@ -26,7 +34,7 @@ public:
      * Creates @ref Window with specified size and title displayed on the
      * titlebar.
      */
-    Window(int width, int height, const std::string& title);
+    Window(const InitInfo& info, core::MessageQueue& queue);
     
     /**
      * Releases the window resources.
@@ -46,6 +54,9 @@ public:
 private:
     /** Underlying window object */
     GLFWwindow* window_;
+
+    /** Message queue used for internal communication */
+    core::MessageQueue& queue;
 
     /** Listener receiving information about user input */
     ListenerPtr inputListener_;

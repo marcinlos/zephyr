@@ -20,6 +20,9 @@ const core::address SYSTEM = util::static_hash("system");
 
 const std::uint32_t QUIT = util::static_hash("quit-event");
 
+const std::uint32_t LOST_FOCUS = util::static_hash("focus-lost");
+
+const std::uint32_t GOT_FOCUS = util::static_hash("focus-got");
 
 } /* namespace msg */
 } /* namespace zephyr */

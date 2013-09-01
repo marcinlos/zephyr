@@ -4,6 +4,7 @@
 
 #include <zephyr/window/Window.hpp>
 #include <zephyr/glfw/input_adapter.hpp>
+#include <zephyr/messages.hpp>
 #include <stdexcept>
 #include <iostream>
 
@@ -18,16 +19,21 @@ using input::KeyEvent;
 using input::ButtonEvent;
 
 
-Window::Window(int width, int height, const std::string& title)
-: inputListener_(nullptr)
+Window::Window(const InitInfo& info, core::MessageQueue& queue)
+: queue(queue)
+, inputListener_(nullptr)
 {
-    window_ = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+    int width = info.width;
+    int height = info.height;
+    const char* title = info.title.c_str();
+
+    window_ = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (!window_) {
         throw std::runtime_error("Window initialization failure");
     }
     glfwSetWindowUserPointer(window_, this);
     glfwMakeContextCurrent(window_);
-    glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+//    glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     setupListeners();
 }
 
@@ -103,7 +109,11 @@ void Window::keyHandler(int key, int scancode, int action, int mods) {
 }
 
 void Window::closeHandler() {
-    std::cout << "Closing" << std::endl;
+    queue.post({
+        zephyr::msg::SYSTEM,
+        zephyr::msg::QUIT,
+        util::Any {}
+    });
 }
 
 
