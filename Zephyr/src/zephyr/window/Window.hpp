@@ -8,10 +8,13 @@
 #include <zephyr/input/InputListener.hpp>
 #include <zephyr/input/Position.hpp>
 #include <GLFW/glfw3.h>
+#include <memory>
 #include <string>
 
 namespace zephyr {
 namespace window {
+
+typedef std::shared_ptr<input::InputListener> ListenerPtr;
 
 /**
  * System-level window, providing basic graphics output functionality.
@@ -30,7 +33,7 @@ public:
      */
     ~Window();
 
-    void setListener(input::InputListener* inputListener);
+    void setListener(const ListenerPtr& inputListener);
 
     void pollEvents() const;
     
@@ -39,12 +42,13 @@ public:
      */
     void swapBuffers() const;
     
+
 private:
     /** Underlying window object */
     GLFWwindow* window_;
 
     /** Listener receiving information about user input */
-    input::InputListener* inputListener_;
+    ListenerPtr inputListener_;
 
     void setupListeners();
 

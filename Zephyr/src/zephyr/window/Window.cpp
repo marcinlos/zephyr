@@ -53,7 +53,7 @@ void Window::setupListeners() {
     std::cout << "Callback installed" << std::endl;
 }
 
-void Window::setListener(input::InputListener* inputListener) {
+void Window::setListener(const ListenerPtr& inputListener) {
     inputListener_ = inputListener;
 }
 

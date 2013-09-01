@@ -13,10 +13,10 @@
 namespace zephyr {
 namespace input {
 
-class InputMessageGenerator: public InputListener {
+class MessageGenerator: public InputListener {
 public:
 
-    InputMessageGenerator(core::MessageQueue& messageQueue);
+    MessageGenerator(core::MessageQueue& messageQueue);
 
     void keyEvent(const KeyEvent& e) override;
 

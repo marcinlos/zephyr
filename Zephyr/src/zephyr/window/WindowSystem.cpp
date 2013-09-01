@@ -8,6 +8,7 @@
 #include <zephyr/window/WindowSystem.hpp>
 #include <zephyr/window/BufferSwapper.hpp>
 #include <zephyr/window/EventPoller.hpp>
+#include <zephyr/input/MessageGenerator.hpp>
 #include <zephyr/util/make_unique.hpp>
 #include <iostream>
 
@@ -23,8 +24,6 @@ WindowSystem::WindowSystem(Context ctx)
     runTasks(ctx.scheduler);
     std::cout << "[Window] Subsystem initialized" << std::endl;
 }
-
-
 
 std::unique_ptr<Window> WindowSystem::createWindow() {
     int width = config_.get("zephyr.window.width", 800);
@@ -45,6 +44,13 @@ void WindowSystem::runTasks(core::Scheduler& scheduler) {
     scheduler.startTask(WINDOW_POLLER_NAME, WINDOW_POLLER_PRIORITY, poller);
 }
 
+void WindowSystem::attachInputListener(const Context& ctx) {
+    using input::MessageGenerator;
+
+    std::cout << "[Window] Creating input listener" << std::endl;
+    ListenerPtr listener = std::make_shared<MessageGenerator>(ctx.messageQueue);
+    window_->setListener(listener);
+}
 
 /// Static member definitions
 constexpr char WindowSystem::SWAPPER_NAME[];

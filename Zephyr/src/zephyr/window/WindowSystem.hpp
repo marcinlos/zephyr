@@ -54,6 +54,11 @@ private:
      */
     void runTasks(core::Scheduler& scheduler);
 
+    /**
+     * Creates input listener and attaches it to the window.
+     */
+    void attachInputListener(const Context& ctx);
+
 };
 
 } /* namespace gfx */
