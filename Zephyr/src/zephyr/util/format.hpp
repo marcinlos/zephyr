@@ -45,8 +45,13 @@ inline std::string format(const std::string& format, const Args&... args) {
     std::ostringstream s;
     std::string::size_type pos = 0;
 
+#pragma GCC diagnostic pop
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
     // Tricky way to iterate over the arguments
     auto exp { (useNext(s, format, pos, args), true)... };
+
+#pragma GCC diagnostic push
 
     // Append remaining part of a string
     if (!format.empty()) {
