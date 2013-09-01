@@ -12,11 +12,16 @@
 #include <zephyr/window/WindowSystem.hpp>
 #include <zephyr/input/InputSystem.hpp>
 #include <zephyr/time/TimeSource.hpp>
+#include <zephyr/util/static_hash.hpp>
 #include <memory>
 #include <string>
 
 namespace zephyr {
 
+/**
+ * Main class of the framework. Reads configuration, performs the initialization
+ * of core internal communication facilities and subsystems.
+ */
 class Root {
 public:
 
@@ -29,28 +34,6 @@ public:
     /** Runs the main loop */
     void run();
 
-    /**
-     * @return Task scheduler
-     */
-    core::Scheduler& scheduler() {
-        return scheduler_;
-    }
-
-    /**
-     * @return Configuration
-     */
-    core::Config& config() {
-        return config_;
-    }
-
-    /**
-     * @return Message dispatcher
-     */
-    core::MessageDispatcher& dispatcher() {
-        return dispatcher_;
-    }
-
-
     /** Name of the dispatcher task, as registered in the schedulre */
     static constexpr char DISPATCHER_NAME[] = "msg-dispatcher-task";
 
@@ -61,22 +44,27 @@ public:
     static const int DISPATCHER_PRIORITY = 1000;
 
 private:
-    core::Scheduler scheduler_;
-    core::Config config_;
+    core::Scheduler scheduler;
+    core::Config config;
 
-    core::MessageQueue messageQueue_;
-    core::MessageDispatcher dispatcher_;
+    core::MessageQueue messageQueue;
+    core::MessageDispatcher dispatcher;
 
-    time::ClockManager clockManager_;
+    time::ClockManager clockManager;
 
-    std::unique_ptr<window::WindowSystem> window_;
+    std::unique_ptr<window::WindowSystem> window;
 
-    std::unique_ptr<input::InputSystem> input_;
+    std::unique_ptr<input::InputSystem> input;
 
     /**
      * Initializes all the immediately necessary subsystems.
-     * */
+     */
     void setup();
+
+    /**
+     * Performs initialization on all the used subsystems
+     */
+    void initSubsystems();
 
     /**
      * Creates and runs crucial tasks:
@@ -87,9 +75,7 @@ private:
      * Serves as the engine's root component message endpoint, for receiving
      * globally significant information from other components.
      */
-    void receive(const core::Message& message) {
-        std::cout << message << std::endl;
-    }
+    void receive(const core::Message& message);
 
 };
 

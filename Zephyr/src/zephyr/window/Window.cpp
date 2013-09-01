@@ -27,6 +27,7 @@ Window::Window(int width, int height, const std::string& title)
     }
     glfwSetWindowUserPointer(window_, this);
     glfwMakeContextCurrent(window_);
+    glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     setupListeners();
 }
 
@@ -87,7 +88,6 @@ void Window::focusHandler(int entered) {
 }
 
 void Window::scrollHandler(double dx, double dy) {
-
     if (inputListener_) {
         inputListener_->scroll(dy);
     }
