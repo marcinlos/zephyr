@@ -13,14 +13,15 @@
 namespace zephyr {
 namespace core {
 
+/** Type of the callbacks invoked during dispatching */
+typedef std::function<void (const Message&)> Handler;
+
+
 /**
  * Synchronous message dispatcher. Receivers can register callback.
  */
 class MessageDispatcher {
 public:
-
-    /** Type of the callbacks invoked during dispatching */
-    typedef std::function<void (const Message&)> Handler;
 
     /**
      * Adds new handler callback for the specified receiver.

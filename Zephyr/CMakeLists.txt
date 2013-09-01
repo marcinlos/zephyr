@@ -26,6 +26,7 @@ add_executable(game
     ${SRC}/input/Key.cpp
     ${SRC}/input/Position.cpp
     ${SRC}/input/MessageGenerator.cpp
+    ${SRC}/input/InputSystem.cpp
     ${SRC}/time/ClockManager.cpp
     ${SRC}/gfx/HackyRenderer.cpp
     ${SRC}/Root.cpp

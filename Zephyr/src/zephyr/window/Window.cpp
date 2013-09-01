@@ -69,8 +69,6 @@ void Window::mouseHandler(int button, int action, int mods) {
     Position pos = getCursorPosition();
     ButtonEvent event = glfw::buttonEventFromGLFW(button, action, mods, pos);
 
-    std::cout << event << std::endl;
-
     if (inputListener_) {
         inputListener_->buttonEvent(event);
     }
@@ -78,7 +76,6 @@ void Window::mouseHandler(int button, int action, int mods) {
 
 void Window::cursorHandler(double x, double y) {
     Position pos {x, y};
-    std::cout << "MoveEvent{pos=" << pos << "}" << std::endl;
 
     if (inputListener_) {
         inputListener_->mouseMove(pos);
@@ -90,7 +87,6 @@ void Window::focusHandler(int entered) {
 }
 
 void Window::scrollHandler(double dx, double dy) {
-    std::cout << "Scrolling: " << dx << ", " << dy << std::endl;
 
     if (inputListener_) {
         inputListener_->scroll(dy);
@@ -100,8 +96,6 @@ void Window::scrollHandler(double dx, double dy) {
 void Window::keyHandler(int key, int scancode, int action, int mods) {
     // Convert to more friendly format
     KeyEvent event = glfw::keyEventFromGLFW(key, action, mods);
-
-    std::cout << event << std::endl;
 
     if (inputListener_) {
         inputListener_->keyEvent(event);

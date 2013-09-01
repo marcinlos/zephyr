@@ -21,6 +21,7 @@ WindowSystem::WindowSystem(Context ctx)
 {
     std::cout << "[Window] Initializing the subsystem" << std::endl;
     window_ = createWindow();
+    attachInputListener(ctx);
     runTasks(ctx.scheduler);
     std::cout << "[Window] Subsystem initialized" << std::endl;
 }

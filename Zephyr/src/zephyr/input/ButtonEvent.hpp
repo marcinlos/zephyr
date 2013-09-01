@@ -48,7 +48,7 @@ inline std::ostream& operator << (std::ostream& os, ButtonEvent::Type type) {
 
 
 inline std::ostream& operator << (std::ostream& os, const ButtonEvent& event) {
-    return os << util::format("MouseEvent{button={}, {} at={}, with={}}",
+    return os << util::format("MouseEvent{button={}, {}, at={}, with={}}",
             event.button, event.type, event.pos, event.mod);
 }
 

@@ -35,7 +35,7 @@ std::ostream&& f() {
 void sth() {
 //    f() << no_stream{};
     // why is rvalue reference ok in this unevaluated context?
-    sizeof(std::declval<std::ostream>() << std::declval<no_stream>());
+//    sizeof(std::declval<std::ostream>() << std::declval<no_stream>());
 //    int j = sizeof(std::declval<std::ostream&>() << std::declval<no_stream>());
 }
 

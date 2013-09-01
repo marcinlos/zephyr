@@ -38,7 +38,8 @@ void Root::setup() {
         scheduler_,
         clockManager_
     };
-    window_ = std::move(util::make_unique<window::WindowSystem>(ctx));
+    window_ = util::make_unique<window::WindowSystem>(ctx);
+    input_ = util::make_unique<input::InputSystem>(ctx);
 
     TaskPtr task = std::make_shared<gfx::HackyRenderer>(ctx);
     scheduler_.startTask("hacky-renderer", 500000, task);

@@ -10,6 +10,7 @@
 #include <zephyr/core/MessageQueue.hpp>
 #include <zephyr/core/DispatcherTask.hpp>
 #include <zephyr/window/WindowSystem.hpp>
+#include <zephyr/input/InputSystem.hpp>
 #include <zephyr/time/TimeSource.hpp>
 #include <memory>
 #include <string>
@@ -69,6 +70,8 @@ private:
     time::ClockManager clockManager_;
 
     std::unique_ptr<window::WindowSystem> window_;
+
+    std::unique_ptr<input::InputSystem> input_;
 
     /**
      * Initializes all the immediately necessary subsystems.
