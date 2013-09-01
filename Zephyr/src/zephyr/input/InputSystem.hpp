@@ -25,7 +25,7 @@ public:
     }
 
     void message(const core::Message& message) {
-        std::cout << message << std::endl;
+        std::cout << message.data << std::endl;
     }
 
 private:
