@@ -35,7 +35,7 @@ public:
      */
     virtual void dispatch(const Message& message);
 
-    virtual ~MessageDispatcher() { }
+    virtual ~MessageDispatcher() = default;
 
 private:
     /** Mapping (id -> handlers) */
@@ -46,7 +46,9 @@ private:
 template <typename Class>
 void registerHandler(MessageDispatcher& dispatcher, std::uint32_t receiver,
         Class* object, void (Class::*handler)(const Message&)) {
-    auto callback = std::bind(handler, object, std::placeholders::_1);
+    using std::placeholders::_1;
+
+    auto callback = std::bind(handler, object, _1);
     dispatcher.registerHandler(receiver, callback);
 }
 

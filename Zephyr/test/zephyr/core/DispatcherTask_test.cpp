@@ -15,6 +15,10 @@ namespace core {
 class DispatcherMock: public MessageDispatcher {
 public:
     MOCK_METHOD1(dispatch, void (const Message&));
+
+    ~DispatcherMock() noexcept {
+        // implicit dtor is not noexcept
+    }
 };
 
 struct DispatcherTaskTest: testing::Test {

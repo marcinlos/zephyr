@@ -25,8 +25,8 @@ struct Message {
 };
 
 inline std::ostream& operator << (std::ostream& os, const Message& message) {
-    return os << util::format("Message{to={}, type={}}", message.target,
-            message.type);
+    return os << util::format("Message{to={}, type={}, data={}}",
+            message.target, message.type, message.data);
 }
 
 /**
