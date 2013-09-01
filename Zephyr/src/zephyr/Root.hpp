@@ -59,23 +59,6 @@ public:
      */
     static const int DISPATCHER_PRIORITY = 1000;
 
-
-    /** Name of the swapper task */
-    static constexpr char SWAPPER_NAME[] = "buffer-swapper-task";
-
-    /**
-     * Probably swapper shold execute last, after all the other subsystems
-     * finish their modifications and rendering.
-     */
-    static const int SWAPPER_PRIORITY = 1000000;
-
-
-    /** Name of the task that polls the window events */
-    static constexpr char WINDOW_POLLER_NAME[] = "window-poll-task";
-
-    /** Should run before dispatcher */
-    static const int WINDOW_POLLER_PRIORITY = 100;
-
 private:
     core::Scheduler scheduler_;
     core::Config config_;
@@ -96,6 +79,14 @@ private:
      * Creates and runs crucial tasks:
      */
     void runCoreTasks();
+
+    /**
+     * Serves as the engine's root component message endpoint, for receiving
+     * globally significant information from other components.
+     */
+    void receive(const core::Message& message) {
+        std::cout << message << std::endl;
+    }
 
 };
 

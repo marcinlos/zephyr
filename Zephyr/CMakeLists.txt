@@ -64,6 +64,7 @@ add_executable(runUnitTests
     ${TSRC}/core/MessageQueue_test.cpp
     ${TSRC}/core/DispatcherTask_test.cpp
     ${TSRC}/input/Mod_test.cpp
+    ${TSRC}/util/Any_test.cpp
     ${TSRC}/glfw/input_adapter_test.cpp
 )
 

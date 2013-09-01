@@ -91,6 +91,10 @@ void Window::focusHandler(int entered) {
 
 void Window::scrollHandler(double dx, double dy) {
     std::cout << "Scrolling: " << dx << ", " << dy << std::endl;
+
+    if (inputListener_) {
+        inputListener_->scroll(dy);
+    }
 }
 
 void Window::keyHandler(int key, int scancode, int action, int mods) {

@@ -61,8 +61,4 @@ void Root::run() {
 /// Static member definitions
 constexpr char Root::DISPATCHER_NAME[];
 
-constexpr char Root::SWAPPER_NAME[];
-
-constexpr char Root::WINDOW_POLLER_NAME[];
-
 } /* namespace zephyr */

@@ -20,6 +20,8 @@ public:
 
     virtual void mouseMove(const Position& pos) = 0;
 
+    virtual void scroll(double dy) = 0;
+
     virtual ~InputListener() = 0;
 
 };
