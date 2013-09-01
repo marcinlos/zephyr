@@ -8,9 +8,12 @@
 #include <gtest/gtest.h>
 
 using ::testing::AtLeast;
+using zephyr::util::Any;
 
 namespace zephyr {
 namespace core {
+
+const char* text = "meh";
 
 TEST(MessageQueueTest, EmptyQueueIsEmpty) {
     MessageQueue queue;
@@ -19,7 +22,8 @@ TEST(MessageQueueTest, EmptyQueueIsEmpty) {
 
 TEST(MessageQueueTest, NotEmptyAfterPost) {
     MessageQueue queue;
-    queue.post({ 10, 7, "meh" });
+    Message message { 10, 7, Any { text } };
+    queue.post(message);
     EXPECT_FALSE(queue.empty());
 }
 
@@ -30,7 +34,7 @@ TEST(MessageQueueTest, PopWithEmptyThrows) {
 
 TEST(MessageQueueTest, CanFetchPostedMessage) {
     MessageQueue queue;
-    Message message { 10, 7, "meh" };
+    Message message { 10, 7, Any { text } };
     queue.post(message);
 
     Message popped = queue.pop();

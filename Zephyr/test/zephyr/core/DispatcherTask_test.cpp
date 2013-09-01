@@ -8,6 +8,7 @@
 
 using ::testing::_;
 using ::testing::Return;
+using zephyr::util::Any;
 
 namespace zephyr {
 namespace core {
@@ -39,16 +40,16 @@ TEST_F(DispatcherTaskTest, DoesNothingForEmptyQueue) {
 }
 
 TEST_F(DispatcherTaskTest, DeliversSingleMessage) {
-    queue.post({10, 666, 7});
+    queue.post({ 10, 666, Any { 7 } });
     EXPECT_CALL(dispatcher, dispatch(_)).Times(1);
     task.update();
 }
 
 
 TEST_F(DispatcherTaskTest, DeliversAllMessages) {
-    queue.post({10, 666, 7});
-    queue.post({17, 63, 12});
-    queue.post({4, 66, 67});
+    queue.post({ 10, 666, Any { 7 } });
+    queue.post({ 17, 63, Any { 12 } });
+    queue.post({ 4, 66, Any { 67 } });
     EXPECT_CALL(dispatcher, dispatch(_)).Times(3);
     task.update();
 }

@@ -103,7 +103,7 @@ public:
     Any() = default;
 
     template <typename T>
-    Any(const T& value)
+    explicit Any(const T& value)
     : printer_(make_unique<printer_impl<T>>())
     , data(value)
     { }

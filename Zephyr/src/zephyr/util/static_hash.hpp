@@ -5,6 +5,8 @@
 #ifndef ZEPHYR_UTIL_STATIC_HASH_HPP_
 #define ZEPHYR_UTIL_STATIC_HASH_HPP_
 
+#include <cstdint>
+
 namespace zephyr {
 namespace util {
 
@@ -26,6 +28,10 @@ constexpr std::size_t static_hash(const char* text) {
     return impl::partial_hash(text, 0);
 }
 
+
+inline constexpr std::uint32_t operator"" _h(const char* str, std::size_t) {
+    return zephyr::util::static_hash(str);
+}
 
 } /* namespace util */
 } /* namespace zephyr */

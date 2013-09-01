@@ -9,6 +9,7 @@
 
 using ::testing::_;
 using namespace std::placeholders;
+using zephyr::util::Any;
 
 namespace zephyr {
 namespace core {
@@ -24,7 +25,8 @@ TEST(MessageDispatcherTest, CanDeliverMessage) {
     EXPECT_CALL(mock, handle(_));
 
     registerHandler(dispatcher, 666, &mock, &HandlerMock::handle);
-    dispatcher.dispatch({666, 10, std::string("some string")});
+    Any data { std::string("some string") };
+    dispatcher.dispatch({ 666, 10, data });
 }
 
 TEST(MessageDispatcherTest, CanDeliverMessageToMultipleListeners) {
@@ -38,7 +40,8 @@ TEST(MessageDispatcherTest, CanDeliverMessageToMultipleListeners) {
 
     dispatcher.registerHandler(666, firstCallback);
     dispatcher.registerHandler(666, secondCallback);
-    dispatcher.dispatch({666, 10, std::string("some string")});
+    Any data { std::string("some string") };
+    dispatcher.dispatch({ 666, 10, data });
 }
 
 
