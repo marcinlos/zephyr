@@ -31,7 +31,13 @@ void Root::setup() {
     std::cout << "[Root] Creating dispatch task" << std::endl;
     runCoreTasks();
 
-    Context ctx {config_, messageQueue_, dispatcher_, scheduler_};
+    Context ctx {
+        config_,
+        messageQueue_,
+        dispatcher_,
+        scheduler_,
+        clockManager_
+    };
     window_ = std::move(util::make_unique<window::WindowSystem>(ctx));
 
     TaskPtr task = std::make_shared<gfx::HackyRenderer>(ctx);

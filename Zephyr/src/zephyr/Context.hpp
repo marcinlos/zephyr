@@ -9,6 +9,7 @@
 #include <zephyr/core/MessageQueue.hpp>
 #include <zephyr/core/MessageDispatcher.hpp>
 #include <zephyr/core/Scheduler.hpp>
+#include <zephyr/time/ClockManager.hpp>
 
 namespace zephyr {
 
@@ -21,6 +22,8 @@ struct Context {
     core::MessageQueue& messageQueue;
     core::MessageDispatcher& dispatcher;
     core::Scheduler& scheduler;
+
+    time::ClockManager& clockManager;
 };
 
 } /* namespace zephyr */

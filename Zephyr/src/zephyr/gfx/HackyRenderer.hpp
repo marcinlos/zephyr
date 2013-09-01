@@ -7,6 +7,9 @@
 
 #include <zephyr/Context.hpp>
 #include <zephyr/core/Task.hpp>
+#include <zephyr/time/ClockManager.hpp>
+
+#include <zephyr/time/TimeSource.hpp>
 
 
 namespace zephyr {
@@ -20,7 +23,13 @@ public:
     void update() override;
 
 private:
+    time::ClockManager& clocks;
+    double prevTime;
+    int counter;
 
+    time::TimeSource clock;
+
+    void updateTime();
 };
 
 } /* namespace gfx */

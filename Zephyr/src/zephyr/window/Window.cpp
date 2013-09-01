@@ -73,7 +73,7 @@ void Window::scrollHandler(double dx, double dy) {
 
 void Window::keyHandler(int key, int scancode, int action, int mods) {
     // Convert to more friendly format
-    KeyEvent event = glfw::eventFromGLFW(key, action, mods);
+    KeyEvent event = glfw::keyEventFromGLFW(key, action, mods);
 
     std::cout << event << std::endl;
 

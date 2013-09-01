@@ -6,6 +6,7 @@
 #define ZEPHYR_CORE_INPUTLISTENER_HPP_
 
 #include <zephyr/input/KeyEvent.hpp>
+#include <zephyr/input/ButtonEvent.hpp>
 
 namespace zephyr {
 namespace input {
@@ -14,6 +15,8 @@ class InputListener {
 public:
 
     virtual void keyEvent(const KeyEvent& e) = 0;
+
+    virtual void buttonEvent(const ButtonEvent& e) = 0;
 
     virtual ~InputListener() = 0;
 

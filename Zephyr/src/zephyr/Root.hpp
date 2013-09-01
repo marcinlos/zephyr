@@ -83,7 +83,7 @@ private:
     core::MessageQueue messageQueue_;
     core::MessageDispatcher dispatcher_;
 
-    time::TimeSource timeSource_;
+    time::ClockManager clockManager_;
 
     std::unique_ptr<window::WindowSystem> window_;
 
