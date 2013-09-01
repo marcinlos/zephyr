@@ -7,7 +7,6 @@
 
 #include <iostream>
 
-
 namespace zephyr {
 namespace input {
 
@@ -20,9 +19,7 @@ struct Position {
 };
 
 
-inline std::ostream& operator << (std::ostream& os, const Position pos) {
-    return os << "(" << pos.x << ", " << pos.y << ")";
-}
+std::ostream& operator << (std::ostream& os, const Position pos);
 
 
 } /* namespace input */

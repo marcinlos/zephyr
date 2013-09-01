@@ -5,9 +5,10 @@
 #ifndef ZEPHYR_GFX_WINDOW_H_
 #define ZEPHYR_GFX_WINDOW_H_
 
-#include <string>
-#include <GLFW/glfw3.h>
 #include <zephyr/input/InputListener.hpp>
+#include <zephyr/input/Position.hpp>
+#include <GLFW/glfw3.h>
+#include <string>
 
 namespace zephyr {
 namespace window {
@@ -45,6 +46,9 @@ private:
     /** Listener receiving information about user input */
     input::InputListener* inputListener_;
 
+    void setupListeners();
+
+    input::Position getCursorPosition();
 
     void mouseHandler(int button, int action, int mods);
 
@@ -58,7 +62,6 @@ private:
 
     void closeHandler();
 
-    void setupListeners();
 
     /**
      * Helper function, extracts @ref Window pointer from GLFWwindow.

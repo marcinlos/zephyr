@@ -94,12 +94,12 @@ inline Button buttonFromGLFW(int button) {
     }
 }
 
-inline ButtonEvent buttonEventFromGLFW(int button, int action, double x,
-        double y, int mods) {
+inline ButtonEvent buttonEventFromGLFW(int button, int action, int mods,
+        const Position& pos) {
     Button b = buttonFromGLFW(button);
     ButtonEvent::Type t = buttonEventTypeFromGLFW(action);
     Mod m = modFromGLFW(mods);
-    return {b, t, {x, y}, m};
+    return {b, t, pos, m};
 }
 
 /// @}

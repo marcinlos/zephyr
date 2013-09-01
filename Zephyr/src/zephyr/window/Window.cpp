@@ -10,9 +10,12 @@
 namespace zephyr {
 namespace window {
 
-using input::KeyEvent;
+using input::Position;
+using input::Button;
 using input::Key;
 using input::Mod;
+using input::KeyEvent;
+using input::ButtonEvent;
 
 
 Window::Window(int width, int height, const std::string& title)
@@ -55,12 +58,31 @@ void Window::setListener(input::InputListener* inputListener) {
 }
 
 
+input::Position Window::getCursorPosition() {
+    double x, y;
+    glfwGetCursorPos(window_, &x, &y);
+    return {x, y};
+}
+
+
 void Window::mouseHandler(int button, int action, int mods) {
-    std::cout << "Mouse sth" << std::endl;
+    Position pos = getCursorPosition();
+    ButtonEvent event = glfw::buttonEventFromGLFW(button, action, mods, pos);
+
+    std::cout << event << std::endl;
+
+    if (inputListener_) {
+        inputListener_->buttonEvent(event);
+    }
 }
 
 void Window::cursorHandler(double x, double y) {
-    std::cout << "Moving! (" << x << ", " << y << ")" << std::endl;
+    Position pos {x, y};
+    std::cout << "MoveEvent{pos=" << pos << "}" << std::endl;
+
+    if (inputListener_) {
+        inputListener_->mouseMove(pos);
+    }
 }
 
 void Window::focusHandler(int entered) {
@@ -77,7 +99,7 @@ void Window::keyHandler(int key, int scancode, int action, int mods) {
 
     std::cout << event << std::endl;
 
-    if (inputListener_ != nullptr) {
+    if (inputListener_) {
         inputListener_->keyEvent(event);
     }
 }

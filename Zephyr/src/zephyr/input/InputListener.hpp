@@ -18,6 +18,8 @@ public:
 
     virtual void buttonEvent(const ButtonEvent& e) = 0;
 
+    virtual void mouseMove(const Position& pos) = 0;
+
     virtual ~InputListener() = 0;
 
 };
