@@ -8,7 +8,6 @@
 #include <zephyr/util/format.hpp>
 #include <zephyr/util/Any.hpp>
 #include <iostream>
-#include <boost/any.hpp>
 
 namespace zephyr {
 namespace core {
@@ -22,7 +21,7 @@ typedef std::uint32_t address;
 struct Message {
     address target;
     std::uint32_t type;
-    boost::any data;
+    util::Any data;
 };
 
 inline std::ostream& operator << (std::ostream& os, const Message& message) {

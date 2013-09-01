@@ -136,6 +136,7 @@ public:
         return os;
     }
 
+
 private:
     std::unique_ptr<printer> printer_;
     boost::any data;
@@ -147,7 +148,30 @@ private:
         swap(left.data, right.data);
     }
 
+    template <typename ValueType>
+    friend ValueType* any_cast(Any* any);
 };
+
+
+template <typename ValueType>
+inline ValueType* any_cast(Any* any) {
+    return any_cast<ValueType>(&any->data);
+}
+
+template <typename ValueType>
+inline const ValueType* any_cast(const Any* any) {
+    return any_cast<ValueType>(const_cast<Any*>(any));
+}
+
+template <typename ValueType>
+inline ValueType& any_cast(Any& any) {
+    return *any_cast<ValueType>(&any);
+}
+
+template <typename ValueType>
+inline const ValueType& any_cast(const Any& any) {
+    return *any_cast<ValueType>(&any);
+}
 
 
 } /* namespace util */

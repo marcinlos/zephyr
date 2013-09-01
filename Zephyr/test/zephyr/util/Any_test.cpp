@@ -59,6 +59,26 @@ TEST(AnyTest, CannotPrintStructWithNoOverloadedStream) {
     EXPECT_EQ(expected, to_string(Any(no_stream { })));
 }
 
+TEST(AnyTest, CanGetValue) {
+    Any any(666);
+    EXPECT_EQ(666, any_cast<int>(any));
+}
+
+TEST(AnyTest, CanGetConstValue) {
+    const Any any(666);
+    EXPECT_EQ(666, any_cast<int>(any));
+}
+
+TEST(AnyTest, CanGetPtrValue) {
+    Any any(666);
+    EXPECT_EQ(666, *any_cast<int>(&any));
+}
+
+TEST(AnyTest, CanGetConstPtrValue) {
+    const Any any(666);
+    EXPECT_EQ(666, *any_cast<int>(&any));
+}
+
 
 } /* namespace util */
 } /* namespace zephyr */
