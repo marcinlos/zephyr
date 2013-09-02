@@ -10,6 +10,7 @@
 #include <zephyr/time/ClockManager.hpp>
 
 #include <zephyr/time/TimeSource.hpp>
+#include <memory>
 
 
 namespace zephyr {
@@ -30,6 +31,9 @@ private:
     time::TimeSource clock;
 
     void updateTime();
+
+    std::shared_ptr<struct Data> data_;
+
 };
 
 } /* namespace gfx */
