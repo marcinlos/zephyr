@@ -16,7 +16,7 @@ namespace {
  * Error callback for GLFW framework.
  */
 void errorCallback(int code, const char* description) {
-    std::cerr << "[Error " << code << "]: " << description << std::endl;
+    std::cerr << "[GLFW] Error " << code << ": " << description << std::endl;
 }
 
 /**
@@ -29,17 +29,18 @@ struct InitGLFW {
     InitGLFW() {
         glfwSetErrorCallback(errorCallback);
         if (!glfwInit()) {
-            std::cerr << "GLFW error!" << std::endl;
+            std::cerr << "[GLFW] Initialization error!" << std::endl;
+            std::cerr << "[GLFW] Aborting..." << std::endl;
             std::exit(1);
         } else {
-            std::cout << "GLFW initialized" << std::endl;
+            std::cout << "[GLFW] Initialized" << std::endl;
         }
     }
 
     ~InitGLFW() {
-        std::cout << "Shutting down GLFW" << std::endl;
+        std::cout << "[GLFW] Shutting down..." << std::endl;
         glfwTerminate();
-        std::cout << "GLFW terminated" << std::endl;
+        std::cout << "[GLFW] Done" << std::endl;
     }
 }
 // static global object

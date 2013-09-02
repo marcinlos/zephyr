@@ -41,8 +41,9 @@ struct InitInfo {
  */
 struct window_deleter {
     void operator () (GLFWwindow* window) {
-        std::cout << "[Deleter] Raaawwwrr!" << std::endl;
+        std::cout << "[Window] Destroying window..." << std::endl;
         glfwDestroyWindow(window);
+        std::cout << "[Window] Done" << std::endl;
     }
 };
 

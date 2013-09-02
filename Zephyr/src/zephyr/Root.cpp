@@ -66,7 +66,7 @@ void Root::runCoreTasks() {
 void Root::run() {
     std::cout << "[Root] Running..." << std::endl;
     scheduler.run();
-    std::cout << "[Root] Shutting down..." << std::endl;
+    std::cout << "[Root] Stopped" << std::endl;
 }
 
 void Root::receive(const core::Message& message) {
