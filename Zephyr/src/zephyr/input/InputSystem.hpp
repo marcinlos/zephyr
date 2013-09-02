@@ -14,6 +14,9 @@
 #include <functional>
 
 
+#include <zephyr/window/messages.hpp>
+
+
 namespace zephyr {
 namespace input {
 
@@ -36,12 +39,18 @@ public:
         std::cout << message.data << std::endl;
         if (message.type == msg::KEYBOARD_EVENT) {
             KeyEvent e = util::any_cast<KeyEvent>(message.data);
-            if (e.key == Key::ESCAPE && e.type == KeyEvent::Type::DOWN) {
-                queue.post({
-                    zephyr::msg::SYSTEM,
-                    zephyr::msg::QUIT,
-                    util::Any {}
-                });
+            if (e.type == KeyEvent::Type::DOWN) {
+                if (e.key == Key::ESCAPE) {
+                    queue.post({
+                        zephyr::msg::SYSTEM,
+                        zephyr::msg::QUIT,
+                    });
+                } else if (e.key == Key::F12) {
+                    queue.post({
+                        window::msg::WINDOW,
+                        window::msg::TOGGLE_FULLSCREEN,
+                    });
+                }
             }
         }
     }

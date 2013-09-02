@@ -8,6 +8,7 @@
 #include <zephyr/window/WindowSystem.hpp>
 #include <zephyr/window/BufferSwapper.hpp>
 #include <zephyr/window/EventPoller.hpp>
+#include <zephyr/window/messages.hpp>
 #include <zephyr/input/MessageGenerator.hpp>
 #include <zephyr/util/make_unique.hpp>
 #include <iostream>
@@ -23,6 +24,10 @@ WindowSystem::WindowSystem(Context ctx)
     window_ = createWindow(ctx);
     attachInputListener(ctx);
     runTasks(ctx.scheduler);
+
+    core::registerHandler(ctx.dispatcher, msg::WINDOW, this,
+            &WindowSystem::receive);
+
     std::cout << "[Window] Subsystem initialized" << std::endl;
 }
 
@@ -35,7 +40,8 @@ std::unique_ptr<Window> WindowSystem::createWindow(const Context& ctx) {
     return util::make_unique<Window>(InitInfo {
         width,
         height,
-        title
+        title,
+        false
     }, ctx.messageQueue);
 }
 
@@ -55,6 +61,23 @@ void WindowSystem::attachInputListener(const Context& ctx) {
     std::cout << "[Window] Creating input listener" << std::endl;
     ListenerPtr listener = std::make_shared<MessageGenerator>(ctx.messageQueue);
     window_->setListener(listener);
+}
+
+void WindowSystem::receive(const Message& message) {
+    std::cout << "[Window system] " << message << std::endl;
+    switch (message.type) {
+    case msg::FULLSCREEN_ON:
+        window_->fullscreen(true);
+        break;
+
+    case msg::FULLSCREEN_OFF:
+        window_->fullscreen(false);
+        break;
+
+    case msg::TOGGLE_FULLSCREEN:
+        window_->toggleFullscreen();
+        break;
+    }
 }
 
 /// Static member definitions

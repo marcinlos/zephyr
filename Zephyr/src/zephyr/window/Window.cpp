@@ -74,7 +74,6 @@ void Window::fullscreen(bool full) {
         disableFullscreen();
     }
     fullscreen_ = full;
-    window_.release();
     window_ = createWindow({
         state_.width,
         state_.height,

@@ -18,6 +18,7 @@ const core::address WINDOW = util::static_hash("window-system");
 
 const std::uint32_t FULLSCREEN_ON = util::static_hash("fullscreen-on");
 const std::uint32_t FULLSCREEN_OFF = util::static_hash("fullscreen-off");
+const std::uint32_t TOGGLE_FULLSCREEN = util::static_hash("toggle-fullscreen");
 
 } /* namespace msg */
 } /* namespace window */

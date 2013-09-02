@@ -13,6 +13,8 @@
 namespace zephyr {
 namespace window {
 
+using core::Message;
+
 /**
  * Handles details of window creation and integration with the rest of the
  * engine.
@@ -58,6 +60,11 @@ private:
      * Creates input listener and attaches it to the window.
      */
     void attachInputListener(const Context& ctx);
+
+    /**
+     * Handles incoming messages addressed to window system.
+     */
+    void receive(const Message& message);
 
 };
 
