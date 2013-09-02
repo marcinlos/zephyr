@@ -2,8 +2,8 @@
  * @file Window.hpp
  */
 
-#ifndef ZEPHYR_GFX_WINDOW_H_
-#define ZEPHYR_GFX_WINDOW_H_
+#ifndef ZEPHYR_WINDOW_WINDOW_H_
+#define ZEPHYR_WINDOW_WINDOW_H_
 
 #include <zephyr/input/InputListener.hpp>
 #include <zephyr/input/Position.hpp>
@@ -15,17 +15,40 @@
 namespace zephyr {
 namespace window {
 
-typedef std::shared_ptr<input::InputListener> ListenerPtr;
+using core::MessageQueue;
 
+using input::MouseMode;
+using input::Position;
+using input::InputListener;
+
+
+/** Type of receiver of input messages coming from the window */
+typedef std::shared_ptr<InputListener> ListenerPtr;
+
+/**
+ * Initialization data for the window.
+ */
 struct InitInfo {
     int width;
     int height;
     std::string title;
+    bool fullscreen;
+};
+
+/**
+ * Deleter for GLFWwindow pointer, intended to be used with smartpointers to
+ * provide necessary custom release semantics.
+ */
+struct window_deleter {
+    void operator () (GLFWwindow* window) {
+        glfwDestroyWindow(window);
+    }
 };
 
 
 /**
- * System-level window, providing basic graphics output functionality.
+ * System-level window, providing basic graphics output functionality and
+ * receiving and propagating input events related to keyboard and mouse.
  */
 class Window
 {
@@ -33,37 +56,96 @@ public:
     /**
      * Creates @ref Window with specified size and title displayed on the
      * titlebar.
+     *
+     * @param [in] info
+     *          Initialization window parameters
+     *
+     * @param [in] queue
+     *          Message queue used for internal engine communication
      */
-    Window(const InitInfo& info, core::MessageQueue& queue);
+    Window(const InitInfo& info, MessageQueue& queue);
+
+    /**
+     * Sets the listener receiving information about input events.
+     *
+     * @param [in] inputListener
+     *          Listener to notify about events
+     */
+    void setListener(const ListenerPtr& inputListener);
     
     /**
-     * Releases the window resources.
+     * Enables/disables fullscreen mode.
+     *
+     * @param [in] full
+     *          Whether the fullscreen mode should be enabled or disabled
      */
-    ~Window();
+    void fullscreen(bool full);
 
-    void setListener(const ListenerPtr& inputListener);
+    /**
+     * Changes the display mode between fullscreen and ordinary windowed mode.
+     *
+     * @return Previous mode
+     */
+    bool toggleFullscreen();
 
+    /**
+     * Sets the mouse operation mode.
+     *
+     * @param [in] mode
+     *          Mode to set
+     */
+    void mouseMode(MouseMode mode);
+
+    /**
+     * Polls the underlying library, so that the events are delivered through
+     * the previously set callbacks.
+     */
     void pollEvents() const;
     
     /**
-     * Swaps graphic buffers of the window.
+     * Swaps graphic buffers of the window. Should be invoked at the end of
+     * each frame.
      */
     void swapBuffers() const;
-    
 
 private:
+    typedef std::unique_ptr<GLFWwindow, window_deleter> WindowPtr;
+
     /** Underlying window object */
-    GLFWwindow* window_;
+    WindowPtr window_;
 
     /** Message queue used for internal communication */
-    core::MessageQueue& queue;
+    MessageQueue& queue;
 
     /** Listener receiving information about user input */
     ListenerPtr inputListener_;
 
-    void setupListeners();
+    bool fullscreen_;
 
-    input::Position getCursorPosition();
+    MouseMode mouseMode_;
+
+    std::string title_;
+
+    /**
+     * State of the window saved before going fullscreen.
+     */
+    struct SavedState {
+        int width;
+        int height;
+
+    } state_;
+
+
+    void setupListeners(GLFWwindow* window);
+
+    WindowPtr createWindow(const InitInfo& info);
+
+    Position getCursorPosition();
+
+    void enableFullscren();
+
+    void disableFullscreen();
+
 
     void mouseHandler(int button, int action, int mods);
 
@@ -121,4 +203,4 @@ private:
 } /* namespace window */
 } /* namespace zephyr */
 
-#endif /* ZEPHYR_GFX_WINDOW_H_ */
+#endif /* ZEPHYR_WINDOW_WINDOW_H_ */

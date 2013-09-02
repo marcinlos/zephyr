@@ -11,7 +11,6 @@
 namespace zephyr {
 namespace window {
 
-using input::Position;
 using input::Button;
 using input::Key;
 using input::Mod;
@@ -19,26 +18,14 @@ using input::KeyEvent;
 using input::ButtonEvent;
 
 
-Window::Window(const InitInfo& info, core::MessageQueue& queue)
+Window::Window(const InitInfo& info, MessageQueue& queue)
 : queue(queue)
 , inputListener_(nullptr)
+, fullscreen_(false)
+, title_(info.title)
 {
-    int width = info.width;
-    int height = info.height;
-    const char* title = info.title.c_str();
-
-    window_ = glfwCreateWindow(width, height, title, nullptr, nullptr);
-    if (!window_) {
-        throw std::runtime_error("Window initialization failure");
-    }
-    glfwSetWindowUserPointer(window_, this);
-    glfwMakeContextCurrent(window_);
-//    glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    setupListeners();
-}
-
-Window::~Window() {
-    glfwDestroyWindow(window_);
+    window_ = createWindow(info);
+    glfwMakeContextCurrent(window_.get());
 }
 
 void Window::pollEvents() const {
@@ -46,16 +33,16 @@ void Window::pollEvents() const {
 }
 
 void Window::swapBuffers() const {
-    glfwSwapBuffers(window_);
+    glfwSwapBuffers(window_.get());
 }
 
-void Window::setupListeners() {
-    glfwSetMouseButtonCallback(window_, &Window::mouseHandler);
-    glfwSetCursorPosCallback(window_, &Window::cursorHandler);
-    glfwSetCursorEnterCallback(window_, &Window::focusHandler);
-    glfwSetScrollCallback(window_, &Window::scrollHandler);
-    glfwSetKeyCallback(window_, &Window::keyHandler);
-    glfwSetWindowCloseCallback(window_, &Window::closeHandler);
+void Window::setupListeners(GLFWwindow* window) {
+    glfwSetMouseButtonCallback(window, &Window::mouseHandler);
+    glfwSetCursorPosCallback(window, &Window::cursorHandler);
+    glfwSetCursorEnterCallback(window, &Window::focusHandler);
+    glfwSetScrollCallback(window, &Window::scrollHandler);
+    glfwSetKeyCallback(window, &Window::keyHandler);
+    glfwSetWindowCloseCallback(window, &Window::closeHandler);
 
     std::cout << "Callback installed" << std::endl;
 }
@@ -64,10 +51,61 @@ void Window::setListener(const ListenerPtr& inputListener) {
     inputListener_ = inputListener;
 }
 
+Window::WindowPtr Window::createWindow(const InitInfo& info) {
+    int width = info.width;
+    int height = info.height;
+    const char* title = info.title.c_str();
+    GLFWmonitor* monitor = info.fullscreen ? glfwGetPrimaryMonitor() : nullptr;
 
-input::Position Window::getCursorPosition() {
+    WindowPtr wnd { glfwCreateWindow(width, height, title, monitor, nullptr) };
+    if (!wnd) {
+        throw std::runtime_error("Window initialization failure");
+    }
+    setupListeners(wnd.get());
+    glfwSetWindowUserPointer(wnd.get(), this);
+    return wnd;
+}
+
+
+void Window::fullscreen(bool full) {
+    if (full) {
+        enableFullscren();
+    } else {
+        disableFullscreen();
+    }
+    fullscreen_ = full;
+    window_.release();
+    window_ = createWindow({
+        state_.width,
+        state_.height,
+        title_,
+        full
+    });
+    glfwMakeContextCurrent(window_.get());
+}
+
+bool Window::toggleFullscreen() {
+    fullscreen(!fullscreen_);
+    return !fullscreen_;
+}
+
+
+void Window::enableFullscren() {
+    glfwGetWindowSize(window_.get(), &state_.width, &state_.height);
+}
+
+void Window::disableFullscreen() {
+    // empty
+}
+
+void Window::mouseMode(MouseMode mode) {
+
+}
+
+
+Position Window::getCursorPosition() {
     double x, y;
-    glfwGetCursorPos(window_, &x, &y);
+    glfwGetCursorPos(window_.get(), &x, &y);
     return {x, y};
 }
 

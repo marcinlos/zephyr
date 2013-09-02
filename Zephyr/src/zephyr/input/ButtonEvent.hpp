@@ -6,7 +6,7 @@
 #define ZEPHYR_INPUT_MOUSEEVENT_HPP_
 
 #include <zephyr/input/Mod.hpp>
-#include <zephyr/input/Button.hpp>
+#include <zephyr/input/Mouse.hpp>
 #include <zephyr/input/Position.hpp>
 #include <zephyr/util/format.hpp>
 #include <iostream>

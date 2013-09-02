@@ -10,7 +10,7 @@
 #include <GLFW/glfw3.h>
 #include <zephyr/input/Mod.hpp>
 #include <zephyr/input/Key.hpp>
-#include <zephyr/input/Button.hpp>
+#include <zephyr/input/Mouse.hpp>
 #include <zephyr/input/KeyEvent.hpp>
 #include <zephyr/input/ButtonEvent.hpp>
 #include <zephyr/input/Position.hpp>
