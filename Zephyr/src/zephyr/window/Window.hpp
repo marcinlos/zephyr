@@ -98,6 +98,11 @@ public:
     void mouseMode(MouseMode mode);
 
     /**
+     * Changes the mouse operation mode to the opposite one.
+     */
+    void toggleMouseMode();
+
+    /**
      * Polls the underlying library, so that the events are delivered through
      * the previously set callbacks.
      */
@@ -137,11 +142,11 @@ private:
     } state_;
 
 
-    void setupListeners(GLFWwindow* window);
+    void setupListeners(GLFWwindow* window) const;
 
-    WindowPtr createWindow(const InitInfo& info);
+    WindowPtr createWindow(const InitInfo& info) const;
 
-    Position getCursorPosition();
+    Position getCursorPosition() const;
 
     void enableFullscren();
 

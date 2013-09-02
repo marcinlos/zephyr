@@ -51,13 +51,19 @@ const core::address INPUT_SOURCE = util::static_hash("input-source");
  * absolute cursor position, and so the mouse should not be confined to the
  * window area nor displayed.
  */
-const std::uint32_t MOUSE_REL = util::static_hash("mouse-free");
+const std::uint32_t MOUSE_REL = util::static_hash("mouse-relative");
 
 /**
  * Informs the input source that absolute cursor position is used, and so the
  * mouse should be confined to the window area, andcursor should be displayed.
  */
-const std::uint32_t MOUSE_ABS = util::static_hash("mouse-window");
+const std::uint32_t MOUSE_ABS = util::static_hash("mouse-absolute");
+
+/**
+ * Informs the input source that the cursor mode should be changed to the
+ * opposite to the one currently used.
+ */
+const std::uint32_t MOUSE_TOGGLE = util::static_hash("mouse-toggle");
 
 /// @}
 

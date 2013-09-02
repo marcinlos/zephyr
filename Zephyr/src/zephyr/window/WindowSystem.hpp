@@ -66,6 +66,11 @@ private:
      */
     void receive(const Message& message);
 
+    /**
+     * Handles incoming messages addressed to input source.
+     */
+    void receiveAsInputSource(const Message& message);
+
 };
 
 } /* namespace gfx */

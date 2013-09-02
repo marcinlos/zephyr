@@ -29,6 +29,8 @@ enum class Button {
 enum class MouseMode {
     ABSOLUTE,
     RELATIVE,
+
+    LAST = RELATIVE
 };
 
 

@@ -9,6 +9,7 @@
 #include <zephyr/window/BufferSwapper.hpp>
 #include <zephyr/window/EventPoller.hpp>
 #include <zephyr/window/messages.hpp>
+#include <zephyr/input/messages.hpp>
 #include <zephyr/input/MessageGenerator.hpp>
 #include <zephyr/util/make_unique.hpp>
 #include <iostream>
@@ -27,6 +28,9 @@ WindowSystem::WindowSystem(Context ctx)
 
     core::registerHandler(ctx.dispatcher, msg::WINDOW, this,
             &WindowSystem::receive);
+
+    core::registerHandler(ctx.dispatcher, input::msg::INPUT_SOURCE, this,
+            &WindowSystem::receiveAsInputSource);
 
     std::cout << "[Window] Subsystem initialized" << std::endl;
 }
@@ -76,6 +80,23 @@ void WindowSystem::receive(const Message& message) {
 
     case msg::TOGGLE_FULLSCREEN:
         window_->toggleFullscreen();
+        break;
+    }
+}
+
+void WindowSystem::receiveAsInputSource(const Message& message) {
+    std::cout << "[Window system (as input source)] " << message << std::endl;
+    switch (message.type) {
+    case input::msg::MOUSE_ABS:
+        window_->mouseMode(MouseMode::ABSOLUTE);
+        break;
+
+    case input::msg::MOUSE_REL:
+        window_->mouseMode(MouseMode::RELATIVE);
+        break;
+
+    case input::msg::MOUSE_TOGGLE:
+        window_->toggleMouseMode();
         break;
     }
 }

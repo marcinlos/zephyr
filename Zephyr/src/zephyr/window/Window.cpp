@@ -22,6 +22,7 @@ Window::Window(const InitInfo& info, MessageQueue& queue)
 : queue(queue)
 , inputListener_(nullptr)
 , fullscreen_(false)
+, mouseMode_(MouseMode::ABSOLUTE)
 , title_(info.title)
 {
     window_ = createWindow(info);
@@ -36,7 +37,7 @@ void Window::swapBuffers() const {
     glfwSwapBuffers(window_.get());
 }
 
-void Window::setupListeners(GLFWwindow* window) {
+void Window::setupListeners(GLFWwindow* window) const {
     glfwSetMouseButtonCallback(window, &Window::mouseHandler);
     glfwSetCursorPosCallback(window, &Window::cursorHandler);
     glfwSetCursorEnterCallback(window, &Window::focusHandler);
@@ -51,7 +52,7 @@ void Window::setListener(const ListenerPtr& inputListener) {
     inputListener_ = inputListener;
 }
 
-Window::WindowPtr Window::createWindow(const InitInfo& info) {
+Window::WindowPtr Window::createWindow(const InitInfo& info) const {
     int width = info.width;
     int height = info.height;
     const char* title = info.title.c_str();
@@ -62,7 +63,7 @@ Window::WindowPtr Window::createWindow(const InitInfo& info) {
         throw std::runtime_error("Window initialization failure");
     }
     setupListeners(wnd.get());
-    glfwSetWindowUserPointer(wnd.get(), this);
+    glfwSetWindowUserPointer(wnd.get(), const_cast<Window*>(this));
     return wnd;
 }
 
@@ -97,12 +98,34 @@ void Window::disableFullscreen() {
     // empty
 }
 
-void Window::mouseMode(MouseMode mode) {
+inline int mouseModeToGLFW(MouseMode mode) {
+    switch (mode) {
+    case MouseMode::ABSOLUTE: return GLFW_CURSOR_NORMAL;
+    case MouseMode::RELATIVE: return GLFW_CURSOR_DISABLED;
+    default:
+        throw std::runtime_error("Invalid input mode");
+    }
+}
 
+inline MouseMode nextMouseMode(MouseMode mode) {
+    int ord = static_cast<std::uint32_t>(mode);
+    int total = static_cast<std::uint32_t>(MouseMode::LAST) + 1;
+    return static_cast<MouseMode>((ord + 1) % total);
+}
+
+void Window::mouseMode(MouseMode mode) {
+    mouseMode_ = mode;
+    int value = mouseModeToGLFW(mode);
+    glfwSetInputMode(window_.get(), GLFW_CURSOR, value);
+}
+
+void Window::toggleMouseMode() {
+    mouseMode_ = nextMouseMode(mouseMode_);
+    mouseMode(mouseMode_);
 }
 
 
-Position Window::getCursorPosition() {
+Position Window::getCursorPosition() const {
     double x, y;
     glfwGetCursorPos(window_.get(), &x, &y);
     return {x, y};
@@ -148,8 +171,7 @@ void Window::keyHandler(int key, int scancode, int action, int mods) {
 void Window::closeHandler() {
     queue.post({
         zephyr::msg::SYSTEM,
-        zephyr::msg::QUIT,
-        util::Any {}
+        zephyr::msg::QUIT
     });
 }
 

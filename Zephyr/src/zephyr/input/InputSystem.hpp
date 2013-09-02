@@ -50,6 +50,11 @@ public:
                         window::msg::WINDOW,
                         window::msg::TOGGLE_FULLSCREEN,
                     });
+                } else if (e.key == Key::GRAVE) {
+                    queue.post({
+                        msg::INPUT_SOURCE,
+                        msg::MOUSE_TOGGLE
+                    });
                 }
             }
         }
