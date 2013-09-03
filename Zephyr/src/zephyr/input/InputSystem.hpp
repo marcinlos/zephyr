@@ -36,7 +36,7 @@ public:
     }
 
     void message(const core::Message& message) {
-        std::cout << message.data << std::endl;
+        std::cout << "[Input] " << message.data << std::endl;
         if (message.type == msg::KEYBOARD_EVENT) {
             KeyEvent e = util::any_cast<KeyEvent>(message.data);
             if (e.type == KeyEvent::Type::DOWN) {

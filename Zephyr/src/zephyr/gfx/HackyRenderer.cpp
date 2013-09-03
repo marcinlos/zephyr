@@ -18,10 +18,121 @@ typedef boost::io::ios_all_saver guard;
 
 
 const float vertexPositions[] = {
-    0.75f, 0.75f, 0.0f, 1.0f,
-    0.75f, -0.75f, 0.0f, 1.0f,
-    -0.75f, -0.75f, 0.0f, 1.0f,
+    0.0f, 0.5f, 0.0f, 1.0f,
+    0.5f, -0.366f, 0.0f, 1.0f,
+    -0.5f, -0.366f, 0.0f, 1.0f,
+    1.0f, 0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f, 1.0f,
 };
+
+std::vector<float> makeStar(int n, float w) {
+    std::vector<float> storage(2 * 4 * 3 * 4 * n);
+    float* v = &storage[0];
+    float* col = v +  4 * 3 * 4 *n;
+
+    const float d = M_PI / n;
+
+    for (int i = 0; i < 4 * 3 * n; ++i) {
+        col[i * 4 + 0] = 1.0f;
+        col[i * 4 + 1] = 0.0f;
+        col[i * 4 + 2] = 0.0f;
+        col[i * 4 + 3] = 1.0f;
+    }
+
+    for (int i = 0; i < n; ++ i) {
+        float theta = 2 * i * M_PI / n;
+        float x = std::sin(theta);
+        float y = std::cos(theta);
+
+        float s = 0.5f;
+        float px = s * std::sin(theta - d);
+        float py = s * std::cos(theta - d);
+
+        float nx = s * std::sin(theta + d);
+        float ny = s * std::cos(theta + d);
+
+        int k = i * 4 * 3 * 4;
+
+        v[k + 0] = 0.0f;
+        v[k + 1] = 0.0f;
+        v[k + 2] = w;
+        v[k + 3] = 1.0f;
+
+        k += 4;
+        v[k + 0] = px;
+        v[k + 1] = py;
+        v[k + 2] = 0.0f;
+        v[k + 3] = 1.0f;
+
+        k += 4;
+        v[k + 0] = x;
+        v[k + 1] = y;
+        v[k + 2] = 0.0f;
+        v[k + 3] = 1.0f;
+
+
+        k += 4;
+        v[k + 0] = 0.0f;
+        v[k + 1] = 0.0f;
+        v[k + 2] = -w;
+        v[k + 3] = 1.0f;
+
+        k += 4;
+        v[k + 0] = x;
+        v[k + 1] = y;
+        v[k + 2] = 0.0f;
+        v[k + 3] = 1.0f;
+
+        k += 4;
+        v[k + 0] = px;
+        v[k + 1] = py;
+        v[k + 2] = 0.0f;
+        v[k + 3] = 1.0f;
+
+
+
+        k += 4;
+        v[k + 0] = 0.0f;
+        v[k + 1] = 0.0f;
+        v[k + 2] = w;
+        v[k + 3] = 1.0f;
+
+        k += 4;
+        v[k + 0] = x;
+        v[k + 1] = y;
+        v[k + 2] = 0.0f;
+        v[k + 3] = 1.0f;
+
+        k += 4;
+        v[k + 0] = nx;
+        v[k + 1] = ny;
+        v[k + 2] = 0.0f;
+        v[k + 3] = 1.0f;
+
+
+        k += 4;
+        v[k + 0] = 0.0f;
+        v[k + 1] = 0.0f;
+        v[k + 2] = -w;
+        v[k + 3] = 1.0f;
+
+        k += 4;
+        v[k + 0] = nx;
+        v[k + 1] = ny;
+        v[k + 2] = 0.0f;
+        v[k + 3] = 1.0f;
+
+        k += 4;
+        v[k + 0] = x;
+        v[k + 1] = y;
+        v[k + 2] = 0.0f;
+        v[k + 3] = 1.0f;
+
+    }
+
+    return storage;
+}
 
 const char* shaderTypeToString(GLenum type) {
     switch (type) {
@@ -80,27 +191,24 @@ GLuint linkProgram(const Container& shaders) {
 }
 
 
+const int N = 5;
+
+
 struct Data {
 
     GLuint vertexBuffer;
     GLuint program;
 
+    GLint offsetLocation;
+
     Data() {
         glewInit();
-        glGenBuffers(1, &vertexBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        initVB();
+        initProgram();
 
-        std::vector<GLuint> shaders {
-            createShader(GL_VERTEX_SHADER, read_file("resources/shader.vert")),
-            createShader(GL_FRAGMENT_SHADER, read_file("resources/shader.frag"))
-        };
-
-        program = linkProgram(shaders);
-        for (GLuint shader : shaders) {
-            glDeleteShader(shader);
-        }
+        glEnable(GL_CULL_FACE);
+        glFrontFace(GL_CW);
+        glCullFace(GL_BACK);
     }
 
     ~Data() {
@@ -115,6 +223,33 @@ struct Data {
         };
     }
 
+private:
+    void initProgram() {
+        std::vector<GLuint> shaders { createShader(GL_VERTEX_SHADER,
+                read_file("resources/shader.vert")), createShader(
+                GL_FRAGMENT_SHADER, read_file("resources/shader.frag")) };
+        program = linkProgram(shaders);
+        for (GLuint shader : shaders) {
+            glDeleteShader(shader);
+        }
+        offsetLocation = glGetUniformLocation(program, "offset");
+    }
+
+    void initVB() {
+        glGenBuffers(1, &vertexBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+        std::vector<float> data = makeStar(N, 0.0f);
+        for (int i = 0; i < 2 * 3 * 4 * N; ++ i) {
+            std::cout << "(" << data[4 * i + 0] << ", " << data[4 * i + 1];
+            std::cout << ", " << data[4 * i + 2] << ")" << std::endl;
+        }
+        std::cout << "size: " << data.size() << std::endl;
+
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), &data[0],
+                GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 };
 
 
@@ -144,23 +279,40 @@ void HackyRenderer::updateTime() {
     }
 }
 
+void* offset(int n) {
+    return reinterpret_cast<void*>(n);
+}
+
 
 void HackyRenderer::update() {
     updateTime();
+
+    double t = clock.time();
+    double dx = 0.0 * std::cos(t);
+    double dy = 0.0 * std::sin(t);
 
     int w, h;
     glfwGetFramebufferSize(glfwGetCurrentContext(), &w, &h);
     glViewport(0, 0, w, h);
 
-    glClearColor(0.4f, 0.6f, 0.2f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(data_->program);
+    glUniform2f(data_->offsetLocation, dx, dy);
     glBindBuffer(GL_ARRAY_BUFFER, data_->vertexBuffer);
+
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, offset(3 * 4 * N * 4 * 4));
+
+    glDrawArrays(GL_TRIANGLES, 0, 3 * 4 * N);
+
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glUseProgram(0);
 
 
 //    float ratio = w / (float) h;
