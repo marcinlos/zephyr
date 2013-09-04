@@ -34,6 +34,7 @@ private:
 
     std::shared_ptr<struct Data> data_;
 
+
 };
 
 } /* namespace gfx */
