@@ -16,6 +16,12 @@
 #include <zephyr/gfx/Shader.hpp>
 #include <zephyr/gfx/Program.hpp>
 
+#include <zephyr/core/MessageDispatcher.hpp>
+#include <zephyr/input/messages.hpp>
+
+#include <glm/glm.hpp>
+#include <glm/ext.hpp>
+
 
 namespace zephyr {
 namespace gfx {
@@ -95,10 +101,9 @@ struct Data {
 
     Element element;
 
-    GLint offsetLocation;
-    GLint zNearLocation;
-    GLint zFarLocation;
-    GLint frustumScaleLocation;
+    GLint modelMatrixLocation;
+    GLint viewMatrixLocation;
+    GLint perspectiveMatrixLocation;
 
     Data() {
         glewInit();
@@ -120,10 +125,9 @@ private:
             std::make_shared<Shader>(GL_FRAGMENT_SHADER, "resources/shader.frag")
         };
         ProgramPtr program = std::make_shared<Program>(shaders);
-        offsetLocation = program->getUniformLocation("offset");
-        zNearLocation = program->getUniformLocation("zNear");
-        zFarLocation = program->getUniformLocation("zFar");
-        frustumScaleLocation = program->getUniformLocation("frustumScale");
+        viewMatrixLocation = program->getUniformLocation("viewMatrix");
+        modelMatrixLocation = program->getUniformLocation("modelMatrix");
+        perspectiveMatrixLocation = program->getUniformLocation("perspectiveMatrix");
         return program;
     }
 
@@ -132,7 +136,7 @@ private:
         glGenBuffers(1, &buffer);
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
-        std::vector<float> data = makeStar(N, 0.0f);
+        std::vector<float> data = makeStar(N, 0.5f);
 
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), &data[0],
                 GL_STATIC_DRAW);
@@ -150,6 +154,9 @@ HackyRenderer::HackyRenderer(Context ctx)
     prevTime = clock.time();
     counter = 0;
     glfwSwapInterval(0);
+
+    core::registerHandler(ctx.dispatcher, input::msg::INPUT_SYSTEM, this,
+            &HackyRenderer::inputHandler);
 }
 
 void HackyRenderer::updateTime() {
@@ -172,12 +179,15 @@ void HackyRenderer::updateTime() {
 void HackyRenderer::update() {
     updateTime();
 
-    double t = clock.time();
-    double dx = 0.3 * std::cos(t);
-    double dy = 0.3 * std::sin(t);
+    double t = 2 * clock.time();
+    float dx = 0.3 * std::cos(t);
+    float dy = 0.3 * std::sin(t);
 
     int w, h;
     glfwGetFramebufferSize(glfwGetCurrentContext(), &w, &h);
+    glViewport(0, 0, w, h);
+
+    float ratio = w / (float) h;
     glViewport(0, 0, w, h);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -185,25 +195,31 @@ void HackyRenderer::update() {
 
     data_->element.program->use();
 
-    Uniform2f offset;
-    offset.v0 = dx;
-    offset.v1 = dy;
+//    glUniform1f(data_->frustumScaleLocation, 1.0f);
+//    glUniform1f(data_->zNearLocation, 1.0f);
+//    glUniform1f(data_->zFarLocation, 10.0f);
 
-    offset.set(data_->offsetLocation);
+    float zNear = 1.0f, zFar = 10.0f;
+    float frustumScale = 60.0f;
 
-//    glUniform2f(data_->offsetLocation, dx, dy);
-    glUniform1f(data_->frustumScaleLocation, 1.0f);
-    glUniform1f(data_->zNearLocation, 1.0f);
-    glUniform1f(data_->zFarLocation, 10.0f);
+    glm::mat4 model = glm::translate(dx, dy, -2.0f);
+    glm::mat4 view;
+    glm::mat4 perspective = glm::perspective(frustumScale, ratio, zNear, zFar);
+
+    glUniformMatrix4fv(data_->modelMatrixLocation, 1, GL_FALSE, &model[0][0]);
+    glUniformMatrix4fv(data_->viewMatrixLocation, 1, GL_FALSE, &view[0][0]);
+    glUniformMatrix4fv(data_->perspectiveMatrixLocation, 1, GL_FALSE, &perspective[0][0]);
+
 
     draw(data_->element);
 
 
-//    float ratio = w / (float) h;
-//    glViewport(0, 0, w, h);
 
 }
 
+void HackyRenderer::inputHandler(const core::Message& msg) {
+    std::cout << "[HackyRenderer] " << msg << std::endl;
+}
 
 } /* namespace gfx */
 } /* namespace zephyr */

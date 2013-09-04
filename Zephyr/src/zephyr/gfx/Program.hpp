@@ -7,6 +7,7 @@
 
 #include <GL/glew.h>
 #include <GL/gl.h>
+#include <memory>
 
 
 namespace zephyr {
@@ -45,7 +46,7 @@ GLuint create(Iter begin, Iter end) {
 }
 
 
-class Program {
+class Program: public std::enable_shared_from_this<Program> {
 private:
     GLuint program_;
 

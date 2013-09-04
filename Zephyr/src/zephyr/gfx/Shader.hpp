@@ -53,7 +53,7 @@ std::string read_file(const std::string& name) {
     };
 }
 
-class Shader {
+class Shader: public std::enable_shared_from_this<Shader> {
 private:
     GLuint shader_;
 
