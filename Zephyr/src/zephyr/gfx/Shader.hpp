@@ -74,6 +74,15 @@ public:
 
 typedef std::shared_ptr<Shader> ShaderPtr;
 
+inline ShaderPtr newVertexShader(const std::string& path) {
+    return std::make_shared<Shader>(GL_VERTEX_SHADER, path);
+}
+
+inline ShaderPtr newFragmentShader(const std::string& path) {
+    return std::make_shared<Shader>(GL_FRAGMENT_SHADER, path);
+}
+
+
 } /* namespace gfx */
 } /* namespace zephyr */
 

@@ -62,6 +62,10 @@ public:
         program_ = create(begin, end);
     }
 
+    Program(std::initializer_list<ShaderPtr> shaders) {
+        program_ = create(begin(shaders), end(shaders));
+    }
+
     ~Program() {
         glDeleteProgram(program_);
     }
