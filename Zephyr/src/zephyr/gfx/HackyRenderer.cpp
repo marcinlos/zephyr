@@ -52,13 +52,8 @@ struct Uniform2f: Uniform {
 };
 
 
-struct GlobalState {
-    glm::mat4 projectionMatrix;
-    glm::mat4 viewMatrix;
-};
-
 typedef std::shared_ptr<struct VertexArray> VertexArrayPtr;
-typedef std::shared_ptr<struct Model> ModelPtr;
+typedef std::shared_ptr<struct Entity> EntityPtr;
 typedef std::shared_ptr<struct Object> ObjectPtr;
 typedef std::weak_ptr<struct Object> WeakObjectPtr;
 
@@ -84,11 +79,11 @@ VertexArrayPtr newVertexArray(T&&... args) {
 }
 
 
-struct Model: public std::enable_shared_from_this<Model> {
+struct Entity: public std::enable_shared_from_this<Entity> {
     ProgramPtr program;
     VertexArrayPtr buffer;
 
-    Model(ProgramPtr program, VertexArrayPtr buffer)
+    Entity(ProgramPtr program, VertexArrayPtr buffer)
     : program(program)
     , buffer(buffer)
     { }
@@ -96,21 +91,22 @@ struct Model: public std::enable_shared_from_this<Model> {
 };
 
 template <typename... T>
-ModelPtr newModel(T&&... args) {
-    return std::make_shared<Model>(std::forward<T>(args)...);
+EntityPtr newEntity(T&&... args) {
+    return std::make_shared<Entity>(std::forward<T>(args)...);
 }
 
 
 struct Object: public std::enable_shared_from_this<Object> {
-    ModelPtr model;
+    EntityPtr entity;
     WeakObjectPtr parent;
     std::vector<ObjectPtr> children;
 
     glm::mat4 transform;
     glm::mat4 totalTransform;
 
-    Object(ModelPtr model, WeakObjectPtr parent = WeakObjectPtr { })
-    : model(model)
+
+    Object(EntityPtr entity, WeakObjectPtr parent = WeakObjectPtr { })
+    : entity(entity)
     , parent(parent)
     { }
 
@@ -131,8 +127,91 @@ ObjectPtr newObject(T&&... args) {
     return std::make_shared<Object>(std::forward<T>(args)...);
 }
 
+template <typename T>
+struct no_loader {
+
+    T load(const std::string& name) {
+        throw std::runtime_error("No such resource");
+    }
+
+};
+
+template <typename T, typename Loader = no_loader<T>>
+class ResourceManager {
+private:
+    std::unordered_map<std::string, T> resources;
+
+    Loader loader;
+
+    struct Proxy {
+        ResourceManager& manager;
+        std::string name;
+
+        Proxy(ResourceManager& manager, std::string name)
+        : manager(manager)
+        , name(std::move(name))
+        { }
+
+        operator T& () {
+            return manager.doGet(name);
+        }
+
+        Proxy& operator = (const T& value) {
+            manager.put(name, value);
+            return *this;
+        }
+    };
+
+    T& doGet(const std::string& name) {
+        auto result = resources.find(name);
+        if (result != end(resources)) {
+            return result->second;
+        } else {
+            T value = loader.load(name);
+            return put(name, value);
+        }
+    }
+
+public:
+    T& put(const std::string& name, const T& value) {
+        return resources[name] = value;
+    }
+
+    const T& get(const std::string& name) const {
+        return const_cast<ResourceManager&>(*this).doGet(name);
+    }
+
+    const T& operator [](const std::string& name) const {
+        return get(name);
+    }
+
+    Proxy operator [](std::string name) {
+        return Proxy(*this, std::move(name));
+    }
+};
 
 
+
+
+class ShaderManager: public ResourceManager<ShaderPtr> {
+
+};
+
+class ProgramManager: public ResourceManager<ProgramPtr> {
+
+};
+
+class VertexArrayManager: public ResourceManager<VertexArrayPtr> {
+
+};
+
+class EntityManager: public ResourceManager<EntityPtr> {
+
+};
+
+class ObjectManager: public ResourceManager<ObjectPtr> {
+
+};
 
 
 VertexArrayPtr fillVertexArray(const float* data, std::size_t n) {
@@ -169,8 +248,8 @@ VertexArrayPtr fillVertexArray(const std::vector<float>& data) {
 
 
 void drawGraph(ObjectPtr object, GLint transformLocation) {
-    if (object->model) {
-        const ModelPtr& model = object->model;
+    if (object->entity) {
+        const EntityPtr& model = object->entity;
         const VertexArrayPtr& vb = model->buffer;
 
         auto data = &object->totalTransform[0][0];
@@ -205,6 +284,12 @@ struct Data {
 
     ObjectPtr root;
 
+    ShaderManager shaders;
+    ProgramManager programs;
+    VertexArrayManager vaos;
+    EntityManager entities;
+    ObjectManager objects;
+
     glm::mat4 viewMatrix;
     glm::mat4 projMatrix;
 
@@ -214,16 +299,15 @@ struct Data {
 
     Data() {
         initOpenGL();
-        root = createRoot();
+        root = createScene();
     }
 
-    ObjectPtr createRoot() {
-        return newObject(
-            newModel(
-                createProgram(),
-                fillVertexArray(makeStar(9, 0.3f))
-            )
-        );
+    ObjectPtr createScene() {
+        createProgram();
+
+        vaos["star 9"] = fillVertexArray(makeStar(9, 0.3f));
+        entities["star"] = newEntity(programs["program"], vaos["star 9"]);
+        return objects["root"] = newObject(entities["star"]);
     }
 
     void initOpenGL() {
@@ -234,7 +318,9 @@ struct Data {
         glCullFace(GL_BACK);
 
         glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
+        glDepthRange(0.0f, 1.0f);
     }
 
     void update(double t) {
@@ -242,7 +328,7 @@ struct Data {
         float dx = r * std::cos(t);
         float dy = r * std::sin(t);
 
-        root->transform = glm::rotate<float>(t * 20, 0, 1, 0);// * glm::rotate<float>(t * 50, 0, 0, 1);
+        root->transform = glm::rotate<float>(t * 20, 0, 1, 0);
         root->update();
     }
 
@@ -256,15 +342,19 @@ struct Data {
     }
 
 private:
-    ProgramPtr createProgram() {
-        ProgramPtr program(new Program {
-            newVertexShader("resources/shader.vert"),
-            newFragmentShader("resources/shader.frag")
+    void createProgram() {
+
+        shaders["vertex"] = newVertexShader("resources/shader.vert");
+        shaders["fragment"] = newFragmentShader("resources/shader.frag");
+
+        programs["program"] = newProgram({
+            shaders["vertex"],
+            shaders["fragment"]
         });
+        ProgramPtr program = programs["program"];
         viewUniform = program->getUniformLocation("viewMatrix");
         modelUniform = program->getUniformLocation("modelMatrix");
         projUniform = program->getUniformLocation("projectionMatrix");
-        return program;
     }
 };
 
@@ -280,6 +370,7 @@ HackyRenderer::HackyRenderer(Context ctx)
 
     core::registerHandler(ctx.dispatcher, input::msg::INPUT_SYSTEM, this,
             &HackyRenderer::inputHandler);
+
 }
 
 void HackyRenderer::updateTime() {
@@ -316,7 +407,7 @@ void HackyRenderer::update() {
     glClear(GL_COLOR_BUFFER_BIT);
 
 
-    data_->root->model->program->use();
+    data_->root->entity->program->use();
 
     data_->projMatrix = projectionMatrix({
         60.0f, ratio, 1.0f, 10.0f

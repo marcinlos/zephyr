@@ -92,6 +92,11 @@ public:
 
 typedef std::shared_ptr<Program> ProgramPtr;
 
+ProgramPtr newProgram(std::initializer_list<ShaderPtr> shaders) {
+    return std::make_shared<Program>(shaders);
+}
+
+
 } /* namespace gfx */
 } /* namespace zephyr */
 
