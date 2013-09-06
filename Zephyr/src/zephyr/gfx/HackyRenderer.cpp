@@ -112,7 +112,7 @@ struct Object: public std::enable_shared_from_this<Object> {
 
     void update() {
         if (auto p = parent.lock()) {
-            totalTransform = transform * p->totalTransform;
+            totalTransform = p->totalTransform * transform;
         } else {
             totalTransform = transform;
         }
@@ -252,7 +252,7 @@ void drawGraph(ObjectPtr object, GLint transformLocation) {
         const EntityPtr& model = object->entity;
         const VertexArrayPtr& vb = model->buffer;
 
-        auto data = &object->totalTransform[0][0];
+        auto data = glm::value_ptr(object->totalTransform);
         glUniformMatrix4fv(transformLocation, 1, GL_FALSE, data);
         glBindVertexArray(vb->glName);
         glDrawArrays(GL_TRIANGLES, 0, vb->count);
@@ -305,9 +305,15 @@ struct Data {
     ObjectPtr createScene() {
         createProgram();
 
-        vaos["star 9"] = fillVertexArray(makeStar(9, 0.3f));
+        vaos["star 9"] = fillVertexArray(makeStar(10, 0.3f));
         entities["star"] = newEntity(programs["program"], vaos["star 9"]);
-        return objects["root"] = newObject(entities["star"]);
+        ObjectPtr root = objects["root"] = newObject(entities["star"]);
+
+        ObjectPtr small = newObject(entities["star"], root);
+        small->transform = glm::translate(0.9f, 0.0f, 0.0f) * glm::scale(0.2f, 0.2f, 0.2f);
+        root->children.push_back(small);
+
+        return root;
     }
 
     void initOpenGL() {
@@ -334,10 +340,10 @@ struct Data {
 
     void draw() {
 
-        viewMatrix = glm::translate(0.0f, 0.0f, -2.0f);
+        viewMatrix = glm::translate(0.0f, 0.0f, -4.0f);
 
-        glUniformMatrix4fv(viewUniform, 1, GL_FALSE, &viewMatrix[0][0]);
-        glUniformMatrix4fv(projUniform, 1, GL_FALSE, &projMatrix[0][0]);
+        glUniformMatrix4fv(viewUniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        glUniformMatrix4fv(projUniform, 1, GL_FALSE, glm::value_ptr(projMatrix));
         drawGraph(root, modelUniform);
     }
 
@@ -366,7 +372,7 @@ HackyRenderer::HackyRenderer(Context ctx)
     std::cout << "[Hacky] Initializing hacky renderer" << std::endl;
     prevTime = clock.time();
     counter = 0;
-    glfwSwapInterval(0);
+//    glfwSwapInterval(0);
 
     core::registerHandler(ctx.dispatcher, input::msg::INPUT_SYSTEM, this,
             &HackyRenderer::inputHandler);
@@ -387,6 +393,7 @@ void HackyRenderer::updateTime() {
         counter = 0;
         prevTime = time;
     }
+
 }
 
 
@@ -400,12 +407,9 @@ void HackyRenderer::update() {
 
     float ratio = w / (float) h;
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_DEPTH_BUFFER_BIT);
-
     glClearColor(0.0f, 0.0f, 0.1f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     data_->root->entity->program->use();
 

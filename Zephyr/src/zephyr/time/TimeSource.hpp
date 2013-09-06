@@ -23,6 +23,9 @@ private:
 
 public:
 
+    /**
+     * Creates new timesource, based on @c std::chrono clock.
+     */
     TimeSource()
     : start(clock::now())
     { }
