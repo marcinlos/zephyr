@@ -3,6 +3,8 @@
  */
 
 #include <zephyr/gfx/HackyRenderer.hpp>
+#include <zephyr/resources/ResourceManager.hpp>
+
 #include <iostream>
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -28,6 +30,8 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include <list>
+
+using zephyr::resources::ResourceManager;
 
 
 namespace zephyr {
@@ -134,91 +138,11 @@ ObjectPtr newObject(T&&... args) {
     return std::make_shared<Object>(std::forward<T>(args)...);
 }
 
-template <typename T>
-struct no_loader {
-
-    T load(const std::string& name) {
-        throw std::runtime_error("No such resource");
-    }
-
-};
-
-template <typename T, typename Loader = no_loader<T>>
-class ResourceManager {
-private:
-    std::unordered_map<std::string, T> resources;
-
-    Loader loader;
-
-    struct Proxy {
-        ResourceManager& manager;
-        std::string name;
-
-        Proxy(ResourceManager& manager, std::string name)
-        : manager(manager)
-        , name(std::move(name))
-        { }
-
-        operator T& () {
-            return manager.doGet(name);
-        }
-
-        Proxy& operator = (const T& value) {
-            manager.put(name, value);
-            return *this;
-        }
-    };
-
-    T& doGet(const std::string& name) {
-        auto result = resources.find(name);
-        if (result != end(resources)) {
-            return result->second;
-        } else {
-            T value = loader.load(name);
-            return put(name, value);
-        }
-    }
-
-public:
-    T& put(const std::string& name, const T& value) {
-        return resources[name] = value;
-    }
-
-    const T& get(const std::string& name) const {
-        return const_cast<ResourceManager&>(*this).doGet(name);
-    }
-
-    const T& operator [](const std::string& name) const {
-        return get(name);
-    }
-
-    Proxy operator [](std::string name) {
-        return Proxy(*this, std::move(name));
-    }
-};
-
-
-
-
-class ShaderManager: public ResourceManager<ShaderPtr> {
-
-};
-
-class ProgramManager: public ResourceManager<ProgramPtr> {
-
-};
-
-class VertexArrayManager: public ResourceManager<VertexArrayPtr> {
-
-};
-
-class EntityManager: public ResourceManager<EntityPtr> {
-
-};
-
-class ObjectManager: public ResourceManager<ObjectPtr> {
-
-};
+typedef ResourceManager<ShaderPtr> ShaderManager;
+typedef ResourceManager<ProgramPtr> ProgramManager;
+typedef ResourceManager<VertexArrayPtr> VertexArrayManager;
+typedef ResourceManager<EntityPtr>EntityManager;
+typedef ResourceManager<ObjectPtr> ObjectManager;
 
 
 VertexArrayPtr fillVertexArray(const float* data, std::size_t n) {
@@ -302,10 +226,6 @@ struct Camera {
 //    : dir(0, 0, 0, -1)
     { }
 
-    glm::vec3 dir() const {
-        return dirFromView(FWD);
-    }
-
     glm::vec3 dirToView(const glm::vec3& v) const {
         return glm::vec3 { rot * glm::vec4(v, 0) };
     }
@@ -313,6 +233,15 @@ struct Camera {
     glm::vec3 dirFromView(const glm::vec3& v) const {
         return glm::vec3 { glm::inverse(rot) * glm::vec4(v, 0) };
     }
+
+    void translate(const glm::vec3& v) {
+        pos += v;
+    }
+
+    void rotate(const glm::mat4& mat) {
+        rot = mat * rot;
+    }
+
 };
 
 
@@ -378,7 +307,7 @@ struct SceneManager {
     }
 
     void update() {
-        viewMatrix = camera.rot * glm::translate(camera.pos);/* glm::mat4_cast(camera.dir); */
+        viewMatrix = camera.rot * glm::translate(camera.pos);
         root->update();
     }
 
@@ -467,7 +396,7 @@ HackyRenderer::HackyRenderer(Context ctx)
             &HackyRenderer::inputHandler);
 
     MatrixRotator rotator { 30, glm::vec3 { 0, 1, 0 } };
-//    taskletScheduler.add(changer(scene->root->transform, rotator));
+    taskletScheduler.add(changer(scene->root->transform, rotator));
 
     Action action = repeatedly(actionScheduler, [this](){
         double time = clock.time();
@@ -530,27 +459,27 @@ void HackyRenderer::update() {
     if (pressed(Key::D)) {
         scene->camera.pos -= ds * scene->camera.dirFromView(RIGHT);
     }
+
     if (pressed(Key::LEFT)) {
-        scene->camera.rot = glm::rotate<float>(clock.dt() * -hRotH, 0, 1, 0) * scene->camera.rot;
+        scene->camera.rotate(glm::rotate<float>(clock.dt() * -hRotH, 0, 1, 0));
         std::cout << scene->camera.dirFromView(FWD) << std::endl;
         std::cout << scene->camera.pos << std::endl;
     }
     if (pressed(Key::RIGHT)) {
-        scene->camera.rot = glm::rotate<float>(clock.dt() * hRotH, 0, 1, 0) * scene->camera.rot;
+        scene->camera.rotate(glm::rotate<float>(clock.dt() * hRotH, 0, 1, 0));
         std::cout << scene->camera.dirFromView(FWD) << std::endl;
         std::cout << scene->camera.pos << std::endl;
     }
     if (pressed(Key::UP)) {
-        scene->camera.rot = glm::rotate<float>(clock.dt() * -hRotV, 1, 0, 0) * scene->camera.rot;
+        scene->camera.rotate(glm::rotate<float>(clock.dt() * -hRotV, 1, 0, 0));
         std::cout << scene->camera.pos << std::endl;
     }
     if (pressed(Key::DOWN)) {
-        scene->camera.rot = glm::rotate<float>(clock.dt() * hRotV, 1, 0, 0) * scene->camera.rot;
+        scene->camera.rotate(glm::rotate<float>(clock.dt() * hRotV, 1, 0, 0));
         std::cout << scene->camera.pos << std::endl;
     }
     scene->update();
     scene->draw();
-
 
 }
 
@@ -571,7 +500,6 @@ void HackyRenderer::inputHandler(const core::Message& msg) {
             else if (e.key == Key::F11) {
                 glfwSwapInterval(vsync = !vsync);
             }
-
 
         } else if (e.type == KeyEvent::Type::UP) {
             isPressed[static_cast<int>(e.key)] = false;

@@ -148,7 +148,9 @@ private:
     double prevTime;
     int counter;
 
-    bool isPressed[static_cast<int>(input::Key::LAST) + 1];
+    const static int KEY_NUMBER = static_cast<int>(input::Key::LAST);
+
+    bool isPressed[KEY_NUMBER];
 
     void updateTime();
 
