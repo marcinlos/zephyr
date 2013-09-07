@@ -11,7 +11,7 @@
 #include <zephyr/core/DispatcherTask.hpp>
 #include <zephyr/window/WindowSystem.hpp>
 #include <zephyr/input/InputSystem.hpp>
-#include <zephyr/time/TimeSource.hpp>
+#include <zephyr/time/ClockManager.hpp>
 #include <zephyr/util/static_hash.hpp>
 #include <memory>
 #include <string>
@@ -34,7 +34,12 @@ public:
     /** Runs the main loop */
     void run();
 
-    /** Name of the dispatcher task, as registered in the schedulre */
+    /** @addtogroup SystemTasks */
+    /// @{
+
+    /**
+     * Name of the dispatcher task
+     */
     static constexpr char DISPATCHER_NAME[] = "msg-dispatcher-task";
 
     /**
@@ -42,6 +47,18 @@ public:
      * for core input subsystems, that I believe should run before the logic.
      */
     static const int DISPATCHER_PRIORITY = 1000;
+
+    /**
+     * Name of the clock updater task
+     */
+    static constexpr char CLOCK_UPDATER_NAME[] = "clock-updater-task";
+
+    /**
+     * Clock should be updated early, before any noncore activity takes place.
+     */
+    static const int CLOCK_UPDATER_PRIORITY = 110;
+
+    /// @}
 
 private:
     core::Scheduler scheduler;

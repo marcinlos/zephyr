@@ -22,22 +22,32 @@ using core::Message;
 class WindowSystem {
 public:
 
-    /** Name of the swapper task */
+    /** @addtogroup SystemTasks */
+    /// @{
+
+    /**
+     * Name of the swapper task
+     */
     static constexpr char SWAPPER_NAME[] = "buffer-swapper-task";
 
     /**
      * Probably swapper shold execute last, after all the other subsystems
-     * finish their modifications and rendering.
+     * finish their modifications and rendering
      */
     static const int SWAPPER_PRIORITY = 1000000;
 
 
-    /** Name of the task that polls the window events */
+    /**
+     * Name of the task that polls the window events
+     */
     static constexpr char WINDOW_POLLER_NAME[] = "window-poll-task";
 
-    /** Should run before dispatcher */
+    /**
+     * Should run before dispatcher
+     */
     static const int WINDOW_POLLER_PRIORITY = 100;
 
+    /// @}
 
     WindowSystem(Context ctx);
 

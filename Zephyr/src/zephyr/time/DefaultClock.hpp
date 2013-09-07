@@ -7,7 +7,6 @@
 
 #include <zephyr/time/Clock.hpp>
 
-
 namespace zephyr {
 namespace time {
 

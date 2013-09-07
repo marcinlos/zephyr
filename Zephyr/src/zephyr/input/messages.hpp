@@ -19,7 +19,7 @@ namespace msg {
 const core::address INPUT_SYSTEM = util::static_hash("input-system");
 
 /**
- * @defgroup Input system messages
+ * @defgroup InputSystemMessages Input system messages
  *
  * Messages sent to the input system, carrying information about input events.
  */
@@ -40,7 +40,7 @@ const std::uint32_t FOCUS_EVENT = util::static_hash("window-focus-event");
 const core::address INPUT_SOURCE = util::static_hash("input-source");
 
 /**
- * @defgroup Input source messages
+ * @defgroup InputSourceMessages Input source messages
  *
  * Messages sent to the input source, controlling its behaviour and settings.
  */

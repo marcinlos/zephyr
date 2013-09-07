@@ -45,7 +45,7 @@ inline Mod modFromGLFW(int mod) {
 }
 
 /**
- * @defgroup Keyboard event conversion
+ * @defgroup KeyboardEventConversion Keyboard event conversion
  */
 /// @{
 
@@ -72,7 +72,7 @@ inline KeyEvent keyEventFromGLFW(int key, int action, int mods) {
 
 
 /**
- * @defgroup Mouse event conversion
+ * @defgroup MouseEventConversion Mouse event conversion
  */
 /// @{
 

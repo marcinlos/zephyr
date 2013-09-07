@@ -5,7 +5,7 @@
 #include <zephyr/Root.hpp>
 #include <zephyr/messages.hpp>
 #include <zephyr/core/DispatcherTask.hpp>
-#include <zephyr/time/TimeSource.hpp>
+#include <zephyr/time/ClockUpdateTask.hpp>
 #include <zephyr/util/make_unique.hpp>
 #include <iostream>
 #include <memory>
@@ -61,6 +61,9 @@ void Root::initSubsystems() {
 void Root::runCoreTasks() {
     TaskPtr task = std::make_shared<DispatcherTask>(messageQueue, dispatcher);
     scheduler.startTask(DISPATCHER_NAME, DISPATCHER_PRIORITY, task);
+
+    TaskPtr clockTask = std::make_shared<time::ClockUpdateTask>(clockManager);
+    scheduler.startTask(CLOCK_UPDATER_NAME, CLOCK_UPDATER_PRIORITY, clockTask);
 }
 
 void Root::run() {
@@ -77,8 +80,11 @@ void Root::receive(const core::Message& message) {
     }
 }
 
-/// Static member definitions
+// Static member definitions
+
 constexpr char Root::DISPATCHER_NAME[];
+
+constexpr char Root::CLOCK_UPDATER_NAME[];
 
 } /* namespace zephyr */
 

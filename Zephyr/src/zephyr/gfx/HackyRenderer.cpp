@@ -367,12 +367,13 @@ private:
 
 HackyRenderer::HackyRenderer(Context ctx)
 : clocks(ctx.clockManager)
+, clock(clocks.getMainClock())
 , data_(std::make_shared<Data>())
 {
     std::cout << "[Hacky] Initializing hacky renderer" << std::endl;
     prevTime = clock.time();
     counter = 0;
-//    glfwSwapInterval(0);
+//    glfwSwapInterval(fd0);
 
     core::registerHandler(ctx.dispatcher, input::msg::INPUT_SYSTEM, this,
             &HackyRenderer::inputHandler);

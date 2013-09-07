@@ -15,6 +15,12 @@ namespace msg {
 
 //using util::operator"" _h;
 
+/**
+ * @defgroup SystemTasks System tasks
+ *
+ * Predefined tasks, realizing necessary system-wide functionalities.
+ */
+
 
 const core::address SYSTEM = util::static_hash("system");
 

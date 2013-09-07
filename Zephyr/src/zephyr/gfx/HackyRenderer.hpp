@@ -8,8 +8,7 @@
 #include <zephyr/Context.hpp>
 #include <zephyr/core/Task.hpp>
 #include <zephyr/time/ClockManager.hpp>
-
-#include <zephyr/time/TimeSource.hpp>
+#include <zephyr/time/Clock.hpp>
 #include <memory>
 
 
@@ -24,11 +23,11 @@ public:
     void update() override;
 
 private:
-    time::ClockManager& clocks;
+    const time::ClockManager& clocks;
+    const time::Clock& clock;
+
     double prevTime;
     int counter;
-
-    time::TimeSource clock;
 
     void updateTime();
 

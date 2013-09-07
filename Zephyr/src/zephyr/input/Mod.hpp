@@ -24,7 +24,7 @@ enum class Mod: std::uint16_t {
 };
 
 /**
- * @defgroup Mod enum operations
+ * @defgroup ModEnumOperations Mod enum operations
  */
 ///@{
 
