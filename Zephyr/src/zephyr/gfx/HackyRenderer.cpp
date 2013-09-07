@@ -243,6 +243,12 @@ public:
         rot = mat * rot;
     }
 
+    void rotate(float dx, float dy, const glm::vec3& up) {
+        glm::vec3 upInViewSpace = dirToView(up);
+        glm::vec3 dir { dx, dy, -proj.zFar };
+        rotate(glm::lookAt(ORIGIN, dir, upInViewSpace));
+    }
+
     const Projection& projection() const {
         return proj;
     }
@@ -257,6 +263,10 @@ public:
 
     glm::mat4 viewMatrix() const {
         return rot * glm::translate(pos);
+    }
+
+    glm::vec3 up() const {
+        return dirFromView(UP);
     }
 
     void adjustRatio(float aspectRatio) {
@@ -528,21 +538,21 @@ void HackyRenderer::update() {
     }
 
     if (pressed(Key::LEFT)) {
-        scene->camera.rotate(glm::rotate<float>(clock.dt() * -hRotH, 0, 1, 0));
+        scene->camera.rotate(clock.dt() * -hRotH, 0, UP);
         std::cout << scene->camera.dirFromView(FWD) << std::endl;
         std::cout << scene->camera.pos << std::endl;
     }
     if (pressed(Key::RIGHT)) {
-        scene->camera.rotate(glm::rotate<float>(clock.dt() * hRotH, 0, 1, 0));
+        scene->camera.rotate(clock.dt() * hRotH, 0, UP);
         std::cout << scene->camera.dirFromView(FWD) << std::endl;
         std::cout << scene->camera.pos << std::endl;
     }
     if (pressed(Key::UP)) {
-        scene->camera.rotate(glm::rotate<float>(clock.dt() * -hRotV, 1, 0, 0));
+        scene->camera.rotate(0, clock.dt() * hRotV, UP);
         std::cout << scene->camera.pos << std::endl;
     }
     if (pressed(Key::DOWN)) {
-        scene->camera.rotate(glm::rotate<float>(clock.dt() * hRotV, 1, 0, 0));
+        scene->camera.rotate(0, clock.dt() * -hRotV, UP);
         std::cout << scene->camera.pos << std::endl;
     }
     scene->update();
