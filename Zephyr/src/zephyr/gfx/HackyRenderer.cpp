@@ -19,8 +19,15 @@
 #include <zephyr/core/MessageDispatcher.hpp>
 #include <zephyr/input/messages.hpp>
 
+
+#include <zephyr/input/KeyEvent.hpp>
+#include <zephyr/input/ButtonEvent.hpp>
+
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#include <glm/gtx/quaternion.hpp>
+
+#include <list>
 
 
 namespace zephyr {
@@ -272,15 +279,45 @@ struct Projection {
     float aspectRatio;
     float zNear;
     float zFar;
+
+    glm::mat4 matrix() const {
+        return glm::perspective(fov, aspectRatio, zNear, zFar);
+    }
 };
 
-glm::mat4 projectionMatrix(const Projection& proj) {
-    return glm::perspective(proj.fov, proj.aspectRatio, proj.zNear, proj.zFar);
-}
+const glm::vec3 FWD   {  0,  0, -1 };
+const glm::vec3 BACK  {  0,  0,  1 };
+const glm::vec3 UP    {  0,  1,  0 };
+const glm::vec3 DOWN  {  0, -1,  0 };
+const glm::vec3 LEFT  { -1,  0,  0 };
+const glm::vec3 RIGHT {  1,  0,  0 };
+
+struct Camera {
+    Projection proj;
+    glm::vec3 pos;
+//    glm::quat dir;
+    glm::mat4 rot;
+
+    Camera()
+//    : dir(0, 0, 0, -1)
+    { }
+
+    glm::vec3 dir() const {
+        return dirFromView(FWD);
+    }
+
+    glm::vec3 dirToView(const glm::vec3& v) const {
+        return glm::vec3 { rot * glm::vec4(v, 0) };
+    }
+
+    glm::vec3 dirFromView(const glm::vec3& v) const {
+        return glm::vec3 { glm::inverse(rot) * glm::vec4(v, 0) };
+    }
+};
 
 
 
-struct Data {
+struct SceneManager {
 
     ObjectPtr root;
 
@@ -290,6 +327,7 @@ struct Data {
     EntityManager entities;
     ObjectManager objects;
 
+    Camera camera;
     glm::mat4 viewMatrix;
     glm::mat4 projMatrix;
 
@@ -297,9 +335,10 @@ struct Data {
     GLint viewUniform;
     GLint projUniform;
 
-    Data() {
+    SceneManager() {
         initOpenGL();
         root = createScene();
+        setupCamera();
     }
 
     ObjectPtr createScene() {
@@ -313,7 +352,15 @@ struct Data {
         small->transform = glm::translate(0.9f, 0.0f, 0.0f) * glm::scale(0.2f, 0.2f, 0.2f);
         root->children.push_back(small);
 
+        ObjectPtr left = newObject(entities["star"], root);
+        small->transform = glm::translate(0.9f, 0.0f, 0.0f) * glm::scale(0.2f, 0.2f, 0.2f);
+        root->children.push_back(small);
+
         return root;
+    }
+
+    void setupCamera() {
+        camera.pos = glm::vec3 { 0.0f, 0.0f, -3.0f };
     }
 
     void initOpenGL() {
@@ -327,21 +374,16 @@ struct Data {
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
         glDepthRange(0.0f, 1.0f);
+
     }
 
-    void update(double t) {
-        const double r = 0.6;
-        float dx = r * std::cos(t);
-        float dy = r * std::sin(t);
-
-        root->transform = glm::rotate<float>(t * 20, 0, 1, 0);
+    void update() {
+        viewMatrix = camera.rot * glm::translate(camera.pos);/* glm::mat4_cast(camera.dir); */
         root->update();
     }
 
     void draw() {
-
-        viewMatrix = glm::translate(0.0f, 0.0f, -4.0f);
-
+        root->entity->program->use();
         glUniformMatrix4fv(viewUniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
         glUniformMatrix4fv(projUniform, 1, GL_FALSE, glm::value_ptr(projMatrix));
         drawGraph(root, modelUniform);
@@ -365,25 +407,70 @@ private:
 };
 
 
+template <typename T, typename Fun>
+struct ValueChanger {
+
+    T& value;
+    Fun fun;
+
+    ValueChanger(T& value, Fun fun = { })
+    : value(value)
+    , fun(fun)
+    { }
+
+    bool operator () (double t, double dt) {
+        return fun(value, t, dt);
+    }
+
+};
+
+template <typename T, typename Fun>
+ValueChanger<T, Fun> changer(T& value, Fun fun = { }) {
+    return ValueChanger<T, Fun>(value, fun);
+}
+
+glm::mat4 rotate(float angle, const glm::vec3& axis) {
+    return glm::rotate(angle, axis);
+}
+
+struct MatrixRotator {
+    float radiansPerSecond;
+    glm::vec3 axis;
+
+    bool operator () (glm::mat4& value, double, double dt) {
+        value *= rotate(dt * radiansPerSecond, axis);
+        return true;
+    }
+};
+
+struct MatrixTranslator {
+    glm::vec3 displacement;
+
+    bool operator () (glm::mat4& value, double, float dt) {
+        value *= glm::translate(dt * displacement);
+        return true;
+    }
+};
+
+
 HackyRenderer::HackyRenderer(Context ctx)
 : clocks(ctx.clockManager)
 , clock(clocks.getMainClock())
-, data_(std::make_shared<Data>())
+, scene(std::make_shared<SceneManager>())
 {
     std::cout << "[Hacky] Initializing hacky renderer" << std::endl;
     prevTime = clock.time();
     counter = 0;
-//    glfwSwapInterval(fd0);
+    glfwSwapInterval(vsync);
 
     core::registerHandler(ctx.dispatcher, input::msg::INPUT_SYSTEM, this,
             &HackyRenderer::inputHandler);
 
-}
+    MatrixRotator rotator { 30, glm::vec3 { 0, 1, 0 } };
+//    taskletScheduler.add(changer(scene->root->transform, rotator));
 
-void HackyRenderer::updateTime() {
-    ++counter;
-    double time = clock.time();
-    if (time - prevTime > 1.0) {
+    Action action = repeatedly(actionScheduler, [this](){
+        double time = clock.time();
         double fps = counter / (time - prevTime);
         {
             guard g(std::cout);
@@ -393,14 +480,21 @@ void HackyRenderer::updateTime() {
         }
         counter = 0;
         prevTime = time;
-    }
+    }, 1.0);
 
+    actionScheduler.scheduleIn(action, 1.0);
+}
+
+void HackyRenderer::updateTime() {
+    ++counter;
+    double time = clock.time();
+    taskletScheduler.update(time, clock.dt());
+    actionScheduler.update(time);
 }
 
 
 void HackyRenderer::update() {
     updateTime();
-    double t = 2 * clock.time();
 
     int w, h;
     glfwGetFramebufferSize(glfwGetCurrentContext(), &w, &h);
@@ -412,19 +506,92 @@ void HackyRenderer::update() {
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    data_->root->entity->program->use();
+    scene->projMatrix = Projection{
+        60.0f, ratio, 1.0f, 100.0f
+    }.matrix();
 
-    data_->projMatrix = projectionMatrix({
-        60.0f, ratio, 1.0f, 10.0f
-    });
+    using input::Key;
 
-    data_->update(t);
-    data_->draw();
+    const float v = 4.0f;
+    const float ds = v * clock.dt();
+
+    const float hRotV = 60;
+    const float hRotH = 60;
+
+    if (pressed(Key::W)) {
+        scene->camera.pos -= ds * scene->camera.dirFromView(FWD);
+    }
+    if (pressed(Key::S)) {
+        scene->camera.pos -= ds * scene->camera.dirFromView(BACK);
+    }
+    if (pressed(Key::A)) {
+        scene->camera.pos -= ds * scene->camera.dirFromView(LEFT);
+    }
+    if (pressed(Key::D)) {
+        scene->camera.pos -= ds * scene->camera.dirFromView(RIGHT);
+    }
+    if (pressed(Key::LEFT)) {
+        scene->camera.rot = glm::rotate<float>(clock.dt() * -hRotH, 0, 1, 0) * scene->camera.rot;
+        std::cout << scene->camera.dirFromView(FWD) << std::endl;
+        std::cout << scene->camera.pos << std::endl;
+    }
+    if (pressed(Key::RIGHT)) {
+        scene->camera.rot = glm::rotate<float>(clock.dt() * hRotH, 0, 1, 0) * scene->camera.rot;
+        std::cout << scene->camera.dirFromView(FWD) << std::endl;
+        std::cout << scene->camera.pos << std::endl;
+    }
+    if (pressed(Key::UP)) {
+        scene->camera.rot = glm::rotate<float>(clock.dt() * -hRotV, 1, 0, 0) * scene->camera.rot;
+        std::cout << scene->camera.pos << std::endl;
+    }
+    if (pressed(Key::DOWN)) {
+        scene->camera.rot = glm::rotate<float>(clock.dt() * hRotV, 1, 0, 0) * scene->camera.rot;
+        std::cout << scene->camera.pos << std::endl;
+    }
+    scene->update();
+    scene->draw();
+
 
 }
 
+
 void HackyRenderer::inputHandler(const core::Message& msg) {
 //    std::cout << "[HackyRenderer] " << msg << std::endl;
+    using namespace zephyr::input;
+
+    if (msg.type == msg::KEYBOARD_EVENT) {
+        KeyEvent e = util::any_cast<KeyEvent>(msg.data);
+        if (e.type == KeyEvent::Type::DOWN) {
+            isPressed[static_cast<int>(e.key)] = true;
+
+            if (e.key == Key::SPACE) {
+                std::cout << "dir: " << scene->camera.dirToView(FWD) << std::endl;
+                std::cout << "pos: " << scene->camera.pos << std::endl;
+            }
+            else if (e.key == Key::F11) {
+                glfwSwapInterval(vsync = !vsync);
+            }
+
+
+        } else if (e.type == KeyEvent::Type::UP) {
+            isPressed[static_cast<int>(e.key)] = false;
+        }
+    } else if (msg.type == msg::CURSOR_EVENT) {
+        Position pos = util::any_cast<Position>(msg.data);
+        float dx = pos.x - cursor.x;
+        float dy = - (pos.y - cursor.y);
+        float z = -100.0f;
+//        std::cout << "old: " << cursor.x
+//        std::cout << "YAAY! " << dx * dx + dy * dy << std::endl;
+//        if (dx * dx + dy * dy < 100) {
+//            scene->camera.rot = glm::lookAt(
+//                    glm::vec3{0, 0, 0},
+//                    glm::vec3{dx, dy, z},
+//                    glm::vec3{0, 1, 0});
+//        }
+        cursor = pos;
+    }
+
 }
 
 } /* namespace gfx */

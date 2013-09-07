@@ -26,10 +26,9 @@ WindowSystem::WindowSystem(Context ctx)
     attachInputListener(ctx);
     runTasks(ctx.scheduler);
 
-    core::registerHandler(ctx.dispatcher, msg::WINDOW, this,
-            &WindowSystem::receive);
+    registerHandler(ctx.dispatcher, msg::WINDOW, this, &WindowSystem::receive);
 
-    core::registerHandler(ctx.dispatcher, input::msg::INPUT_SOURCE, this,
+    registerHandler(ctx.dispatcher, input::msg::INPUT_SOURCE, this,
             &WindowSystem::receiveAsInputSource);
 
     std::cout << "[Window] Subsystem initialized" << std::endl;
