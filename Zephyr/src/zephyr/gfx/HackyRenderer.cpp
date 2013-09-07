@@ -185,13 +185,14 @@ VertexArrayPtr fillVertexArray(const std::vector<float>& data) {
 void drawGraph(ObjectPtr object, GLint transformLocation) {
     if (object->entity) {
         const EntityPtr& model = object->entity;
-        const VertexArrayPtr& vb = model->buffer;
+        if (const VertexArrayPtr& vb = model->buffer) {
 
-        auto data = glm::value_ptr(object->totalTransform);
-        glUniformMatrix4fv(transformLocation, 1, GL_FALSE, data);
-        glBindVertexArray(vb->glName);
-        glDrawArrays(GL_TRIANGLES, 0, vb->count);
-        glBindVertexArray(0);
+            auto data = glm::value_ptr(object->totalTransform);
+            glUniformMatrix4fv(transformLocation, 1, GL_FALSE, data);
+            glBindVertexArray(vb->glName);
+            glDrawArrays(GL_TRIANGLES, 0, vb->count);
+            glBindVertexArray(0);
+        }
     }
 
     for (ObjectPtr child : object->children) {
@@ -294,9 +295,39 @@ struct SceneManager {
     ObjectPtr createScene() {
         createProgram();
 
+        ObjectPtr scene = newObject(newEntity(programs["program"], nullptr));
+
+        meshes["quad"] = fillVertexArray({
+           -1, -1, 0, 1,
+           -1,  1, 0, 1,
+            1, -1, 0, 1,
+
+            1, -1, 0, 1,
+           -1,  1, 0, 1,
+            1,  1, 0, 1,
+
+           0.2f, 0, 0, 1,
+           0.2f, 0, 0, 1,
+           0.2f, 0, 0, 1,
+           0.2f, 0, 0, 1,
+           0.2f, 0, 0, 1,
+           0.2f, 0, 0, 1,
+        });
+
+        entities["ground"] = newEntity(programs["program"], meshes["quad"]);
+        ObjectPtr ground = newObject(entities["ground"]);
+        const float size = 10.0f;
+        ground->transform =
+                glm::translate<float>(0, -1, 0) *
+                glm::rotate<float>(-90, 1, 0, 0) *
+                glm::scale(size, size, size);
+        scene->addChild(ground);
+
+
         meshes["star 9"] = fillVertexArray(makeStar(10, 0.3f));
         entities["star"] = newEntity(programs["program"], meshes["star 9"]);
-        ObjectPtr root = objects["root"] = newObject(entities["star"]);
+        ObjectPtr root = objects["root"] = newObject(entities["star"], scene);
+        scene->addChild(root);
 
         ObjectPtr small = newObject(entities["star"], root);
         small->transform = glm::translate(0.9f, 0.0f, 0.0f) * glm::scale(0.2f, 0.2f, 0.2f);
@@ -306,7 +337,8 @@ struct SceneManager {
         small->transform = glm::translate(0.9f, 0.0f, 0.0f) * glm::scale(0.2f, 0.2f, 0.2f);
         root->addChild(small);
 
-        return root;
+
+        return scene;
     }
 
     void setupCamera() {
@@ -545,13 +577,12 @@ void HackyRenderer::inputHandler(const core::Message& msg) {
         float dy = - (pos.y - cursor.y);
         float z = -100.0f;
 
-//        if (dx * dx + dy * dy < 500) {
+        if (dx * dx + dy * dy < 500) {
             float s = 0.5f;
             glm::vec3 dir { s * dx, s * dy, z };
-            dir = glm::normalize(dir);
-            glm::vec3 up = glm::cross(RIGHT, dir);
+            glm::vec3 up = scene->camera.dirToView(UP);
             scene->camera.rotate(glm::lookAt(ORIGIN, dir, up));
-//        }
+        }
         cursor = pos;
     }
 
