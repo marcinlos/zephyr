@@ -131,9 +131,13 @@ public:
 
 private:
 
+    void initOpenGL();
+
     bool pressed(input::Key key) const {
         return isPressed[static_cast<int>(key)];
     }
+
+    void inputHandler(const core::Message& msg);
 
     const time::ClockManager& clocks;
     const time::Clock& clock;
@@ -145,8 +149,6 @@ private:
 
     input::Position cursor;
 
-    double prevTime;
-    int counter;
 
     const static int KEY_NUMBER = static_cast<int>(input::Key::LAST);
 
@@ -156,7 +158,8 @@ private:
 
     std::shared_ptr<struct SceneManager> scene;
 
-    void inputHandler(const core::Message& msg);
+    int counter;
+
 
 };
 

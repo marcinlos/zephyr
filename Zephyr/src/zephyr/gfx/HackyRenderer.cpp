@@ -121,6 +121,10 @@ struct Object: public std::enable_shared_from_this<Object> {
     , parent(parent)
     { }
 
+    void addChild(ObjectPtr child) {
+        children.push_back(std::move(child));
+    }
+
     void update() {
         if (auto p = parent.lock()) {
             totalTransform = p->totalTransform * transform;
@@ -209,6 +213,8 @@ struct Projection {
     }
 };
 
+const glm::vec3 ORIGIN { 0, 0, 0 };
+
 const glm::vec3 FWD   {  0,  0, -1 };
 const glm::vec3 BACK  {  0,  0,  1 };
 const glm::vec3 UP    {  0,  1,  0 };
@@ -216,15 +222,13 @@ const glm::vec3 DOWN  {  0, -1,  0 };
 const glm::vec3 LEFT  { -1,  0,  0 };
 const glm::vec3 RIGHT {  1,  0,  0 };
 
-struct Camera {
+class Camera {
+private:
     Projection proj;
-    glm::vec3 pos;
-//    glm::quat dir;
     glm::mat4 rot;
 
-    Camera()
-//    : dir(0, 0, 0, -1)
-    { }
+public:
+    glm::vec3 pos;
 
     glm::vec3 dirToView(const glm::vec3& v) const {
         return glm::vec3 { rot * glm::vec4(v, 0) };
@@ -234,12 +238,28 @@ struct Camera {
         return glm::vec3 { glm::inverse(rot) * glm::vec4(v, 0) };
     }
 
-    void translate(const glm::vec3& v) {
-        pos += v;
-    }
-
     void rotate(const glm::mat4& mat) {
         rot = mat * rot;
+    }
+
+    const Projection& projection() const {
+        return proj;
+    }
+
+    void projection(Projection projection) {
+        this->proj = projection;
+    }
+
+    glm::mat4 projectionMatrix() const {
+        return proj.matrix();
+    }
+
+    glm::mat4 viewMatrix() const {
+        return rot * glm::translate(pos);
+    }
+
+    void adjustRatio(float aspectRatio) {
+        proj.aspectRatio = aspectRatio;
     }
 
 };
@@ -252,70 +272,66 @@ struct SceneManager {
 
     ShaderManager shaders;
     ProgramManager programs;
-    VertexArrayManager vaos;
+    VertexArrayManager meshes;
     EntityManager entities;
     ObjectManager objects;
 
     Camera camera;
-    glm::mat4 viewMatrix;
-    glm::mat4 projMatrix;
 
     GLint modelUniform;
     GLint viewUniform;
     GLint projUniform;
 
+    const float FOV = 60.0f;
+    const float zNear = 0.1f;
+    const float zFar = 100.0f;
+
     SceneManager() {
-        initOpenGL();
-        root = createScene();
+//        root = createScene();
         setupCamera();
     }
 
     ObjectPtr createScene() {
         createProgram();
 
-        vaos["star 9"] = fillVertexArray(makeStar(10, 0.3f));
-        entities["star"] = newEntity(programs["program"], vaos["star 9"]);
+        meshes["star 9"] = fillVertexArray(makeStar(10, 0.3f));
+        entities["star"] = newEntity(programs["program"], meshes["star 9"]);
         ObjectPtr root = objects["root"] = newObject(entities["star"]);
 
         ObjectPtr small = newObject(entities["star"], root);
         small->transform = glm::translate(0.9f, 0.0f, 0.0f) * glm::scale(0.2f, 0.2f, 0.2f);
-        root->children.push_back(small);
+        root->addChild(small);
 
         ObjectPtr left = newObject(entities["star"], root);
         small->transform = glm::translate(0.9f, 0.0f, 0.0f) * glm::scale(0.2f, 0.2f, 0.2f);
-        root->children.push_back(small);
+        root->addChild(small);
 
         return root;
     }
 
     void setupCamera() {
+        camera.projection({ FOV, 1, zNear, zFar });
         camera.pos = glm::vec3 { 0.0f, 0.0f, -3.0f };
     }
 
-    void initOpenGL() {
-        glewInit();
-
-        glEnable(GL_CULL_FACE);
-        glFrontFace(GL_CW);
-        glCullFace(GL_BACK);
-
-        glEnable(GL_DEPTH_TEST);
-        glDepthMask(GL_TRUE);
-        glDepthFunc(GL_LESS);
-        glDepthRange(0.0f, 1.0f);
-
-    }
-
     void update() {
-        viewMatrix = camera.rot * glm::translate(camera.pos);
+//        viewMatrix = camera.rot * glm::translate(camera.pos);
         root->update();
     }
 
     void draw() {
         root->entity->program->use();
-        glUniformMatrix4fv(viewUniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-        glUniformMatrix4fv(projUniform, 1, GL_FALSE, glm::value_ptr(projMatrix));
+        setViewMatrix(camera.viewMatrix());
+        setProjectionMatrix(camera.projectionMatrix());
         drawGraph(root, modelUniform);
+    }
+
+    void setViewMatrix(const glm::mat4& matrix) {
+        glUniformMatrix4fv(viewUniform, 1, GL_FALSE, glm::value_ptr(matrix));
+    }
+
+    void setProjectionMatrix(const glm::mat4& matrix) {
+        glUniformMatrix4fv(projUniform, 1, GL_FALSE, glm::value_ptr(matrix));
     }
 
 private:
@@ -386,21 +402,21 @@ HackyRenderer::HackyRenderer(Context ctx)
 : clocks(ctx.clockManager)
 , clock(clocks.getMainClock())
 , scene(std::make_shared<SceneManager>())
+, counter(0)
 {
     std::cout << "[Hacky] Initializing hacky renderer" << std::endl;
-    prevTime = clock.time();
-    counter = 0;
-    glfwSwapInterval(vsync);
+    initOpenGL();
+    scene->root = scene->createScene();
 
     core::registerHandler(ctx.dispatcher, input::msg::INPUT_SYSTEM, this,
             &HackyRenderer::inputHandler);
 
     MatrixRotator rotator { 30, glm::vec3 { 0, 1, 0 } };
-    taskletScheduler.add(changer(scene->root->transform, rotator));
+//    taskletScheduler.add(changer(scene->root->transform, rotator));
 
     Action action = repeatedly(actionScheduler, [this](){
         double time = clock.time();
-        double fps = counter / (time - prevTime);
+        double fps = counter;
         {
             guard g(std::cout);
             std::cout.precision(1);
@@ -408,10 +424,24 @@ HackyRenderer::HackyRenderer(Context ctx)
             std::cout << "FPS: " << fps << std::endl;
         }
         counter = 0;
-        prevTime = time;
     }, 1.0);
 
     actionScheduler.scheduleIn(action, 1.0);
+}
+
+void HackyRenderer::initOpenGL() {
+    glewInit();
+    glfwSwapInterval(vsync);
+
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CW);
+    glCullFace(GL_BACK);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
+    glDepthRange(0.0f, 1.0f);
+
 }
 
 void HackyRenderer::updateTime() {
@@ -435,9 +465,8 @@ void HackyRenderer::update() {
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    scene->projMatrix = Projection{
-        60.0f, ratio, 1.0f, 100.0f
-    }.matrix();
+    scene->camera.adjustRatio(ratio);
+
 
     using input::Key;
 
@@ -458,6 +487,12 @@ void HackyRenderer::update() {
     }
     if (pressed(Key::D)) {
         scene->camera.pos -= ds * scene->camera.dirFromView(RIGHT);
+    }
+    if (pressed(Key::E)) {
+        scene->camera.pos -= ds * scene->camera.dirFromView(UP);
+    }
+    if (pressed(Key::Q)) {
+        scene->camera.pos -= ds * scene->camera.dirFromView(DOWN);
     }
 
     if (pressed(Key::LEFT)) {
@@ -509,13 +544,13 @@ void HackyRenderer::inputHandler(const core::Message& msg) {
         float dx = pos.x - cursor.x;
         float dy = - (pos.y - cursor.y);
         float z = -100.0f;
-//        std::cout << "old: " << cursor.x
-//        std::cout << "YAAY! " << dx * dx + dy * dy << std::endl;
-//        if (dx * dx + dy * dy < 100) {
-//            scene->camera.rot = glm::lookAt(
-//                    glm::vec3{0, 0, 0},
-//                    glm::vec3{dx, dy, z},
-//                    glm::vec3{0, 1, 0});
+
+//        if (dx * dx + dy * dy < 500) {
+            float s = 0.5f;
+            glm::vec3 dir { s * dx, s * dy, z };
+            dir = glm::normalize(dir);
+            glm::vec3 up = glm::cross(RIGHT, dir);
+            scene->camera.rotate(glm::lookAt(ORIGIN, dir, up));
 //        }
         cursor = pos;
     }
