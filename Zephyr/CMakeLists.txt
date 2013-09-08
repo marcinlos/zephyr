@@ -33,6 +33,8 @@ add_executable(game
     ${SRC}/time/ClockManager.cpp
     ${SRC}/gfx/HackyRenderer.cpp
     ${SRC}/Root.cpp
+    
+    ${SRC}/demo/MainController.cpp
     src/Zephyr.cpp)
 
     

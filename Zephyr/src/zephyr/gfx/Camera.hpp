@@ -81,6 +81,10 @@ public:
         return dirFromView(UP);
     }
 
+    glm::vec3 forward() const {
+        return dirFromView(FWD);
+    }
+
     void adjustRatio(float aspectRatio) {
         proj.aspectRatio = aspectRatio;
     }

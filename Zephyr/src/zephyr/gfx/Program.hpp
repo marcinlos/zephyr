@@ -89,6 +89,10 @@ public:
         }
     }
 
+    GLint getUniformLocation(const std::string& name) const {
+        return getUniformLocation(name.c_str());
+    }
+
 };
 
 typedef std::shared_ptr<Program> ProgramPtr;

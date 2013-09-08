@@ -27,6 +27,7 @@ Window::Window(const InitInfo& info, MessageQueue& queue)
 {
     window_ = createWindow(info);
     glfwMakeContextCurrent(window_.get());
+    mouseMode(MouseMode::RELATIVE);
 }
 
 void Window::pollEvents() const {

@@ -65,7 +65,66 @@ struct Uniform2f: Uniform {
 };
 
 
+VertexArrayPtr generateTerrain() {
 
+    const float vertices[] = {
+        -1, 0,  1, 1,
+        -1, 0, -1, 1,
+         1, 0, -1, 1,
+         1, 0,  1, 1,
+
+         1, 0, 0, 1,
+         0, 1, 0, 1,
+         0, 0, 1, 1,
+         1, 1, 1, 1
+    };
+
+    const std::uint16_t indices[] = {
+        0, 1, 2,
+        2, 3, 0
+    };
+    const std::size_t vertexSize = 4 * sizeof(float);
+    const std::size_t colorSize = 4 * sizeof(float);
+    const std::size_t indexSize = sizeof(std::uint16_t);
+
+    std::size_t vertexCount = sizeof(vertices) / (vertexSize + colorSize);
+    std::size_t indexCount = sizeof(indices) / indexSize;
+
+    void* colorOffset = reinterpret_cast<void*>(vertexCount * vertexSize);
+
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    // Vertex vertexBuffer
+    GLuint vertexBuffer;
+    glGenBuffers(1, &vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, colorOffset);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // Index buffer
+    GLuint indexBuffer;
+    glGenBuffers(1, &indexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+
+    glBindVertexArray(0);
+
+    glDeleteBuffers(1, &vertexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    return newVertexArray(vao, indexCount, true);
+}
 
 void drawGraph(ObjectPtr object, GLint transformLocation) {
     if (object->entity) {
@@ -75,7 +134,11 @@ void drawGraph(ObjectPtr object, GLint transformLocation) {
             auto data = glm::value_ptr(object->totalTransform);
             glUniformMatrix4fv(transformLocation, 1, GL_FALSE, data);
             glBindVertexArray(vb->glName);
-            glDrawArrays(GL_TRIANGLES, 0, vb->count);
+            if (vb->indexed) {
+                glDrawElements(GL_TRIANGLES, vb->count, GL_UNSIGNED_SHORT, 0);
+            } else {
+                glDrawArrays(GL_TRIANGLES, 0, vb->count);
+            }
             glBindVertexArray(0);
         }
     }
@@ -117,7 +180,7 @@ struct SceneManager {
 
         ObjectPtr scene = newObject(newEntity(programs["program"], nullptr));
 
-        meshes["quad"] = fillVertexArray({
+        meshes["quad"] = generateTerrain();/*fillVertexArray({
            -1, -1, 0, 1,
            -1,  1, 0, 1,
             1, -1, 0, 1,
@@ -132,15 +195,15 @@ struct SceneManager {
            0.2f, 0, 0, 1,
            0.2f, 0, 0, 1,
            0.2f, 0, 0, 1,
-        });
+        });*/
 
         entities["ground"] = newEntity(programs["program"], meshes["quad"]);
         ObjectPtr ground = newObject(entities["ground"]);
         const float size = 100.0f;
         ground->transform =
-                glm::translate<float>(0, -1, 0) *
-                glm::rotate<float>(-90, 1, 0, 0) *
-                glm::scale(size, size, size);
+                glm::translate<float>(0, -1, 0);// *
+//                glm::rotate<float>(-90, 1, 0, 0) *
+//                glm::scale(size, size, size);
         scene->addChild(ground);
 
 
@@ -172,17 +235,13 @@ struct SceneManager {
 
     void draw() {
         root->entity->program->use();
-        setViewMatrix(camera.viewMatrix());
-        setProjectionMatrix(camera.projectionMatrix());
+        setMatrix(viewUniform, camera.viewMatrix());
+        setMatrix(projUniform, camera.projectionMatrix());
         drawGraph(root, modelUniform);
     }
 
-    void setViewMatrix(const glm::mat4& matrix) {
-        glUniformMatrix4fv(viewUniform, 1, GL_FALSE, glm::value_ptr(matrix));
-    }
-
-    void setProjectionMatrix(const glm::mat4& matrix) {
-        glUniformMatrix4fv(projUniform, 1, GL_FALSE, glm::value_ptr(matrix));
+    void setMatrix(GLint uniform, const glm::mat4& matrix) {
+        glUniformMatrix4fv(uniform, 1, GL_FALSE, glm::value_ptr(matrix));
     }
 
 private:
@@ -200,6 +259,27 @@ private:
         modelUniform = program->getUniformLocation("modelMatrix");
         projUniform = program->getUniformLocation("projectionMatrix");
     }
+};
+
+typedef std::shared_ptr<SceneManager> SceneManagerPtr;
+
+
+class Client  {
+public:
+
+    Client(SceneManagerPtr scene)
+    : scene(std::move(scene))
+    { }
+
+private:
+    SceneManagerPtr scene;
+
+    ShaderManager shaders;
+    ProgramManager programs;
+    VertexArrayManager meshes;
+    EntityManager entities;
+    ObjectManager objects;
+
 };
 
 

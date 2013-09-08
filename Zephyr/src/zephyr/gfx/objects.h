@@ -29,10 +29,12 @@ typedef std::weak_ptr<struct Object> WeakObjectPtr;
 struct VertexArray: public std::enable_shared_from_this<VertexArray> {
     GLuint glName;
     std::size_t count;
+    bool indexed;
 
-    VertexArray(GLuint glName, std::size_t count)
+    VertexArray(GLuint glName, std::size_t count, bool indexed)
     : glName(glName)
     , count(count)
+    , indexed(indexed)
     { }
 
     ~VertexArray() {
@@ -125,7 +127,10 @@ VertexArrayPtr fillVertexArray(const float* data, std::size_t n) {
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-    return newVertexArray(vbo, n >> 3);
+
+    glDeleteBuffers(1, &buffer);
+
+    return newVertexArray(vbo, n >> 3, false);
 }
 
 template <std::size_t N>
