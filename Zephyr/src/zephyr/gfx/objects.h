@@ -25,16 +25,29 @@ typedef std::shared_ptr<struct Entity> EntityPtr;
 typedef std::shared_ptr<struct Object> ObjectPtr;
 typedef std::weak_ptr<struct Object> WeakObjectPtr;
 
+enum class Primitive {
+    POINTS    = GL_POINTS,
+    LINES     = GL_LINES,
+    TRIANGLES = GL_TRIANGLES
+};
+
+inline GLenum primitiveToGL(Primitive primitive) {
+    return static_cast<GLenum>(primitive);
+}
+
 
 struct VertexArray: public std::enable_shared_from_this<VertexArray> {
     GLuint glName;
     std::size_t count;
     bool indexed;
+    Primitive mode;
 
-    VertexArray(GLuint glName, std::size_t count, bool indexed)
+    VertexArray(GLuint glName, std::size_t count, bool indexed,
+            Primitive mode = Primitive::TRIANGLES)
     : glName(glName)
     , count(count)
     , indexed(indexed)
+    , mode(mode)
     { }
 
     ~VertexArray() {

@@ -15,13 +15,59 @@
 #include <queue>
 
 #include <zephyr/input/Key.hpp>
-
+#include <zephyr/input/ButtonEvent.hpp>
 #include <zephyr/input/Position.hpp>
 
 
 namespace zephyr {
 namespace gfx {
 
+
+class InputState {
+public:
+
+    bool& operator [] (input::Key key) {
+        return keyState[asInt(key)];
+    }
+
+    bool operator [] (input::Key key) const {
+        return keyState[asInt(key)];
+    }
+
+    bool& operator [] (input::Button button) {
+        return buttonState[asInt(button)];
+    }
+
+    bool operator [] (input::Button button) const {
+        return buttonState[asInt(button)];
+    }
+
+    input::Position mouse() const {
+        return cursorPos;
+    }
+
+    void mouse(input::Position position) {
+        cursorPos = position;
+    }
+
+
+private:
+    int asInt(input::Key key) const {
+        return static_cast<int>(key);
+    }
+
+    int asInt(input::Button button) const {
+        return static_cast<int>(button);
+    }
+
+    const static int KEY_NUMBER = static_cast<int>(input::Key::LAST);
+    const static int BUTTON_NUMBER = static_cast<int>(input::Button::LAST);
+
+    bool keyState[KEY_NUMBER];
+    bool buttonState[BUTTON_NUMBER];
+
+    input::Position cursorPos;
+};
 
 
 class HackyRenderer: public core::Task {
@@ -35,10 +81,6 @@ private:
 
     void initOpenGL();
 
-    bool pressed(input::Key key) const {
-        return isPressed[static_cast<int>(key)];
-    }
-
     void inputHandler(const core::Message& msg);
 
     const time::ClockManager& clocks;
@@ -49,12 +91,7 @@ private:
 
     bool vsync = true;
 
-    input::Position cursor;
-
-
-    const static int KEY_NUMBER = static_cast<int>(input::Key::LAST);
-
-    bool isPressed[KEY_NUMBER];
+    InputState input;
 
     void updateTime();
 

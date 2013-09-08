@@ -67,13 +67,14 @@ struct Uniform2f: Uniform {
 };
 
 
-VertexArrayPtr generateTerrain() {
+VertexArrayPtr generateTerrain(float scale) {
 
+    const float A = scale;
     const std::vector<float> vertices {
-        -1, 0,  1, 1,
-        -1, 0, -1, 1,
-         1, 0, -1, 1,
-         1, 0,  1, 1,
+        -A, 0,  A, 1,
+        -A, 0, -A, 1,
+         A, 0, -A, 1,
+         A, 0,  A, 1,
 
          1, 0, 0, 1,
          0, 1, 0, 1,
@@ -89,20 +90,24 @@ VertexArrayPtr generateTerrain() {
     return gen(vertices, indices);
 }
 
+void drawBuffer(const VertexArrayPtr& vb) {
+    glBindVertexArray(vb->glName);
+    GLenum mode = primitiveToGL(vb->mode);
+    if (vb->indexed) {
+        glDrawElements(mode, vb->count, GL_UNSIGNED_SHORT, 0);
+    } else {
+        glDrawArrays(mode, 0, vb->count);
+    }
+    glBindVertexArray(0);
+}
+
 void drawGraph(ObjectPtr object, GLint transformLocation) {
     if (object->entity) {
         const EntityPtr& model = object->entity;
         if (const VertexArrayPtr& vb = model->buffer) {
-
             auto data = glm::value_ptr(object->totalTransform);
             glUniformMatrix4fv(transformLocation, 1, GL_FALSE, data);
-            glBindVertexArray(vb->glName);
-            if (vb->indexed) {
-                glDrawElements(GL_TRIANGLES, vb->count, GL_UNSIGNED_SHORT, 0);
-            } else {
-                glDrawArrays(GL_TRIANGLES, 0, vb->count);
-            }
-            glBindVertexArray(0);
+            drawBuffer(vb);
         }
     }
 
@@ -143,11 +148,10 @@ struct SceneManager {
 
         ObjectPtr scene = newObject(newEntity(programs["program"], nullptr));
 
-        meshes["quad"] = generateTerrain();
+        meshes["quad"] = generateTerrain(10.0f);
 
         entities["ground"] = newEntity(programs["program"], meshes["quad"]);
         ObjectPtr ground = newObject(entities["ground"]);
-        const float size = 100.0f;
         ground->transform = glm::translate<float>(0, -1, 0);
         scene->addChild(ground);
 
@@ -162,7 +166,9 @@ struct SceneManager {
         root->addChild(small);
 
         ObjectPtr left = newObject(entities["star"], root);
-        small->transform = glm::translate(0.9f, 0.0f, 0.0f) * glm::scale(0.2f, 0.2f, 0.2f);
+        small->transform = glm::translate(-2.9f, 0.0f, 0.0f) *
+                glm::scale(1.2f, 1.2f, 1.2f) *
+                glm::rotate<float>(85, 0, 1, 0);
         root->addChild(small);
 
 
@@ -258,7 +264,7 @@ struct MatrixRotator {
     float radiansPerSecond;
     glm::vec3 axis;
 
-    bool operator () (glm::mat4& value, double, double dt) {
+    bool operator () (glm::mat4& value, double, double dt) const {
         value *= rotate(dt * radiansPerSecond, axis);
         return true;
     }
@@ -267,7 +273,7 @@ struct MatrixRotator {
 struct MatrixTranslator {
     glm::vec3 displacement;
 
-    bool operator () (glm::mat4& value, double, float dt) {
+    bool operator () (glm::mat4& value, double, float dt) const {
         value *= glm::translate(dt * displacement);
         return true;
     }
@@ -353,40 +359,40 @@ void HackyRenderer::update() {
     const float hRotV = 60;
     const float hRotH = 60;
 
-    if (pressed(Key::W)) {
+    if (input[Key::W]) {
         scene->camera.pos += ds * scene->camera.dirFromView(FWD);
     }
-    if (pressed(Key::S)) {
+    if (input[Key::S]) {
         scene->camera.pos += ds * scene->camera.dirFromView(BACK);
     }
-    if (pressed(Key::A)) {
+    if (input[Key::A]) {
         scene->camera.pos += ds * scene->camera.dirFromView(LEFT);
     }
-    if (pressed(Key::D)) {
+    if (input[Key::D]) {
         scene->camera.pos += ds * scene->camera.dirFromView(RIGHT);
     }
-    if (pressed(Key::E)) {
+    if (input[Key::E]) {
         scene->camera.pos += ds * scene->camera.dirFromView(UP);
     }
-    if (pressed(Key::Q)) {
+    if (input[Key::Q]) {
         scene->camera.pos += ds * scene->camera.dirFromView(DOWN);
     }
 
-    if (pressed(Key::LEFT)) {
+    if (input[Key::LEFT]) {
         scene->camera.rotate(clock.dt() * -hRotH, 0, UP);
         std::cout << scene->camera.dirFromView(FWD) << std::endl;
         std::cout << scene->camera.pos << std::endl;
     }
-    if (pressed(Key::RIGHT)) {
+    if (input[Key::RIGHT]) {
         scene->camera.rotate(clock.dt() * hRotH, 0, UP);
         std::cout << scene->camera.dirFromView(FWD) << std::endl;
         std::cout << scene->camera.pos << std::endl;
     }
-    if (pressed(Key::UP)) {
+    if (input[Key::UP]) {
         scene->camera.rotate(0, clock.dt() * hRotV, UP);
         std::cout << scene->camera.pos << std::endl;
     }
-    if (pressed(Key::DOWN)) {
+    if (input[Key::DOWN]) {
         scene->camera.rotate(0, clock.dt() * -hRotV, UP);
         std::cout << scene->camera.pos << std::endl;
     }
@@ -403,7 +409,7 @@ void HackyRenderer::inputHandler(const core::Message& msg) {
     if (msg.type == msg::KEYBOARD_EVENT) {
         KeyEvent e = util::any_cast<KeyEvent>(msg.data);
         if (e.type == KeyEvent::Type::DOWN) {
-            isPressed[static_cast<int>(e.key)] = true;
+            input[e.key] = true;
 
             if (e.key == Key::SPACE) {
                 std::cout << "dir: " << scene->camera.dirFromView(FWD) << std::endl;
@@ -414,19 +420,36 @@ void HackyRenderer::inputHandler(const core::Message& msg) {
             }
 
         } else if (e.type == KeyEvent::Type::UP) {
-            isPressed[static_cast<int>(e.key)] = false;
+            input[e.key] = false;
         }
+    } else if (msg.type == msg::BUTTON_EVENT) {
+        ButtonEvent e = util::any_cast<ButtonEvent>(msg.data);
+        input[e.button] = (e.type == ButtonEvent::Type::DOWN);
+        std::cout << "Dupa: " << (e.type == ButtonEvent::Type::DOWN) << std::endl;
     } else if (msg.type == msg::CURSOR_EVENT) {
-        Position pos = util::any_cast<Position>(msg.data);
-        float dx = pos.x - cursor.x;
-        float dy = - (pos.y - cursor.y);
-        float z = -100.0f;
+        const float sensitivity = 0.5f;
+        const float moveScale = 0.3f;
+        const float rotScale = 1.0f;
 
-        if (dx * dx + dy * dy < 500) {
-            float s = 0.5f;
-            scene->camera.rotate(s * dx, s * dy, UP);
+        Position pos = util::any_cast<Position>(msg.data);
+        float dx =   sensitivity * (pos.x - input.mouse().x);
+        float dy = - sensitivity * (pos.y - input.mouse().y);
+        if (input[Button::RIGHT]) {
+            auto viewLeft = scene->camera.dirFromView(RIGHT);
+            auto viewUp = scene->camera.dirFromView(UP);
+            scene->camera.pos += moveScale * (dx * viewLeft + dy * viewUp);
+        } else {
+            float z = -100.0f;
+            dx *= rotScale;
+            dy *= rotScale;
+            if (dx * dx + dy * dy < 500) {
+                scene->camera.rotate(dx, dy, UP);
+            }
         }
-        cursor = pos;
+        input.mouse(pos);
+    } else if (msg.type == msg::SCROLL_EVENT) {
+        float scroll = util::any_cast<double>(msg.data);
+        scene->camera.pos += scroll * scene->camera.forward();
     }
 
 }

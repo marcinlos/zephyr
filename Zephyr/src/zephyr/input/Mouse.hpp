@@ -19,7 +19,8 @@ enum class Button {
     RIGHT,
     MIDDLE,
 
-    UNKNOWN
+    UNKNOWN,
+    LAST = UNKNOWN
 };
 
 /**
