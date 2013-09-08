@@ -155,6 +155,10 @@ namespace scene {
 
 }
 
+inline constexpr float rad(float deg) {
+    return deg * M_PI / 180;
+}
+
 struct SceneManager {
 
     ObjectPtr root;
@@ -288,7 +292,7 @@ struct SceneManager {
                                     "star",
                                     scene::Transform {
                                         { -2.9f, 0, 0 },
-                                        { 85, 0, 0 },
+                                        { rad(85), 0, 0 },
                                         { 1.2f, 1.2f, 1.2f }
                                     }
                                 }
