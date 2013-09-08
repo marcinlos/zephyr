@@ -21,6 +21,7 @@ using namespace zephyr::resources;
 
 
 typedef std::shared_ptr<struct VertexArray> VertexArrayPtr;
+typedef std::shared_ptr<struct Material> MaterialPtr;
 typedef std::shared_ptr<struct Entity> EntityPtr;
 typedef std::shared_ptr<struct Object> ObjectPtr;
 typedef std::weak_ptr<struct Object> WeakObjectPtr;
@@ -58,26 +59,42 @@ struct VertexArray: public std::enable_shared_from_this<VertexArray> {
 };
 
 
-template <typename... T>
-VertexArrayPtr newVertexArray(T&&... args) {
-    return std::make_shared<VertexArray>(std::forward<T>(args)...);
+template <typename... Args>
+VertexArrayPtr newVertexArray(Args&&... args) {
+    return std::make_shared<VertexArray>(std::forward<Args>(args)...);
 }
 
+struct Material: public std::enable_shared_from_this<Material> {
+
+    ProgramPtr program;
+
+    explicit Material(ProgramPtr program)
+    : program(program)
+    { }
+
+};
+
+
+
+template <typename... Args>
+MaterialPtr newMaterial(Args&&... args) {
+    return std::make_shared<Material>(std::forward<Args>(args)...);
+}
 
 struct Entity: public std::enable_shared_from_this<Entity> {
-    ProgramPtr program;
+    MaterialPtr material;
     VertexArrayPtr buffer;
 
-    Entity(ProgramPtr program, VertexArrayPtr buffer)
-    : program(program)
+    Entity(MaterialPtr material, VertexArrayPtr buffer)
+    : material(material)
     , buffer(buffer)
     { }
 
 };
 
-template <typename... T>
-EntityPtr newEntity(T&&... args) {
-    return std::make_shared<Entity>(std::forward<T>(args)...);
+template <typename... Args>
+EntityPtr newEntity(Args&&... args) {
+    return std::make_shared<Entity>(std::forward<Args>(args)...);
 }
 
 
@@ -90,7 +107,7 @@ struct Object: public std::enable_shared_from_this<Object> {
     glm::mat4 totalTransform;
 
 
-    Object(EntityPtr entity, WeakObjectPtr parent = WeakObjectPtr { })
+    explicit Object(EntityPtr entity, WeakObjectPtr parent = WeakObjectPtr { })
     : entity(entity)
     , parent(parent)
     { }
@@ -111,13 +128,14 @@ struct Object: public std::enable_shared_from_this<Object> {
     }
 };
 
-template <typename... T>
-ObjectPtr newObject(T&&... args) {
-    return std::make_shared<Object>(std::forward<T>(args)...);
+template <typename... Args>
+ObjectPtr newObject(Args&&... args) {
+    return std::make_shared<Object>(std::forward<Args>(args)...);
 }
 
 typedef ResourceManager<ShaderPtr> ShaderManager;
 typedef ResourceManager<ProgramPtr> ProgramManager;
+typedef ResourceManager<MaterialPtr> MaterialManager;
 typedef ResourceManager<VertexArrayPtr> VertexArrayManager;
 typedef ResourceManager<EntityPtr>EntityManager;
 typedef ResourceManager<ObjectPtr> ObjectManager;

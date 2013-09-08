@@ -75,7 +75,7 @@ void drawBuffer(const VertexArrayPtr& vb) {
     glBindVertexArray(vb->glName);
     GLenum mode = primitiveToGL(vb->mode);
     if (vb->indexed) {
-        glDrawElements(mode, vb->count, GL_UNSIGNED_INT, 0);
+        glDrawElements(mode, vb->count, vb->indexType, 0);
     } else {
         glDrawArrays(mode, 0, vb->count);
     }
@@ -97,12 +97,71 @@ void drawGraph(ObjectPtr object, GLint transformLocation) {
     }
 }
 
+namespace scene {
+
+    struct Material {
+        std::string name;
+        std::string program;
+    };
+
+    struct Entity {
+        std::string name;
+        std::string material;
+        std::string mesh;
+    };
+
+    struct Rot {
+        float yaw;
+        float pitch;
+        float roll;
+    };
+
+    struct Pos {
+        float x;
+        float y;
+        float z;
+    };
+
+    struct Scale {
+        float sx;
+        float sy;
+        float sz;
+
+        Scale(float sx = 1, float sy = 1, float sz = 1)
+        : sx(sx), sy(sy), sz(sz)
+        { }
+    };
+
+    struct Transform {
+        Pos pos;
+        Rot rot;
+        Scale scale;
+    };
+
+    typedef std::unique_ptr<struct Node> NodePtr;
+
+    struct Node {
+        std::string name;
+        std::string entity;
+        Transform transform;
+        std::vector<Node*> children;
+    };
+
+    struct SceneDescription {
+        std::vector<Material> materials;
+        std::vector<Entity> entities;
+        std::vector<Node> nodes;
+    };
+
+}
+
 struct SceneManager {
 
     ObjectPtr root;
 
     ShaderManager shaders;
     ProgramManager programs;
+    MaterialManager materials;
     VertexArrayManager meshes;
     EntityManager entities;
     ObjectManager objects;
@@ -127,22 +186,143 @@ struct SceneManager {
     , projUniform { -1 }
     { }
 
+    void parseMaterial(const scene::Material& material) {
+        ProgramPtr program = programs[material.program];
+        materials[material.name] = newMaterial(program);
+    }
+
+    void parseEntity(const scene::Entity& entity) {
+        VertexArrayPtr mesh;
+        if (! entity.mesh.empty()) {
+            mesh = meshes[entity.mesh];
+        }
+        MaterialPtr material = materials[entity.material];
+        entities[entity.name] = newEntity(material, mesh);
+    }
+
+    glm::mat4 parseTransform(const scene::Transform& transform) const {
+        const scene::Pos& pos = transform.pos;
+        const scene::Rot& rot = transform.rot;
+        const scene::Scale& scale = transform.scale;
+        return glm::translate(pos.x, pos.y, pos.z) *
+                glm::scale(scale.sx, scale.sy, scale.sz) *
+                glm::yawPitchRoll(rot.yaw, rot.pitch, rot.roll);
+    }
+
+    void parseNode(const scene::Node& node, const std::string& parent) {
+        EntityPtr entity;
+        if (! node.entity.empty()) {
+            entity = entities[node.entity];
+        }
+        glm::mat4 transform = parseTransform(node.transform);
+        ObjectPtr object = newObject(entity);
+        object->transform = transform;
+        ObjectPtr p = objects[parent];
+        p->addChild(object);
+        if (! node.name.empty()) {
+            objects[node.name] = object;
+        }
+
+        for (const auto& child : node.children) {
+            parseNode(*child, node.name);
+        }
+    }
+
+    void parseSceneDescription(const scene::SceneDescription& scene) {
+        for (const auto& material : scene.materials) {
+            parseMaterial(material);
+        }
+        for (const auto& entity : scene.entities) {
+            parseEntity(entity);
+        }
+        for (const auto& node : scene.nodes) {
+            parseNode(node, "root");
+        }
+    }
+
+    ObjectPtr createScene2() {
+        createProgram();
+        materials["dull"] = newMaterial(programs["program"]);
+        objects["root"] = newObject(nullptr);
+
+        TerrainGenerator gen(30.0f, 320);
+        meshes["quad"] = gen.create();
+        meshes["star 9"] = fillVertexArray(makeStar(10, 0.3f));
+
+        scene::SceneDescription scene {
+            std::vector<scene::Material> {
+
+            },
+            std::vector<scene::Entity> {
+                scene::Entity {
+                    "ground", "dull", "quad",
+                },
+                scene::Entity {
+                    "star", "dull", "star 9"
+                }
+            },
+            std::vector<scene::Node> {
+                {
+                    "groundObject",
+                    "ground",
+                    scene::Transform {
+                        scene::Pos { 0, -1, 0 }
+                    },
+                    {
+                        new scene::Node {
+                            "starObject",
+                            "star",
+                            { },
+                            {
+                                new scene::Node {
+                                    "smallStar",
+                                    "star",
+                                    scene::Transform {
+                                        { 0.9f, 0, 0 },
+                                        { },
+                                        { 0.2f, 0.2f, 0.2f }
+                                    }
+                                },
+                                new scene::Node {
+                                    "leftStar",
+                                    "star",
+                                    scene::Transform {
+                                        { -2.9f, 0, 0 },
+                                        { 85, 0, 0 },
+                                        { 1.2f, 1.2f, 1.2f }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        parseSceneDescription(scene);
+
+        return objects["root"];
+    }
+
     ObjectPtr createScene() {
         createProgram();
 
-        ObjectPtr scene = newObject(newEntity(programs["program"], nullptr));
+        materials["dull"] = newMaterial(programs["program"]);
+
+        ObjectPtr scene = newObject(newEntity(materials["dull"], nullptr));
+
 
         TerrainGenerator gen(30.0f, 320);
         meshes["quad"] = gen.create();
 
-        entities["ground"] = newEntity(programs["program"], meshes["quad"]);
+        entities["ground"] = newEntity(materials["dull"], meshes["quad"]);
         ObjectPtr ground = newObject(entities["ground"]);
         ground->transform = glm::translate<float>(0, -1, 0);
         scene->addChild(ground);
 
 
         meshes["star 9"] = fillVertexArray(makeStar(10, 0.3f));
-        entities["star"] = newEntity(programs["program"], meshes["star 9"]);
+        entities["star"] = newEntity(materials["dull"], meshes["star 9"]);
         ObjectPtr root = objects["root"] = newObject(entities["star"], scene);
         scene->addChild(root);
 
@@ -156,7 +336,6 @@ struct SceneManager {
                 glm::rotate<float>(85, 0, 1, 0);
         root->addChild(small);
 
-
         return scene;
     }
 
@@ -165,17 +344,19 @@ struct SceneManager {
     }
 
     void draw() {
-        root->entity->program->use();
+        ProgramPtr program = programs["program"];
+        program->use();
         setMatrix(viewUniform, camera.viewMatrix());
         setMatrix(projUniform, camera.projectionMatrix());
         drawGraph(root, modelUniform);
     }
 
+private:
+
     void setMatrix(GLint uniform, const glm::mat4& matrix) {
         glUniformMatrix4fv(uniform, 1, GL_FALSE, glm::value_ptr(matrix));
     }
 
-private:
     void createProgram() {
 
         shaders["vertex"] = newVertexShader("resources/shader.vert");
