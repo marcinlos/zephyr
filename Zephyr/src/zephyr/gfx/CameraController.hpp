@@ -68,7 +68,15 @@ public:
             input.mouse(pos);
         } else if (message.type == events::SCROLL_EVENT) {
             float scroll = util::any_cast<double>(message.data);
-            camera.pos += scroll * camera.forward();
+            if (input[Key::LEFT_SHIFT]) {
+                Projection proj = camera.projection();
+                proj.fov += scroll;
+                proj.fov = glm::clamp(proj.fov, 10.0f, 140.0f);
+                camera.projection(proj);
+                std::cout << "FOV: " << proj.fov << std::endl;
+            } else {
+                camera.pos += scroll * camera.forward();
+            }
         }
     }
 
