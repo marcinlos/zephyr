@@ -145,7 +145,7 @@ VertexArrayPtr fillVertexArray(const float* data, std::size_t n) {
 
     glDeleteBuffers(1, &buffer);
 
-    return newVertexArray(vbo, n >> 3, false, GL_UNSIGNED_SHORT);
+    return newVertexArray(vbo, n >> 3, false, 0);
 }
 
 template <std::size_t N>

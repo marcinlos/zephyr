@@ -264,6 +264,7 @@ HackyRenderer::HackyRenderer(Context ctx)
 : clocks(ctx.clockManager)
 , clock(clocks.getMainClock())
 , scene(std::make_shared<SceneManager>())
+, cameraController(scene->camera, clock)
 , counter(0)
 {
     std::cout << "[Hacky] Initializing hacky renderer" << std::endl;
@@ -272,6 +273,9 @@ HackyRenderer::HackyRenderer(Context ctx)
 
     core::registerHandler(ctx.dispatcher, input::msg::INPUT_SYSTEM, this,
             &HackyRenderer::inputHandler);
+
+    core::registerHandler(ctx.dispatcher, input::msg::INPUT_SYSTEM,
+            &cameraController, &CameraController::handle);
 
     MatrixRotator rotator { 30, glm::vec3 { 0, 1, 0 } };
 //    taskletScheduler.add(changer(scene->root->transform, rotator));
@@ -330,107 +334,25 @@ void HackyRenderer::update() {
 
     scene->camera.adjustRatio(ratio);
 
+    cameraController.update();
 
-    using input::Key;
-
-    const float v = 4.0f;
-    const float ds = v * clock.dt();
-
-    const float hRotV = 60;
-    const float hRotH = 60;
-
-    if (input[Key::W]) {
-        scene->camera.pos += ds * scene->camera.dirFromView(FWD);
-    }
-    if (input[Key::S]) {
-        scene->camera.pos += ds * scene->camera.dirFromView(BACK);
-    }
-    if (input[Key::A]) {
-        scene->camera.pos += ds * scene->camera.dirFromView(LEFT);
-    }
-    if (input[Key::D]) {
-        scene->camera.pos += ds * scene->camera.dirFromView(RIGHT);
-    }
-    if (input[Key::E]) {
-        scene->camera.pos += ds * scene->camera.dirFromView(UP);
-    }
-    if (input[Key::Q]) {
-        scene->camera.pos += ds * scene->camera.dirFromView(DOWN);
-    }
-
-    if (input[Key::LEFT]) {
-        scene->camera.rotate(clock.dt() * -hRotH, 0, UP);
-        std::cout << scene->camera.dirFromView(FWD) << std::endl;
-        std::cout << scene->camera.pos << std::endl;
-    }
-    if (input[Key::RIGHT]) {
-        scene->camera.rotate(clock.dt() * hRotH, 0, UP);
-        std::cout << scene->camera.dirFromView(FWD) << std::endl;
-        std::cout << scene->camera.pos << std::endl;
-    }
-    if (input[Key::UP]) {
-        scene->camera.rotate(0, clock.dt() * hRotV, UP);
-        std::cout << scene->camera.pos << std::endl;
-    }
-    if (input[Key::DOWN]) {
-        scene->camera.rotate(0, clock.dt() * -hRotV, UP);
-        std::cout << scene->camera.pos << std::endl;
-    }
     scene->update();
     scene->draw();
 
 }
 
 
-void HackyRenderer::inputHandler(const core::Message& msg) {
-//    std::cout << "[HackyRenderer] " << msg << std::endl;
-    using namespace zephyr::input;
 
+void HackyRenderer::inputHandler(const core::Message& msg) {
+    using namespace zephyr::input;
     if (msg.type == msg::KEYBOARD_EVENT) {
         KeyEvent e = util::any_cast<KeyEvent>(msg.data);
         if (e.type == KeyEvent::Type::DOWN) {
-            input[e.key] = true;
-
-            if (e.key == Key::SPACE) {
-                std::cout << "dir: " << scene->camera.dirFromView(FWD) << std::endl;
-                std::cout << "pos: " << scene->camera.pos << std::endl;
-            }
-            else if (e.key == Key::F11) {
+            if (e.key == Key::F11) {
                 glfwSwapInterval(vsync = !vsync);
             }
-
-        } else if (e.type == KeyEvent::Type::UP) {
-            input[e.key] = false;
         }
-    } else if (msg.type == msg::BUTTON_EVENT) {
-        ButtonEvent e = util::any_cast<ButtonEvent>(msg.data);
-        input[e.button] = (e.type == ButtonEvent::Type::DOWN);
-    } else if (msg.type == msg::CURSOR_EVENT) {
-        const float sensitivity = 0.5f;
-        const float moveScale = 0.3f;
-        const float rotScale = 1.0f;
-
-        Position pos = util::any_cast<Position>(msg.data);
-        float dx =   sensitivity * (pos.x - input.mouse().x);
-        float dy = - sensitivity * (pos.y - input.mouse().y);
-        if (input[Button::RIGHT]) {
-            auto viewLeft = scene->camera.dirFromView(RIGHT);
-            auto viewUp = scene->camera.dirFromView(UP);
-            scene->camera.pos += moveScale * (dx * viewLeft + dy * viewUp);
-        } else {
-            float z = -100.0f;
-            dx *= rotScale;
-            dy *= rotScale;
-            if (dx * dx + dy * dy < 500) {
-                scene->camera.rotate(dx, dy, UP);
-            }
-        }
-        input.mouse(pos);
-    } else if (msg.type == msg::SCROLL_EVENT) {
-        float scroll = util::any_cast<double>(msg.data);
-        scene->camera.pos += scroll * scene->camera.forward();
     }
-
 }
 
 } /* namespace gfx */
