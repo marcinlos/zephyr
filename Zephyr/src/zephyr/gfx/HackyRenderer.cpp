@@ -253,54 +253,39 @@ struct SceneManager {
         meshes["quad"] = gen.create();
         meshes["star 9"] = fillVertexArray(makeStar(10, 0.3f));
 
-        scene::SceneDescription scene {
-            std::vector<scene::Material> {
+        using namespace scene;
+        using scene::Entity;
 
-            },
-            std::vector<scene::Entity> {
-                scene::Entity {
-                    "ground", "dull", "quad",
-                },
-                scene::Entity {
-                    "star", "dull", "star 9"
-                }
-            },
-            std::vector<scene::Node> {
-                {
-                    "groundObject",
-                    "ground",
-                    scene::Transform {
-                        scene::Pos { 0, -1, 0 }
-                    },
-                    {
-                        new scene::Node {
-                            "starObject",
-                            "star",
-                            { },
-                            {
-                                new scene::Node {
-                                    "smallStar",
-                                    "star",
-                                    scene::Transform {
-                                        { 0.9f, 0, 0 },
-                                        { },
-                                        { 0.2f, 0.2f, 0.2f }
-                                    }
-                                },
-                                new scene::Node {
-                                    "leftStar",
-                                    "star",
-                                    scene::Transform {
-                                        { -2.9f, 0, 0 },
-                                        { rad(85), 0, 0 },
-                                        { 1.2f, 1.2f, 1.2f }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+        Entity groundEnt { "ground", "dull", "quad" };
+        Entity starEnt { "star", "dull", "star 9" };
+
+        Node groundNode { "groundObject", "ground",
+            { Pos {0, -1, 0} }
+        };
+
+        Node starNode { "starObject", "star" };
+        groundNode.children.push_back(&starNode);
+
+        Node smallStarNode { "smallStarObject", "star", {
+                Pos { 0.9f, 0, 0},
+                Rot { },
+                Scale { 0.2f, 0.2f, 0.2f }
             }
+        };
+        starNode.children.push_back(&smallStarNode);
+
+        Node leftStarNode { "leftStarObject", "star", {
+                { -2.9f, 0, 0 },
+                { rad(85), 0, 0 },
+                { 1.2f, 1.2f, 1.2f }
+            }
+        };
+        starNode.children.push_back(&leftStarNode);
+
+        scene::SceneDescription scene {
+            { },
+            { groundEnt, starEnt },
+            { groundNode }
         };
 
         parseSceneDescription(scene);
@@ -454,7 +439,7 @@ HackyRenderer::HackyRenderer(Context ctx)
 {
     std::cout << "[Hacky] Initializing hacky renderer" << std::endl;
     initOpenGL();
-    scene->root = scene->createScene();
+    scene->root = scene->createScene2();
 
     core::registerHandler(ctx.dispatcher, input::msg::INPUT_SYSTEM, this,
             &HackyRenderer::inputHandler);
