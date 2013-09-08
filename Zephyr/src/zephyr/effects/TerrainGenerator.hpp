@@ -50,9 +50,9 @@ private:
         float fGridSize = onEdge - 1;
 
         float palette[][4] = {
-            { 0.3f, 0.1f, 0.0f, 1 },
-            { 0.1f, 0.2f, 0.2f, 1 },
-            { 0.0f, 0.3f, 0.1f, 1 },
+            { 0.2f, 0.1f, 0.07f, 1 },
+            { 0.2f, 0.2f, 0.1f, 1 },
+            { 0.25f, 0.15f, 0.05f, 1 },
         };
 
         for (int i = 0; i < onEdge; ++ i) {
@@ -60,7 +60,7 @@ private:
                 int n = i * onEdge + j;
                 int k = 4 * n;
                 vertices[k + 0] = -extent / 2 + extent * (j / fGridSize);
-                vertices[k + 1] = -2;
+                vertices[k + 1] = 0;
                 vertices[k + 2] = -extent / 2 + extent * (i / fGridSize);
                 vertices[k + 3] = 1;
 

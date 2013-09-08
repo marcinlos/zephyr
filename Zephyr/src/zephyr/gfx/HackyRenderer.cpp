@@ -306,7 +306,7 @@ struct SceneManager {
 
         entities["ground"] = newEntity(materials["dull"], meshes["quad"]);
         ObjectPtr ground = newObject(entities["ground"]);
-        ground->transform = glm::translate<float>(0, -1, 0);
+        ground->transform = glm::translate<float>(0, -1.1f, 0);
         scene->addChild(ground);
 
 
