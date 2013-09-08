@@ -43,6 +43,11 @@ private:
 public:
     glm::vec3 pos;
 
+    Camera(const Projection& proj, const glm::vec3& pos)
+    : proj(proj)
+    , pos(pos)
+    { }
+
     glm::vec3 dirToView(const glm::vec3& v) const {
         return glm::vec3 { rot * glm::vec4(v, 0) };
     }
