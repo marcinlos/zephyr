@@ -12,6 +12,8 @@
 #include <unordered_map>
 #include <boost/io/ios_state.hpp>
 
+#include <zephyr/gfx/objects.h>
+
 
 #include <zephyr/gfx/star.hpp>
 
@@ -61,124 +63,6 @@ struct Uniform2f: Uniform {
         glUniform2f(location, v0, v1);
     }
 };
-
-
-typedef std::shared_ptr<struct VertexArray> VertexArrayPtr;
-typedef std::shared_ptr<struct Entity> EntityPtr;
-typedef std::shared_ptr<struct Object> ObjectPtr;
-typedef std::weak_ptr<struct Object> WeakObjectPtr;
-
-
-struct VertexArray: public std::enable_shared_from_this<VertexArray> {
-    GLuint glName;
-    std::size_t count;
-
-    VertexArray(GLuint glName, std::size_t count)
-    : glName(glName)
-    , count(count)
-    { }
-
-    ~VertexArray() {
-        glDeleteVertexArrays(1, &glName);
-    }
-};
-
-
-template <typename... T>
-VertexArrayPtr newVertexArray(T&&... args) {
-    return std::make_shared<VertexArray>(std::forward<T>(args)...);
-}
-
-
-struct Entity: public std::enable_shared_from_this<Entity> {
-    ProgramPtr program;
-    VertexArrayPtr buffer;
-
-    Entity(ProgramPtr program, VertexArrayPtr buffer)
-    : program(program)
-    , buffer(buffer)
-    { }
-
-};
-
-template <typename... T>
-EntityPtr newEntity(T&&... args) {
-    return std::make_shared<Entity>(std::forward<T>(args)...);
-}
-
-
-struct Object: public std::enable_shared_from_this<Object> {
-    EntityPtr entity;
-    WeakObjectPtr parent;
-    std::vector<ObjectPtr> children;
-
-    glm::mat4 transform;
-    glm::mat4 totalTransform;
-
-
-    Object(EntityPtr entity, WeakObjectPtr parent = WeakObjectPtr { })
-    : entity(entity)
-    , parent(parent)
-    { }
-
-    void addChild(ObjectPtr child) {
-        children.push_back(std::move(child));
-    }
-
-    void update() {
-        if (auto p = parent.lock()) {
-            totalTransform = p->totalTransform * transform;
-        } else {
-            totalTransform = transform;
-        }
-        for (auto child : children) {
-            child->update();
-        }
-    }
-};
-
-template <typename... T>
-ObjectPtr newObject(T&&... args) {
-    return std::make_shared<Object>(std::forward<T>(args)...);
-}
-
-typedef ResourceManager<ShaderPtr> ShaderManager;
-typedef ResourceManager<ProgramPtr> ProgramManager;
-typedef ResourceManager<VertexArrayPtr> VertexArrayManager;
-typedef ResourceManager<EntityPtr>EntityManager;
-typedef ResourceManager<ObjectPtr> ObjectManager;
-
-
-VertexArrayPtr fillVertexArray(const float* data, std::size_t n) {
-    GLuint vbo;
-    glGenVertexArrays(1, &vbo);
-    glBindVertexArray(vbo);
-
-    GLuint buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * n, data, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)(2 * n));
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    return newVertexArray(vbo, n >> 3);
-}
-
-template <std::size_t N>
-VertexArrayPtr fillVertexArray(const float (&data)[N]) {
-    return fillVertexArray(data, N);
-}
-
-VertexArrayPtr fillVertexArray(const std::vector<float>& data) {
-    return fillVertexArray(&data[0], data.size());
-}
 
 
 

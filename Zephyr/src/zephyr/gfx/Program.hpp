@@ -5,6 +5,7 @@
 #ifndef ZEPHYR_GFX_PROGRAM_HPP_
 #define ZEPHYR_GFX_PROGRAM_HPP_
 
+#include <zephyr/gfx/Shader.hpp>
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <memory>
