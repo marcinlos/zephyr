@@ -35,7 +35,11 @@
 #include <zephyr/gfx/objects.h>
 #include <list>
 
+#include <zephyr/effects/TerrainGenerator.hpp>
+
 using zephyr::resources::ResourceManager;
+
+using zephyr::effects::TerrainGenerator;
 
 
 namespace zephyr {
@@ -66,84 +70,6 @@ struct Uniform2f: Uniform {
     }
 };
 
-class TerrainGenerator {
-public:
-    TerrainGenerator(float extent, int gridSize)
-    : A(extent)
-    , onEdge(gridSize + 1)
-    , vertexCount(onEdge * onEdge)
-    , quadCount(gridSize * gridSize)
-    , vertices(8 * vertexCount)
-    , colors(&vertices[4 * vertexCount])
-    , indices(3 * 2 * quadCount)
-    { }
-
-    VertexArrayPtr create() {
-        generateVertices();
-        generateIndices();
-        BufferGenerator gen;
-        return gen(vertices, indices);
-    }
-
-private:
-
-    void generateVertices() {
-        float fGridSize = onEdge - 1;
-
-        float palette[][4] = {
-            { 0.3f, 0.1f, 0.0f, 1 },
-            { 0.1f, 0.2f, 0.2f, 1 },
-            { 0.0f, 0.3f, 0.1f, 1 },
-        };
-
-        for (int i = 0; i < onEdge; ++ i) {
-            for (int j = 0; j < onEdge; ++ j) {
-                int n = i * onEdge + j;
-                int k = 4 * n;
-                vertices[k + 0] = -A / 2 + A * (j / fGridSize);
-                vertices[k + 1] = -2;
-                vertices[k + 2] = -A / 2 + A * (i / fGridSize);
-                vertices[k + 3] = 1;
-
-                int r = rand();
-                float* c = palette[r % std::extent<decltype(palette)>::value];
-                colors[k + 0] = c[0];
-                colors[k + 1] = c[1];
-                colors[k + 2] = c[2];
-                colors[k + 3] = c[3];
-            }
-        }
-    }
-
-    void generateIndices() {
-        for (int i = 0, next = 0; i < onEdge - 1; ++ i) {
-            for (int j = 0; j < onEdge - 1; ++ j) {
-                int base = i * onEdge + j;
-                indices[next ++] = base + 0;
-                indices[next ++] = base + 1;
-                indices[next ++] = base + onEdge + 1;
-                indices[next ++] = base + onEdge + 1;
-                indices[next ++] = base + onEdge;
-                indices[next ++] = base + 0;
-            }
-        }
-    }
-
-    float A;
-
-    int onEdge;
-
-    int vertexCount;
-
-    int quadCount;
-
-    std::vector<float> vertices;
-
-    float* colors;
-
-    std::vector<std::uint32_t> indices;
-
-};
 
 void drawBuffer(const VertexArrayPtr& vb) {
     glBindVertexArray(vb->glName);
@@ -479,7 +405,6 @@ void HackyRenderer::inputHandler(const core::Message& msg) {
     } else if (msg.type == msg::BUTTON_EVENT) {
         ButtonEvent e = util::any_cast<ButtonEvent>(msg.data);
         input[e.button] = (e.type == ButtonEvent::Type::DOWN);
-        std::cout << "Dupa: " << (e.type == ButtonEvent::Type::DOWN) << std::endl;
     } else if (msg.type == msg::CURSOR_EVENT) {
         const float sensitivity = 0.5f;
         const float moveScale = 0.3f;
