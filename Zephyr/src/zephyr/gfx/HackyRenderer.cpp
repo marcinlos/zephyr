@@ -262,7 +262,7 @@ public:
     }
 
     glm::mat4 viewMatrix() const {
-        return rot * glm::translate(pos);
+        return rot * glm::translate(-pos);
     }
 
     glm::vec3 up() const {
@@ -326,7 +326,7 @@ struct SceneManager {
 
         entities["ground"] = newEntity(programs["program"], meshes["quad"]);
         ObjectPtr ground = newObject(entities["ground"]);
-        const float size = 10.0f;
+        const float size = 100.0f;
         ground->transform =
                 glm::translate<float>(0, -1, 0) *
                 glm::rotate<float>(-90, 1, 0, 0) *
@@ -353,7 +353,7 @@ struct SceneManager {
 
     void setupCamera() {
         camera.projection({ FOV, 1, zNear, zFar });
-        camera.pos = glm::vec3 { 0.0f, 0.0f, -3.0f };
+        camera.pos = glm::vec3 { 0.0f, 0.0f, 3.0f };
     }
 
     void update() {
@@ -519,22 +519,22 @@ void HackyRenderer::update() {
     const float hRotH = 60;
 
     if (pressed(Key::W)) {
-        scene->camera.pos -= ds * scene->camera.dirFromView(FWD);
+        scene->camera.pos += ds * scene->camera.dirFromView(FWD);
     }
     if (pressed(Key::S)) {
-        scene->camera.pos -= ds * scene->camera.dirFromView(BACK);
+        scene->camera.pos += ds * scene->camera.dirFromView(BACK);
     }
     if (pressed(Key::A)) {
-        scene->camera.pos -= ds * scene->camera.dirFromView(LEFT);
+        scene->camera.pos += ds * scene->camera.dirFromView(LEFT);
     }
     if (pressed(Key::D)) {
-        scene->camera.pos -= ds * scene->camera.dirFromView(RIGHT);
+        scene->camera.pos += ds * scene->camera.dirFromView(RIGHT);
     }
     if (pressed(Key::E)) {
-        scene->camera.pos -= ds * scene->camera.dirFromView(UP);
+        scene->camera.pos += ds * scene->camera.dirFromView(UP);
     }
     if (pressed(Key::Q)) {
-        scene->camera.pos -= ds * scene->camera.dirFromView(DOWN);
+        scene->camera.pos += ds * scene->camera.dirFromView(DOWN);
     }
 
     if (pressed(Key::LEFT)) {
@@ -571,7 +571,7 @@ void HackyRenderer::inputHandler(const core::Message& msg) {
             isPressed[static_cast<int>(e.key)] = true;
 
             if (e.key == Key::SPACE) {
-                std::cout << "dir: " << scene->camera.dirToView(FWD) << std::endl;
+                std::cout << "dir: " << scene->camera.dirFromView(FWD) << std::endl;
                 std::cout << "pos: " << scene->camera.pos << std::endl;
             }
             else if (e.key == Key::F11) {
