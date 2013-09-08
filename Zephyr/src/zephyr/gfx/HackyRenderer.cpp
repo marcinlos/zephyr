@@ -113,14 +113,19 @@ struct SceneManager {
     GLint viewUniform;
     GLint projUniform;
 
-    const float FOV = 60.0f;
-    const float zNear = 0.1f;
-    const float zFar = 100.0f;
+    static constexpr float FOV = 60.0f;
+    static constexpr float zNear = 0.1f;
+    static constexpr float zFar = 100.0f;
 
-    SceneManager() {
-//        root = createScene();
-        setupCamera();
+    SceneManager()
+    : camera {
+        Projection { FOV, 1, zNear, zFar },
+        glm::vec3 { 0.0f, 0.0f, 3.0f }
     }
+    , modelUniform { -1 }
+    , viewUniform { -1 }
+    , projUniform { -1 }
+    { }
 
     ObjectPtr createScene() {
         createProgram();
@@ -153,11 +158,6 @@ struct SceneManager {
 
 
         return scene;
-    }
-
-    void setupCamera() {
-        camera.projection({ FOV, 1, zNear, zFar });
-        camera.pos = glm::vec3 { 0.0f, 0.0f, 3.0f };
     }
 
     void update() {
