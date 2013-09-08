@@ -15,6 +15,54 @@ namespace effects {
 using namespace gfx;
 
 
+struct PointProxy {
+    float& x;
+    float& y;
+    float& z;
+    float& w;
+
+    PointProxy(float* data)
+    : x(data[0])
+    , y(data[1])
+    , z(data[2])
+    , w(data[3])
+    { }
+};
+
+
+struct RowProxy {
+    float* vertices;
+    int row;
+    int inRow;
+
+
+    RowProxy(float* vertices, int row, int inRow)
+    : vertices(vertices)
+    , row(row)
+    , inRow(inRow)
+    { }
+
+    PointProxy operator [] (int col) {
+        int offset = row * inRow + col;
+        return PointProxy { &vertices[offset << 2] };
+    }
+};
+
+struct Grid {
+    float* vertices;
+    int inRow;
+
+    Grid(float* vertices, int inRow)
+    : vertices(vertices)
+    , inRow(inRow)
+    { }
+
+    RowProxy operator [] (int row) {
+        return RowProxy { vertices, row, inRow };
+    }
+};
+
+
 
 class TerrainGenerator {
 public:
@@ -23,9 +71,10 @@ public:
     , onEdge(gridSize + 1)
     , vertexCount(onEdge * onEdge)
     , quadCount(gridSize * gridSize)
-    , vertices(8 * vertexCount)
-    , colors(&vertices[4 * vertexCount])
+    , data(8 * vertexCount)
     , indices(3 * 2 * quadCount)
+    , colors(&data[0] + 4 * vertexCount, onEdge)
+    , v(&data[0], onEdge)
     { }
 
     VertexArrayPtr create() {
@@ -35,7 +84,7 @@ public:
         modify();
 
         BufferGenerator gen;
-        return gen(vertices, indices);
+        return gen(data, indices);
     }
 
     virtual ~TerrainGenerator() = default;
@@ -59,17 +108,17 @@ private:
             for (int j = 0; j < onEdge; ++ j) {
                 int n = i * onEdge + j;
                 int k = 4 * n;
-                vertices[k + 0] = -extent / 2 + extent * (j / fGridSize);
-                vertices[k + 1] = 0;
-                vertices[k + 2] = -extent / 2 + extent * (i / fGridSize);
-                vertices[k + 3] = 1;
+                v[i][j].x = -extent / 2 + extent * (j / fGridSize);
+                v[i][j].y = 0;
+                v[i][j].z = -extent / 2 + extent * (i / fGridSize);
+                v[i][j].w = 1;
 
                 int r = rand();
                 float* c = palette[r % std::extent<decltype(palette)>::value];
-                colors[k + 0] = c[0];
-                colors[k + 1] = c[1];
-                colors[k + 2] = c[2];
-                colors[k + 3] = c[3];
+                colors[i][j].x = c[0];
+                colors[i][j].y = c[1];
+                colors[i][j].z = c[2];
+                colors[i][j].w = c[3];
             }
         }
     }
@@ -97,12 +146,15 @@ protected:
 
     int quadCount;
 
-    std::vector<float> vertices;
-
-    float* colors;
 
     std::vector<std::uint32_t> indices;
 
+    Grid v;
+
+    Grid colors;
+
+private:
+    std::vector<float> data;
 };
 
 
