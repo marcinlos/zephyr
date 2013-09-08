@@ -19,7 +19,7 @@ using namespace gfx;
 class TerrainGenerator {
 public:
     TerrainGenerator(float extent, int gridSize)
-    : A(extent)
+    : extent(extent)
     , onEdge(gridSize + 1)
     , vertexCount(onEdge * onEdge)
     , quadCount(gridSize * gridSize)
@@ -31,11 +31,20 @@ public:
     VertexArrayPtr create() {
         generateVertices();
         generateIndices();
+
+        modify();
+
         BufferGenerator gen;
         return gen(vertices, indices);
     }
 
+    virtual ~TerrainGenerator() = default;
+
 private:
+
+    virtual void modify() {
+        // empty
+    }
 
     void generateVertices() {
         float fGridSize = onEdge - 1;
@@ -50,9 +59,9 @@ private:
             for (int j = 0; j < onEdge; ++ j) {
                 int n = i * onEdge + j;
                 int k = 4 * n;
-                vertices[k + 0] = -A / 2 + A * (j / fGridSize);
+                vertices[k + 0] = -extent / 2 + extent * (j / fGridSize);
                 vertices[k + 1] = -2;
-                vertices[k + 2] = -A / 2 + A * (i / fGridSize);
+                vertices[k + 2] = -extent / 2 + extent * (i / fGridSize);
                 vertices[k + 3] = 1;
 
                 int r = rand();
@@ -79,7 +88,8 @@ private:
         }
     }
 
-    float A;
+protected:
+    float extent;
 
     int onEdge;
 

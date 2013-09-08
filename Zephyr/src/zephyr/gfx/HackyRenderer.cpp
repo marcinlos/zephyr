@@ -35,11 +35,11 @@
 #include <zephyr/gfx/objects.h>
 #include <list>
 
-#include <zephyr/effects/TerrainGenerator.hpp>
+#include <zephyr/effects/SimpleTerrainGenerator.hpp>
 
 using zephyr::resources::ResourceManager;
 
-using zephyr::effects::TerrainGenerator;
+using zephyr::effects::SimpleTerrainGenerator;
 
 
 namespace zephyr {
@@ -249,7 +249,7 @@ struct SceneManager {
         materials["dull"] = newMaterial(programs["program"]);
         objects["root"] = newObject(nullptr);
 
-        TerrainGenerator gen(30.0f, 320);
+        SimpleTerrainGenerator gen(30.0f, 320);
         meshes["quad"] = gen.create();
         meshes["star 9"] = fillVertexArray(makeStar(10, 0.3f));
 
@@ -301,7 +301,7 @@ struct SceneManager {
         ObjectPtr scene = newObject(newEntity(materials["dull"], nullptr));
 
 
-        TerrainGenerator gen(30.0f, 320);
+        SimpleTerrainGenerator gen(30.0f, 320);
         meshes["quad"] = gen.create();
 
         entities["ground"] = newEntity(materials["dull"], meshes["quad"]);
@@ -310,22 +310,31 @@ struct SceneManager {
         scene->addChild(ground);
 
 
-        meshes["star 9"] = fillVertexArray(makeStar(10, 0.3f));
-        entities["star"] = newEntity(materials["dull"], meshes["star 9"]);
-        ObjectPtr root = objects["root"] = newObject(entities["star"], scene);
-        scene->addChild(root);
+        meshes["starMesh"] = fillVertexArray(makeStar(10, 0.3f));
+        entities["star"] = newEntity(materials["dull"], meshes["starMesh"]);
+        ObjectPtr star = objects["root"] = newObject(entities["star"], scene);
+        scene->addChild(star);
 
-        ObjectPtr small = newObject(entities["star"], root);
+        ObjectPtr small = newObject(entities["star"], star);
         small->transform = glm::translate(0.9f, 0.0f, 0.0f) * glm::scale(0.2f, 0.2f, 0.2f);
-        root->addChild(small);
+        star->addChild(small);
 
-        ObjectPtr left = newObject(entities["star"], root);
-        small->transform = glm::translate(-2.9f, 0.0f, 0.0f) *
+        ObjectPtr left = newObject(entities["star"], scene);
+        left->transform = glm::translate(-2.9f, 0.0f, 0.0f) *
                 glm::scale(1.2f, 1.2f, 1.2f) *
                 glm::rotate<float>(85, 0, 1, 0);
-        root->addChild(small);
+        scene->addChild(left);
 
         return scene;
+    }
+
+    const ObjectPtr& find(std::string path) const {
+        auto pos = path.find('/');
+        if (pos == std::string::npos) {
+            // TODO: do sth
+        } else {
+            // do sth as well
+        }
     }
 
     void update() {
@@ -341,6 +350,10 @@ struct SceneManager {
     }
 
 private:
+
+    const ObjectPtr& find(std::string& path, const ObjectPtr& root) const {
+        return nullptr;
+    }
 
     void setMatrix(GLint uniform, const glm::mat4& matrix) {
         glUniformMatrix4fv(uniform, 1, GL_FALSE, glm::value_ptr(matrix));
@@ -439,7 +452,7 @@ HackyRenderer::HackyRenderer(Context ctx)
 {
     std::cout << "[Hacky] Initializing hacky renderer" << std::endl;
     initOpenGL();
-    scene->root = scene->createScene2();
+    scene->root = scene->createScene();
 
     core::registerHandler(ctx.dispatcher, input::msg::INPUT_SYSTEM, this,
             &HackyRenderer::inputHandler);
@@ -503,12 +516,9 @@ void HackyRenderer::update() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     scene->camera.adjustRatio(ratio);
-
     cameraController.update();
-
     scene->update();
     scene->draw();
-
 }
 
 
