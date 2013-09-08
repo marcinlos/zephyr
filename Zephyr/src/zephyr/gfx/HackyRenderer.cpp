@@ -66,35 +66,90 @@ struct Uniform2f: Uniform {
     }
 };
 
+class TerrainGenerator {
+public:
+    TerrainGenerator(float extent, int gridSize)
+    : A(extent)
+    , onEdge(gridSize + 1)
+    , vertexCount(onEdge * onEdge)
+    , quadCount(gridSize * gridSize)
+    , vertices(8 * vertexCount)
+    , colors(&vertices[4 * vertexCount])
+    , indices(3 * 2 * quadCount)
+    { }
 
-VertexArrayPtr generateTerrain(float scale) {
+    VertexArrayPtr create() {
+        generateVertices();
+        generateIndices();
+        BufferGenerator gen;
+        return gen(vertices, indices);
+    }
 
-    const float A = scale;
-    const std::vector<float> vertices {
-        -A, 0,  A, 1,
-        -A, 0, -A, 1,
-         A, 0, -A, 1,
-         A, 0,  A, 1,
+private:
 
-         1, 0, 0, 1,
-         0, 1, 0, 1,
-         0, 0, 1, 1,
-         1, 1, 1, 1
-    };
+    void generateVertices() {
+        float fGridSize = onEdge - 1;
 
-    const std::vector<std::uint16_t> indices {
-        0, 1, 2,
-        2, 3, 0
-    };
-    BufferGenerator gen;
-    return gen(vertices, indices);
-}
+        float palette[][4] = {
+            { 0.3f, 0.1f, 0.0f, 1 },
+            { 0.1f, 0.2f, 0.2f, 1 },
+            { 0.0f, 0.3f, 0.1f, 1 },
+        };
+
+        for (int i = 0; i < onEdge; ++ i) {
+            for (int j = 0; j < onEdge; ++ j) {
+                int n = i * onEdge + j;
+                int k = 4 * n;
+                vertices[k + 0] = -A / 2 + A * (j / fGridSize);
+                vertices[k + 1] = -2;
+                vertices[k + 2] = -A / 2 + A * (i / fGridSize);
+                vertices[k + 3] = 1;
+
+                int r = rand();
+                float* c = palette[r % std::extent<decltype(palette)>::value];
+                colors[k + 0] = c[0];
+                colors[k + 1] = c[1];
+                colors[k + 2] = c[2];
+                colors[k + 3] = c[3];
+            }
+        }
+    }
+
+    void generateIndices() {
+        for (int i = 0, next = 0; i < onEdge - 1; ++ i) {
+            for (int j = 0; j < onEdge - 1; ++ j) {
+                int base = i * onEdge + j;
+                indices[next ++] = base + 0;
+                indices[next ++] = base + 1;
+                indices[next ++] = base + onEdge + 1;
+                indices[next ++] = base + onEdge + 1;
+                indices[next ++] = base + onEdge;
+                indices[next ++] = base + 0;
+            }
+        }
+    }
+
+    float A;
+
+    int onEdge;
+
+    int vertexCount;
+
+    int quadCount;
+
+    std::vector<float> vertices;
+
+    float* colors;
+
+    std::vector<std::uint32_t> indices;
+
+};
 
 void drawBuffer(const VertexArrayPtr& vb) {
     glBindVertexArray(vb->glName);
     GLenum mode = primitiveToGL(vb->mode);
     if (vb->indexed) {
-        glDrawElements(mode, vb->count, GL_UNSIGNED_SHORT, 0);
+        glDrawElements(mode, vb->count, GL_UNSIGNED_INT, 0);
     } else {
         glDrawArrays(mode, 0, vb->count);
     }
@@ -115,8 +170,6 @@ void drawGraph(ObjectPtr object, GLint transformLocation) {
         drawGraph(child, transformLocation);
     }
 }
-
-
 
 struct SceneManager {
 
@@ -148,7 +201,8 @@ struct SceneManager {
 
         ObjectPtr scene = newObject(newEntity(programs["program"], nullptr));
 
-        meshes["quad"] = generateTerrain(10.0f);
+        TerrainGenerator gen(30.0f, 320);
+        meshes["quad"] = gen.create();
 
         entities["ground"] = newEntity(programs["program"], meshes["quad"]);
         ObjectPtr ground = newObject(entities["ground"]);

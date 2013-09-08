@@ -15,6 +15,24 @@ namespace zephyr {
 namespace gfx {
 
 
+template <typename IndexType>
+struct IndexTraits;
+
+template <>
+struct IndexTraits<std::uint8_t> {
+    enum { gl_type = GL_UNSIGNED_BYTE };
+};
+
+template <>
+struct IndexTraits<std::uint16_t> {
+    enum { gl_type = GL_UNSIGNED_SHORT };
+};
+
+template <>
+struct IndexTraits<std::uint32_t> {
+    enum { gl_type = GL_UNSIGNED_INT };
+};
+
 
 struct BufferGenerator {
 
@@ -23,16 +41,18 @@ struct BufferGenerator {
     static const std::size_t vertexSize = posSize + colorSize;
     static const std::size_t indexSize = sizeof(std::uint16_t);
 
+    template <typename IndexType>
     VertexArrayPtr operator () (
             const std::vector<float>& vertices,
-            const std::vector<std::uint16_t>& indices
+            const std::vector<IndexType>& indices
     ) const {
         GLuint vao = bindNewVao();
         GLuint vertexBuffer = makeVertexBuffer(vertices);
         GLuint indexBuffer = makeIndexBuffer(indices);
 
         cleanup(vertexBuffer, indexBuffer);
-        return newVertexArray(vao, indices.size(), true);
+        GLenum type = IndexTraits<IndexType>::gl_type;
+        return newVertexArray(vao, indices.size(), true, type);
     }
 
 private:
@@ -51,8 +71,9 @@ private:
         return vertexBuffer;
     }
 
-    GLuint makeIndexBuffer(const std::vector<std::uint16_t>& indices) const {
-        std::size_t size = indices.size() * sizeof(std::uint16_t);
+    template <typename IndexType>
+    GLuint makeIndexBuffer(const std::vector<IndexType>& indices) const {
+        std::size_t size = indices.size() * sizeof(IndexType);
         GLuint indexBuffer = bindNewBuffer(GL_ELEMENT_ARRAY_BUFFER);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, &indices[0], GL_STATIC_DRAW);
         return indexBuffer;

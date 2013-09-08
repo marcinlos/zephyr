@@ -40,13 +40,15 @@ struct VertexArray: public std::enable_shared_from_this<VertexArray> {
     GLuint glName;
     std::size_t count;
     bool indexed;
+    GLenum indexType;
     Primitive mode;
 
     VertexArray(GLuint glName, std::size_t count, bool indexed,
-            Primitive mode = Primitive::TRIANGLES)
+            GLenum indexType, Primitive mode = Primitive::TRIANGLES)
     : glName(glName)
     , count(count)
     , indexed(indexed)
+    , indexType(indexType)
     , mode(mode)
     { }
 
@@ -143,7 +145,7 @@ VertexArrayPtr fillVertexArray(const float* data, std::size_t n) {
 
     glDeleteBuffers(1, &buffer);
 
-    return newVertexArray(vbo, n >> 3, false);
+    return newVertexArray(vbo, n >> 3, false, GL_UNSIGNED_SHORT);
 }
 
 template <std::size_t N>
