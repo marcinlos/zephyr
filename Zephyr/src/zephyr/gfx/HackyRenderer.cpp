@@ -456,7 +456,7 @@ HackyRenderer::HackyRenderer(Context ctx)
     MatrixRotator rotator { 30, glm::vec3 { 0, 1, 0 } };
 //    taskletScheduler.add(changer(scene->root->transform, rotator));
 
-    Action action = repeatedly(actionScheduler, [this](){
+    time::Action action = repeatedly(actionScheduler, [this](){
         double time = clock.time();
         double fps = counter;
         {
