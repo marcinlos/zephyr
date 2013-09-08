@@ -26,6 +26,8 @@
 #include <zephyr/input/KeyEvent.hpp>
 #include <zephyr/input/ButtonEvent.hpp>
 
+#include <zephyr/gfx/BufferGenerator.hpp>
+
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -67,7 +69,7 @@ struct Uniform2f: Uniform {
 
 VertexArrayPtr generateTerrain() {
 
-    const float vertices[] = {
+    const std::vector<float> vertices {
         -1, 0,  1, 1,
         -1, 0, -1, 1,
          1, 0, -1, 1,
@@ -79,51 +81,12 @@ VertexArrayPtr generateTerrain() {
          1, 1, 1, 1
     };
 
-    const std::uint16_t indices[] = {
+    const std::vector<std::uint16_t> indices {
         0, 1, 2,
         2, 3, 0
     };
-    const std::size_t vertexSize = 4 * sizeof(float);
-    const std::size_t colorSize = 4 * sizeof(float);
-    const std::size_t indexSize = sizeof(std::uint16_t);
-
-    std::size_t vertexCount = sizeof(vertices) / (vertexSize + colorSize);
-    std::size_t indexCount = sizeof(indices) / indexSize;
-
-    void* colorOffset = reinterpret_cast<void*>(vertexCount * vertexSize);
-
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    // Vertex vertexBuffer
-    GLuint vertexBuffer;
-    glGenBuffers(1, &vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, colorOffset);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // Index buffer
-    GLuint indexBuffer;
-    glGenBuffers(1, &indexBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-
-    glBindVertexArray(0);
-
-    glDeleteBuffers(1, &vertexBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    return newVertexArray(vao, indexCount, true);
+    BufferGenerator gen;
+    return gen(vertices, indices);
 }
 
 void drawGraph(ObjectPtr object, GLint transformLocation) {
@@ -180,30 +143,12 @@ struct SceneManager {
 
         ObjectPtr scene = newObject(newEntity(programs["program"], nullptr));
 
-        meshes["quad"] = generateTerrain();/*fillVertexArray({
-           -1, -1, 0, 1,
-           -1,  1, 0, 1,
-            1, -1, 0, 1,
-
-            1, -1, 0, 1,
-           -1,  1, 0, 1,
-            1,  1, 0, 1,
-
-           0.2f, 0, 0, 1,
-           0.2f, 0, 0, 1,
-           0.2f, 0, 0, 1,
-           0.2f, 0, 0, 1,
-           0.2f, 0, 0, 1,
-           0.2f, 0, 0, 1,
-        });*/
+        meshes["quad"] = generateTerrain();
 
         entities["ground"] = newEntity(programs["program"], meshes["quad"]);
         ObjectPtr ground = newObject(entities["ground"]);
         const float size = 100.0f;
-        ground->transform =
-                glm::translate<float>(0, -1, 0);// *
-//                glm::rotate<float>(-90, 1, 0, 0) *
-//                glm::scale(size, size, size);
+        ground->transform = glm::translate<float>(0, -1, 0);
         scene->addChild(ground);
 
 
