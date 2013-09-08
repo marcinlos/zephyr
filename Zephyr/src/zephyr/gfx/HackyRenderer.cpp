@@ -12,8 +12,7 @@
 #include <unordered_map>
 #include <boost/io/ios_state.hpp>
 
-#include <zephyr/gfx/objects.h>
-
+#include <zephyr/gfx/Camera.hpp>
 
 #include <zephyr/gfx/star.hpp>
 
@@ -31,6 +30,7 @@
 #include <glm/ext.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include <zephyr/gfx/objects.h>
 #include <list>
 
 using zephyr::resources::ResourceManager;
@@ -66,6 +66,7 @@ struct Uniform2f: Uniform {
 
 
 
+
 void drawGraph(ObjectPtr object, GLint transformLocation) {
     if (object->entity) {
         const EntityPtr& model = object->entity;
@@ -83,81 +84,6 @@ void drawGraph(ObjectPtr object, GLint transformLocation) {
         drawGraph(child, transformLocation);
     }
 }
-
-
-
-
-struct Projection {
-    float fov;
-    float aspectRatio;
-    float zNear;
-    float zFar;
-
-    glm::mat4 matrix() const {
-        return glm::perspective(fov, aspectRatio, zNear, zFar);
-    }
-};
-
-const glm::vec3 ORIGIN { 0, 0, 0 };
-
-const glm::vec3 FWD   {  0,  0, -1 };
-const glm::vec3 BACK  {  0,  0,  1 };
-const glm::vec3 UP    {  0,  1,  0 };
-const glm::vec3 DOWN  {  0, -1,  0 };
-const glm::vec3 LEFT  { -1,  0,  0 };
-const glm::vec3 RIGHT {  1,  0,  0 };
-
-class Camera {
-private:
-    Projection proj;
-    glm::mat4 rot;
-
-public:
-    glm::vec3 pos;
-
-    glm::vec3 dirToView(const glm::vec3& v) const {
-        return glm::vec3 { rot * glm::vec4(v, 0) };
-    }
-
-    glm::vec3 dirFromView(const glm::vec3& v) const {
-        return glm::vec3 { glm::inverse(rot) * glm::vec4(v, 0) };
-    }
-
-    void rotate(const glm::mat4& mat) {
-        rot = mat * rot;
-    }
-
-    void rotate(float dx, float dy, const glm::vec3& up) {
-        glm::vec3 upInViewSpace = dirToView(up);
-        glm::vec3 dir { dx, dy, -proj.zFar };
-        rotate(glm::lookAt(ORIGIN, dir, upInViewSpace));
-    }
-
-    const Projection& projection() const {
-        return proj;
-    }
-
-    void projection(Projection projection) {
-        this->proj = projection;
-    }
-
-    glm::mat4 projectionMatrix() const {
-        return proj.matrix();
-    }
-
-    glm::mat4 viewMatrix() const {
-        return rot * glm::translate(-pos);
-    }
-
-    glm::vec3 up() const {
-        return dirFromView(UP);
-    }
-
-    void adjustRatio(float aspectRatio) {
-        proj.aspectRatio = aspectRatio;
-    }
-
-};
 
 
 
@@ -241,7 +167,6 @@ struct SceneManager {
     }
 
     void update() {
-//        viewMatrix = camera.rot * glm::translate(camera.pos);
         root->update();
     }
 
@@ -382,7 +307,8 @@ void HackyRenderer::update() {
     updateTime();
 
     int w, h;
-    glfwGetFramebufferSize(glfwGetCurrentContext(), &w, &h);
+    GLFWwindow* window = glfwGetCurrentContext();
+    glfwGetFramebufferSize(window, &w, &h);
     glViewport(0, 0, w, h);
 
     float ratio = w / (float) h;
@@ -473,9 +399,7 @@ void HackyRenderer::inputHandler(const core::Message& msg) {
 
         if (dx * dx + dy * dy < 500) {
             float s = 0.5f;
-            glm::vec3 dir { s * dx, s * dy, z };
-            glm::vec3 up = scene->camera.dirToView(UP);
-            scene->camera.rotate(glm::lookAt(ORIGIN, dir, up));
+            scene->camera.rotate(s * dx, s * dy, UP);
         }
         cursor = pos;
     }

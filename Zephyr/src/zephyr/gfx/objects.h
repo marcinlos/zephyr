@@ -19,6 +19,7 @@ namespace gfx {
 
 using namespace zephyr::resources;
 
+
 typedef std::shared_ptr<struct VertexArray> VertexArrayPtr;
 typedef std::shared_ptr<struct Entity> EntityPtr;
 typedef std::shared_ptr<struct Object> ObjectPtr;
@@ -135,6 +136,7 @@ VertexArrayPtr fillVertexArray(const float (&data)[N]) {
 VertexArrayPtr fillVertexArray(const std::vector<float>& data) {
     return fillVertexArray(&data[0], data.size());
 }
+
 
 
 
