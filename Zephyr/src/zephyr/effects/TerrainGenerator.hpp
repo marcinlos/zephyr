@@ -32,33 +32,64 @@ struct PointProxy {
 
 struct RowProxy {
     float* vertices;
+    int offset;
     int row;
     int inRow;
 
 
-    RowProxy(float* vertices, int row, int inRow)
+    RowProxy(float* vertices, int offset, int row, int inRow)
     : vertices(vertices)
+    , offset(offset)
     , row(row)
     , inRow(inRow)
     { }
 
     PointProxy operator [] (int col) {
-        int offset = row * inRow + col;
-        return PointProxy { &vertices[offset << 2] };
+        int idx = row * inRow + col;
+        return PointProxy { vertices + 4 * (idx + offset) };
     }
 };
 
 struct Grid {
     float* vertices;
+    int offset;
     int inRow;
 
-    Grid(float* vertices, int inRow)
+    Grid(float* vertices, int offset, int inRow)
     : vertices(vertices)
+    , offset(offset)
     , inRow(inRow)
     { }
 
     RowProxy operator [] (int row) {
-        return RowProxy { vertices, row, inRow };
+        return RowProxy { vertices, offset, row, inRow };
+    }
+
+    Grid startAt(int i, int j) const {
+        return Grid { vertices, offset + i * inRow + j, inRow };
+    }
+
+    void printFull(int i, int j) const {
+        int firstRow = offset / inRow;
+        int firstCol = offset % inRow;
+        i += firstRow;
+        j += firstCol;
+        std::cout << "(" << i << ", " << j << ")";
+    }
+
+    bool insideFull(int i, int j) const {
+        int firstRow = offset / inRow;
+        int firstCol = offset % inRow;
+        i += firstRow;
+        j += firstCol;
+        int idx = i * inRow + j;
+        if (i< 0 || i >= inRow) {
+            return false;
+        } else if (j < 0|| j >= inRow) {
+            return false;
+        } else {
+            return true;
+        }
     }
 };
 
@@ -73,8 +104,8 @@ public:
     , quadCount(gridSize * gridSize)
     , data(8 * vertexCount)
     , indices(3 * 2 * quadCount)
-    , colors(&data[0] + 4 * vertexCount, onEdge)
-    , v(&data[0], onEdge)
+    , v(&data[0], 0, onEdge)
+    , colors(&data[0], vertexCount, onEdge)
     { }
 
     VertexArrayPtr create() {
@@ -146,15 +177,13 @@ protected:
 
     int quadCount;
 
+    std::vector<float> data;
 
     std::vector<std::uint32_t> indices;
 
     Grid v;
 
     Grid colors;
-
-private:
-    std::vector<float> data;
 };
 
 
