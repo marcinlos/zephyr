@@ -301,7 +301,7 @@ struct SceneManager {
         ObjectPtr scene = newObject(newEntity(materials["dull"], nullptr));
 
 
-        SimpleTerrainGenerator gen(100.0f, 10, 20.0f);
+        SimpleTerrainGenerator gen(100.0f, 10, 15.0f);
         meshes["quad"] = gen.create();
 
         entities["ground"] = newEntity(materials["dull"], meshes["quad"]);
