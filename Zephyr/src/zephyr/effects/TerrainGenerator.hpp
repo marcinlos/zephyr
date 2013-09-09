@@ -161,9 +161,9 @@ private:
                 indices[next ++] = base + 0;
                 indices[next ++] = base + 1;
                 indices[next ++] = base + onEdge + 1;
-                indices[next ++] = base + onEdge + 1;
                 indices[next ++] = base + onEdge;
                 indices[next ++] = base + 0;
+                indices[next ++] = base + onEdge + 1;
             }
         }
     }

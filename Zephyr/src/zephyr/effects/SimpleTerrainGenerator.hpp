@@ -8,6 +8,7 @@
 #include <zephyr/effects/TerrainGenerator.hpp>
 
 #include <cstdlib>
+#include <queue>
 
 namespace zephyr {
 namespace effects {
@@ -22,15 +23,45 @@ public:
     { }
 
 private:
+
+    struct Job {
+        Grid grid;
+        int level;
+        float scale;
+
+        Job(Grid grid, int level, float scale)
+        : grid(grid), level(level), scale(scale)
+        { }
+    };
+
+    std::queue<Job> jobs;
+
     void modify() override {
         std::srand(std::time(nullptr));
-        step(v, iterations, h);
-        for (int i = 0; i < 20; ++ i) {
-            smooth(0.5f);
+        jobs.emplace(v, iterations, h);
+        while (! jobs.empty()) {
+            Job job = jobs.front();
+            jobs.pop();
+            step(job.grid, job.level, job.scale);
         }
         for (int i = 0; i < 3; ++ i) {
-            smoothColors(0.6f);
+            smooth(0.9f);
         }
+//        for (int i = 0; i < 3; ++ i) {
+//            smoothColors(0.6f);
+//        }
+//        makeFlat();
+//        int n = 1 << (iterations - 1);
+//        Grid g = v.startAt(0, n);
+//        for (int i = 0; i < n; ++ i) {
+//            for (int j = 0; j < n; ++ j) {
+//                g[i][j].y = i + j;
+//            }
+//        }
+
+
+        colorFromHeight();
+//        makeFlat();
     }
 
     void step(Grid grid, int level, float scale) {
@@ -55,18 +86,18 @@ private:
         square(grid, 0, k, k, scale);
         square(grid, k, 0, k, scale);
 //        if (bj + n == grid.inRow - 1) {
-            square(grid, k, n, k, scale);
+        square(grid, k, n, k, scale);
 //        }
 //        if (bi + n == grid.inRow - 1) {
-            square(grid, n, k, k, scale);
+        square(grid, n, k, k, scale);
 //        }
 
         if (level > 1) {
 //            std::cout << "Level " << (level - 1) << "- - - - - - " << std::endl;
-            step(grid.startAt(0, 0), level - 1, scale / 2);
-            step(grid.startAt(0, k), level - 1, scale / 2);
-            step(grid.startAt(k, 0), level - 1, scale / 2);
-            step(grid.startAt(k, k), level - 1, scale / 2);
+            jobs.emplace(grid.startAt(0, 0), level - 1, scale / 2);
+            jobs.emplace(grid.startAt(0, k), level - 1, scale / 2);
+            jobs.emplace(grid.startAt(k, 0), level - 1, scale / 2);
+            jobs.emplace(grid.startAt(k, k), level - 1, scale / 2);
         }
 
     }
@@ -150,6 +181,33 @@ private:
         }
     }
 
+    void makeFlat() {
+        for (int i = 0; i < onEdge; ++ i) {
+            for (int j = 0; j < onEdge; ++ j) {
+                v[i][j].y = 0.0f;
+            }
+        }
+    }
+
+    void colorFromHeight() {
+        float min = 1000.0f, max = -1000.0f;
+        for (int i = 0; i < onEdge; ++ i) {
+            for (int j = 0; j < onEdge; ++ j) {
+                float x = v[i][j].y;
+                min = std::min(min, x);
+                max = std::max(max, x);
+            }
+        }
+        for (int i = 0; i < onEdge; ++ i) {
+            for (int j = 0; j < onEdge; ++ j) {
+                float x = v[i][j].y;
+                float color = (x - min) / (max - min);
+                colors[i][j].x *= color;
+                colors[i][j].y *= color;
+                colors[i][j].z *= color;
+            }
+        }
+    }
 
     float random() const {
         return 2 * (rand() / (0.0f + RAND_MAX) - 0.5f);

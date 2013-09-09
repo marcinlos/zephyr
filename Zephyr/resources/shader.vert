@@ -3,7 +3,7 @@
 layout(location = 0) in vec4 position;
 layout(location = 1) in vec4 color;
 
-flat out vec4 theColor;
+smooth out vec4 theColor;
 
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
@@ -20,4 +20,5 @@ void main()
     vec4 light = vec4(1, 1, 1, 1);
     
     theColor = 0.9f * color + (light * color + 0.1 * light) * s;
+    theColor = color;
 }

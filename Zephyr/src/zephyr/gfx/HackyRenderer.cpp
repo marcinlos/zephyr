@@ -306,24 +306,24 @@ struct SceneManager {
 
         entities["ground"] = newEntity(materials["dull"], meshes["quad"]);
         ObjectPtr ground = newObject(entities["ground"]);
-        ground->transform = glm::translate<float>(0, -1.1f, 0);
+        ground->transform = glm::translate<float>(0, -10.1f, 0);
         scene->addChild(ground);
 
-
-        meshes["starMesh"] = fillVertexArray(makeStar(10, 0.3f));
-        entities["star"] = newEntity(materials["dull"], meshes["starMesh"]);
-        ObjectPtr star = objects["root"] = newObject(entities["star"], scene);
-        scene->addChild(star);
-
-        ObjectPtr small = newObject(entities["star"], star);
-        small->transform = glm::translate(0.9f, 0.0f, 0.0f) * glm::scale(0.2f, 0.2f, 0.2f);
-        star->addChild(small);
-
-        ObjectPtr left = newObject(entities["star"], scene);
-        left->transform = glm::translate(-2.9f, 0.0f, 0.0f) *
-                glm::scale(1.2f, 1.2f, 1.2f) *
-                glm::rotate<float>(85, 0, 1, 0);
-        scene->addChild(left);
+//
+//        meshes["starMesh"] = fillVertexArray(makeStar(10, 0.3f));
+//        entities["star"] = newEntity(materials["dull"], meshes["starMesh"]);
+//        ObjectPtr star = objects["root"] = newObject(entities["star"], scene);
+//        scene->addChild(star);
+//
+//        ObjectPtr small = newObject(entities["star"], star);
+//        small->transform = glm::translate(0.9f, 0.0f, 0.0f) * glm::scale(0.2f, 0.2f, 0.2f);
+//        star->addChild(small);
+//
+//        ObjectPtr left = newObject(entities["star"], scene);
+//        left->transform = glm::translate(-2.9f, 0.0f, 0.0f) *
+//                glm::scale(1.2f, 1.2f, 1.2f) *
+//                glm::rotate<float>(85, 0, 1, 0);
+//        scene->addChild(left);
 
         return scene;
     }
@@ -511,7 +511,7 @@ void HackyRenderer::update() {
 
     float ratio = w / (float) h;
 
-    glClearColor(0.0f, 0.0f, 0.1f, 0.0f);
+    glClearColor(0.6f, 0.6f, 0.8f, 0.0f);
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
