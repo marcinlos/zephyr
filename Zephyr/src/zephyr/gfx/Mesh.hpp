@@ -12,6 +12,7 @@
 #include <GL/gl.h>
 
 #include <zephyr/gfx/objects.h>
+#include <zephyr/gfx/MeshBuilder.hpp>
 
 
 namespace zephyr {
@@ -19,34 +20,34 @@ namespace gfx {
 
 
 
-class Buffer {
-public:
-
-    explicit Buffer(GLuint bufferObject)
-    :bufferObject_(bufferObject)
-    { }
-
-
-    GLuint id() const {
-        return bufferObject_;
-    }
-
-
-    ~Buffer() {
-        glDeleteBuffers(1, &bufferObject_);
-    }
-
-
-private:
-    GLuint bufferObject_;
-};
-
-typedef std::shared_ptr<Buffer> BufferPtr;
-
-
-inline BufferPtr newBuffer(GLuint bufferObject) {
-    return std::make_shared<Buffer>(bufferObject);
-}
+//class Buffer {
+//public:
+//
+//    explicit Buffer(GLuint bufferObject)
+//    :bufferObject_(bufferObject)
+//    { }
+//
+//
+//    GLuint id() const {
+//        return bufferObject_;
+//    }
+//
+//
+//    ~Buffer() {
+//        glDeleteBuffers(1, &bufferObject_);
+//    }
+//
+//
+//private:
+//    GLuint bufferObject_;
+//};
+//
+//typedef std::shared_ptr<Buffer> BufferPtr;
+//
+//
+//inline BufferPtr newBuffer(GLuint bufferObject) {
+//    return std::make_shared<Buffer>(bufferObject);
+//}
 
 
 struct MeshData {
@@ -56,76 +57,34 @@ struct MeshData {
 };
 
 
-class Mesh {
-public:
+/*
+template <typename IndexType>
+struct IndexTraits;
 
-
-
-private:
-    std::vector<BufferPtr> buffers_;
+template <>
+struct IndexTraits<std::uint8_t> {
+    enum { gl_type = GL_UNSIGNED_BYTE };
 };
 
+template <>
+struct IndexTraits<std::uint16_t> {
+    enum { gl_type = GL_UNSIGNED_SHORT };
+};
 
-
-inline GLuint bindNewBuffer(GLenum target) {
-    GLuint buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(target, buffer);
-    return buffer;
-}
-
-inline GLuint bindNewVao() {
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    return vao;
-}
-
-inline void cleanup(GLuint vertexBuffer, GLuint indexBuffer) {
-    glBindVertexArray(0);
-    glDeleteBuffers(1, &vertexBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glDeleteBuffers(1, &indexBuffer);
-}
-
-inline void* asPtr(std::size_t offset) {
-    return reinterpret_cast<void*>(offset);
-}
-
-inline void setAttrib(GLuint index, std::size_t offset, int count = 4) {
-    glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, count, GL_FLOAT, GL_FALSE, 0, asPtr(offset));
-}
-
-
-GLuint makeVertexBuffer(const std::vector<glm::vec4>& vertices) {
-    std::size_t size = vertices.size() * sizeof(glm::vec4);
-
-    GLuint vertexBuffer = bindNewBuffer(GL_ARRAY_BUFFER);
-    glBufferData(GL_ARRAY_BUFFER, size, &vertices[0], GL_STATIC_DRAW);
-
-    setAttrib(0, 0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    return vertexBuffer;
-}
-
-
-GLuint makeIndexBuffer(const std::vector<GLuint>& indices) {
-    std::size_t size = indices.size() * sizeof(GLuint);
-    GLuint indexBuffer = bindNewBuffer(GL_ELEMENT_ARRAY_BUFFER);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, &indices[0], GL_STATIC_DRAW);
-    return indexBuffer;
-}
+template <>
+struct IndexTraits<std::uint32_t> {
+    enum { gl_type = GL_UNSIGNED_INT };
+};
+*/
 
 
 VertexArrayPtr vertexArrayFrom(const MeshData& data) {
-    GLuint vao = bindNewVao();
-    GLuint vertexBuffer = makeVertexBuffer(data.vertices);
-    GLuint indexBuffer = makeIndexBuffer(data.indices);
-    cleanup(vertexBuffer, indexBuffer);
-    GLenum type = IndexTraits<GLuint>::gl_type;
-    return newVertexArray(vao, data.indices.size(), true, type);
+    MeshBuilder builder;
+    return builder
+            .setBuffer(data.vertices).attribute(0, 4, 0)
+            .setIndices(data.indices)
+            .setBuffer(data.normals).attribute(1, 3, 0)
+            .create();
 }
 
 

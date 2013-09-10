@@ -176,10 +176,7 @@ VertexArrayPtr fillVertexArray(const std::vector<float>& data) {
 }
 
 
-
-
-}
-}
-
+} /* namespace gfx */
+} /* namespace zephyr */
 
 #endif /* OBJECTS_H_ */

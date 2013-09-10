@@ -6,6 +6,7 @@
 #define ZEPHYR_EFFECTS_TERRAINGENERATOR_HPP_
 
 #include <zephyr/gfx/objects.h>
+#include <zephyr/gfx/MeshBuilder.hpp>
 #include <vector>
 
 
@@ -114,8 +115,11 @@ public:
 
         modify();
 
-        BufferGenerator gen;
-        return gen(data, indices);
+        return MeshBuilder().setBuffer(data)
+                .attribute(0, 4, 0)
+                .attribute(1, 4, 4 * 4 * vertexCount)
+                .setIndices(indices)
+                .create();
     }
 
     virtual ~TerrainGenerator() = default;

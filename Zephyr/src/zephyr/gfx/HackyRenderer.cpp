@@ -26,7 +26,6 @@
 #include <zephyr/input/KeyEvent.hpp>
 #include <zephyr/input/ButtonEvent.hpp>
 
-#include <zephyr/gfx/BufferGenerator.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -365,8 +364,6 @@ struct SceneManager {
         glBufferSubData(GL_UNIFORM_BUFFER, 0, size, glm::value_ptr(viewMatrix));
         glBufferSubData(GL_UNIFORM_BUFFER, size, size, glm::value_ptr(projMatrix));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
-//        setMatrix(viewUniform, camera.viewMatrix());
-//        setMatrix(projUniform, camera.projectionMatrix());
         drawGraph(root, modelUniform);
     }
 
@@ -375,10 +372,6 @@ private:
     const ObjectPtr& find(std::string& path, const ObjectPtr& root) const {
         return nullptr;
     }
-
-//    void setMatrix(GLint uniform, const glm::mat4& matrix) {
-//        glUniformMatrix4fv(uniform, 1, GL_FALSE, glm::value_ptr(matrix));
-//    }
 
     void createProgram() {
 
@@ -400,7 +393,8 @@ private:
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
         program->bindBlock(cameraBlockIndex, cameraBindingIndex);
-        glBindBufferRange(GL_UNIFORM_BUFFER, cameraBindingIndex, cameraBuffer, 0, 2 * sizeof(glm::mat4));
+        glBindBufferRange(GL_UNIFORM_BUFFER, cameraBindingIndex, cameraBuffer,
+                0, 2 * sizeof(glm::mat4));
     }
 };
 
