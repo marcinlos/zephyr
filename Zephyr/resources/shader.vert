@@ -20,5 +20,5 @@ void main()
     vec4 light = vec4(1, 1, 1, 1);
     
     theColor = 0.9f * color + (light * color + 0.1 * light) * s;
-    theColor = color;
+    //theColor = color;
 }

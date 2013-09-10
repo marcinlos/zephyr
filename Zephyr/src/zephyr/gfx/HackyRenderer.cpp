@@ -36,6 +36,7 @@
 #include <list>
 
 #include <zephyr/effects/SimpleTerrainGenerator.hpp>
+#include <zephyr/gfx/Mesh.hpp>
 
 using zephyr::resources::ResourceManager;
 
@@ -154,6 +155,11 @@ namespace scene {
     };
 
 }
+
+
+
+
+
 
 inline constexpr float rad(float deg) {
     return deg * M_PI / 180;
@@ -301,7 +307,7 @@ struct SceneManager {
         ObjectPtr scene = newObject(newEntity(materials["dull"], nullptr));
 
 
-        SimpleTerrainGenerator gen(100.0f, 10, 15.0f);
+        SimpleTerrainGenerator gen(100.0f, 8, 15.0f);
         meshes["quad"] = gen.create();
 
         entities["ground"] = newEntity(materials["dull"], meshes["quad"]);
@@ -309,9 +315,13 @@ struct SceneManager {
         ground->transform = glm::translate<float>(0, -10.1f, 0);
         scene->addChild(ground);
 
-//
-//        meshes["starMesh"] = fillVertexArray(makeStar(10, 0.3f));
-//        entities["star"] = newEntity(materials["dull"], meshes["starMesh"]);
+        meshes["suzanne_mesh"] = loadMesh("resources/suzanne.obj");
+        entities["suzanne_ent"] = newEntity(materials["dull"], meshes["suzanne_mesh"]);
+        ObjectPtr suzanne = newObject(entities["suzanne_ent"], scene);
+        scene->addChild(suzanne);
+
+        meshes["starMesh"] = fillVertexArray(makeStar(10, 0.3f));
+        entities["star"] = newEntity(materials["dull"], meshes["starMesh"]);
 //        ObjectPtr star = objects["root"] = newObject(entities["star"], scene);
 //        scene->addChild(star);
 //
@@ -319,11 +329,11 @@ struct SceneManager {
 //        small->transform = glm::translate(0.9f, 0.0f, 0.0f) * glm::scale(0.2f, 0.2f, 0.2f);
 //        star->addChild(small);
 //
-//        ObjectPtr left = newObject(entities["star"], scene);
-//        left->transform = glm::translate(-2.9f, 0.0f, 0.0f) *
-//                glm::scale(1.2f, 1.2f, 1.2f) *
-//                glm::rotate<float>(85, 0, 1, 0);
-//        scene->addChild(left);
+        ObjectPtr left = newObject(entities["star"], scene);
+        left->transform = glm::translate(-2.9f, 0.0f, 0.0f) *
+                glm::scale(1.2f, 1.2f, 1.2f) *
+                glm::rotate<float>(85, 0, 1, 0);
+        scene->addChild(left);
 
         return scene;
     }
