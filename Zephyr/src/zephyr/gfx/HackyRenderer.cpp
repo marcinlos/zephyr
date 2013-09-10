@@ -179,8 +179,10 @@ struct SceneManager {
     Camera camera;
 
     GLint modelUniform;
-    GLint viewUniform;
-    GLint projUniform;
+
+    GLuint cameraBlockIndex;
+    GLuint cameraBuffer;
+    static const GLuint cameraBindingIndex = 10;
 
     static constexpr float FOV = 60.0f;
     static constexpr float zNear = 0.1f;
@@ -192,8 +194,8 @@ struct SceneManager {
         glm::vec3 { 0.0f, 0.0f, 3.0f }
     }
     , modelUniform { -1 }
-    , viewUniform { -1 }
-    , projUniform { -1 }
+    , cameraBlockIndex { - 1 }
+    , cameraBuffer { -1 }
     { }
 
     void parseMaterial(const scene::Material& material) {
@@ -354,8 +356,17 @@ struct SceneManager {
     void draw() {
         ProgramPtr program = programs["program"];
         program->use();
-        setMatrix(viewUniform, camera.viewMatrix());
-        setMatrix(projUniform, camera.projectionMatrix());
+
+        glm::mat4 viewMatrix = camera.viewMatrix();
+        glm::mat4 projMatrix = camera.projectionMatrix();
+        const std::size_t size = sizeof(glm::mat4);
+
+        glBindBuffer(GL_UNIFORM_BUFFER, cameraBuffer);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, size, glm::value_ptr(viewMatrix));
+        glBufferSubData(GL_UNIFORM_BUFFER, size, size, glm::value_ptr(projMatrix));
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+//        setMatrix(viewUniform, camera.viewMatrix());
+//        setMatrix(projUniform, camera.projectionMatrix());
         drawGraph(root, modelUniform);
     }
 
@@ -365,9 +376,9 @@ private:
         return nullptr;
     }
 
-    void setMatrix(GLint uniform, const glm::mat4& matrix) {
-        glUniformMatrix4fv(uniform, 1, GL_FALSE, glm::value_ptr(matrix));
-    }
+//    void setMatrix(GLint uniform, const glm::mat4& matrix) {
+//        glUniformMatrix4fv(uniform, 1, GL_FALSE, glm::value_ptr(matrix));
+//    }
 
     void createProgram() {
 
@@ -379,9 +390,17 @@ private:
             shaders["fragment"]
         });
         ProgramPtr program = programs["program"];
-        viewUniform = program->getUniformLocation("viewMatrix");
         modelUniform = program->getUniformLocation("modelMatrix");
-        projUniform = program->getUniformLocation("projectionMatrix");
+
+        cameraBlockIndex = program->getUniformBlockIndex("CameraMatrices");
+
+        glGenBuffers(1, &cameraBuffer);
+        glBindBuffer(GL_UNIFORM_BUFFER, cameraBuffer);
+        glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STREAM_DRAW);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+        program->bindBlock(cameraBlockIndex, cameraBindingIndex);
+        glBindBufferRange(GL_UNIFORM_BUFFER, cameraBindingIndex, cameraBuffer, 0, 2 * sizeof(glm::mat4));
     }
 };
 

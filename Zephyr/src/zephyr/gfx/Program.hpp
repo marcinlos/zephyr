@@ -93,6 +93,17 @@ public:
         return getUniformLocation(name.c_str());
     }
 
+    GLuint getUniformBlockIndex(const char* name) const {
+        return glGetUniformBlockIndex(program_, name);
+    }
+
+    GLuint getUniformBlockIndex(const std::string& name) const {
+        return getUniformBlockIndex(name.c_str());
+    }
+
+    void bindBlock(GLuint blockIndex, GLuint bindingIndex) {
+        glUniformBlockBinding(program_, blockIndex, bindingIndex);
+    }
 };
 
 typedef std::shared_ptr<Program> ProgramPtr;
