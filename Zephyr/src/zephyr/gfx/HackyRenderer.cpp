@@ -183,6 +183,14 @@ struct SceneManager {
     GLuint cameraBuffer;
     static const GLuint cameraBindingIndex = 10;
 
+    GLuint sunDirectionUniform = 0;
+    GLuint sunIntensityUniform = 0;
+    GLuint ambientUniform = 0;
+
+    glm::vec3 sunDirection;
+    float sunIntensity;
+    float ambient;
+
     static constexpr float FOV = 60.0f;
     static constexpr float zNear = 0.1f;
     static constexpr float zFar = 100.0f;
@@ -193,8 +201,14 @@ struct SceneManager {
         glm::vec3 { 0.0f, 0.0f, 3.0f }
     }
     , modelUniform { -1 }
-    , cameraBlockIndex { - 1 }
-    , cameraBuffer { -1 }
+    , cameraBlockIndex { 0 }
+    , cameraBuffer { 0 }
+    , sunDirectionUniform { 0 }
+    , sunIntensityUniform { 0 }
+    , ambientUniform { 0 }
+
+    , sunIntensity { 1.0f }
+    , ambient { 0.2f }
     { }
 
     void parseMaterial(const scene::Material& material) {
@@ -308,7 +322,7 @@ struct SceneManager {
         ObjectPtr scene = newObject(newEntity(materials["dull"], nullptr));
 
 
-        SimpleTerrainGenerator gen(100.0f, 8, 15.0f);
+        SimpleTerrainGenerator gen(100.0f, 8, 25.0f);
         meshes["quad"] = gen.create();
 
         entities["ground"] = newEntity(materials["dull"], meshes["quad"]);
@@ -364,6 +378,14 @@ struct SceneManager {
         glBufferSubData(GL_UNIFORM_BUFFER, 0, size, glm::value_ptr(viewMatrix));
         glBufferSubData(GL_UNIFORM_BUFFER, size, size, glm::value_ptr(projMatrix));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+
+        glUniform3f(sunDirectionUniform, sunDirection.x, sunDirection.y,
+                sunDirection.z);
+        glUniform1f(sunIntensityUniform, sunIntensity);
+        glUniform1f(ambientUniform, ambient);
+
+
         drawGraph(root, modelUniform);
     }
 
@@ -395,6 +417,12 @@ private:
         program->bindBlock(cameraBlockIndex, cameraBindingIndex);
         glBindBufferRange(GL_UNIFORM_BUFFER, cameraBindingIndex, cameraBuffer,
                 0, 2 * sizeof(glm::mat4));
+
+
+
+        sunDirectionUniform = program->getUniformLocation("sunDirection");
+        sunIntensityUniform = program->getUniformLocation("sunIntensity");
+        ambientUniform = program->getUniformLocation("ambient");
     }
 };
 
@@ -485,6 +513,24 @@ HackyRenderer::HackyRenderer(Context ctx)
 
     MatrixRotator rotator { 30, glm::vec3 { 0, 1, 0 } };
 //    taskletScheduler.add(changer(scene->root->transform, rotator));
+
+    using std::sin;
+    using std::cos;
+
+    float maxAngle = 50.0f * M_PI / 180;
+
+
+    taskletScheduler.add([=](double time, double){
+        double t = time / 3;
+        float angle = maxAngle * (cos(t) + 0.2);
+        glm::vec3 sunPos {
+            cos(angle) * cos(t),
+            sin(angle),
+            cos(angle) * sin(t)
+        };
+        scene->sunDirection = glm::normalize(-sunPos);
+        return true;
+    });
 
     time::Action action = repeatedly(actionScheduler, [this](){
         double time = clock.time();

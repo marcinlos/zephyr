@@ -1,16 +1,23 @@
 #version 330
 
-smooth in vec4 theColor;
+in vec4 diffuseColor;
+in vec3 normal;
 
 out vec4 outputColor;
 
+uniform vec3 sunDirection;
+uniform float sunIntensity;
+
+uniform float ambient;
+
+
 void main()
 {
-    float lerp = (gl_FragCoord.y - 250.0f) / 300.0f;
+    float sunComponent = sunIntensity * clamp(dot(normal, sunDirection), 0, 1);
     
-    vec4 begin = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    vec4 end   = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    float intensity = ambient + sunComponent;
     
-    vec4 overlay = mix(begin, end, lerp);
-    outputColor = theColor; //mix(theColor, overlay, 0.0f);
+    //float selfGlow = 
+    outputColor = vec4(gl_FragCoord.z, gl_FragCoord.z, gl_FragCoord.z, 1.0f);
+    outputColor = diffuseColor * clamp(intensity, 0, 1);
 }

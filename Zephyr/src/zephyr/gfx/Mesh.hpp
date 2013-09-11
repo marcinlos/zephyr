@@ -14,6 +14,8 @@
 #include <zephyr/gfx/objects.h>
 #include <zephyr/gfx/MeshBuilder.hpp>
 
+#include <random>
+
 
 namespace zephyr {
 namespace gfx {
@@ -52,6 +54,7 @@ namespace gfx {
 
 struct MeshData {
     std::vector<glm::vec4> vertices;
+    std::vector<glm::vec4> colors;
     std::vector<glm::vec3> normals;
     std::vector<GLuint> indices;
 };
@@ -82,8 +85,9 @@ VertexArrayPtr vertexArrayFrom(const MeshData& data) {
     MeshBuilder builder;
     return builder
             .setBuffer(data.vertices).attribute(0, 4, 0)
+            .setBuffer(data.colors).attribute(1, 4, 0)
+            .setBuffer(data.normals).attribute(2, 3, 0)
             .setIndices(data.indices)
-            .setBuffer(data.normals).attribute(1, 3, 0)
             .create();
 }
 
@@ -101,6 +105,23 @@ std::vector<glm::vec3> generateNormals(const std::vector<glm::vec4>& vertices,
         normals[ia] = normals[ib] = normals[ic] = normal;
     }
     return normals;
+}
+
+
+
+
+std::vector<glm::vec4> generateRandomColors(std::size_t count) {
+    std::default_random_engine generator(std::time(nullptr));
+    std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+
+    std::vector<glm::vec4> colors(count * 4);
+    for (auto& color : colors) {
+        color.x = distribution(generator);
+        color.y = distribution(generator);
+        color.z = distribution(generator);
+        color.w = 1.0f;
+    }
+    return colors;
 }
 
 
@@ -126,18 +147,17 @@ MeshData loadMeshData(const char* filename) {
             std::istringstream s(line.substr(2));
             GLushort a, b, c;
             s >> a; s >> b; s >> c;
-            a--; b--; c--;
-            data.indices.push_back(a);
-            data.indices.push_back(b);
-            data.indices.push_back(c);
-        } else if (line[0] == '#') {
-            // ignore
+            // inversion!
+            data.indices.push_back(a - 1);
+            data.indices.push_back(c - 1);
+            data.indices.push_back(b - 1);
         } else {
             // sth else, ignore
         }
     }
 
     data.normals = generateNormals(data.vertices, data.indices);
+    data.colors = generateRandomColors(data.vertices.size());
     return data;
 }
 

@@ -2,6 +2,7 @@
 
 layout(location = 0) in vec4 position;
 layout(location = 1) in vec4 color;
+layout(location = 2) in vec3 vertexNormal;
 
 layout (std140) uniform CameraMatrices 
 {
@@ -11,7 +12,8 @@ layout (std140) uniform CameraMatrices
 
 uniform mat4 modelMatrix;
 
-smooth out vec4 theColor;
+out vec4 diffuseColor;
+out vec3 normal; 
 
 
 void main() 
@@ -23,6 +25,7 @@ void main()
     
     vec4 light = vec4(1, 1, 1, 1);
     
-    theColor = 0.9f * color + (light * color + 0.1 * light) * s;
-    //theColor = color;
+    //diffuseColor = 0.9f * color + (light * color + 0.1 * light) * s;
+    diffuseColor = color;
+    normal = vertexNormal;
 }

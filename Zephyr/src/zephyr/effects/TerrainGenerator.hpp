@@ -9,6 +9,8 @@
 #include <zephyr/gfx/MeshBuilder.hpp>
 #include <vector>
 
+#include <zephyr/gfx/Mesh.hpp>
+
 
 namespace zephyr {
 namespace effects {
@@ -115,9 +117,24 @@ public:
 
         modify();
 
-        return MeshBuilder().setBuffer(data)
-                .attribute(0, 4, 0)
-                .attribute(1, 4, 4 * 4 * vertexCount)
+        std::vector<glm::vec4> asVec4(vertexCount);
+        for (int i = 0; i < vertexCount; ++ i) {
+            std::size_t n = 4 * i;
+            asVec4[i] = glm::vec4 {
+                data[n + 0],
+                data[n + 1],
+                data[n + 2],
+                data[n + 3]
+            };
+        }
+        auto normals = generateNormals(asVec4, indices);
+
+        return MeshBuilder()
+                .setBuffer(data)
+                    .attribute(0, 4, 0)
+                    .attribute(1, 4, 4 * 4 * vertexCount)
+                .setBuffer(normals)
+                    .attribute(2, 3, 0)
                 .setIndices(indices)
                 .create();
     }
