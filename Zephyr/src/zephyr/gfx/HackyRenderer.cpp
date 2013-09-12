@@ -48,28 +48,6 @@ namespace gfx {
 typedef boost::io::ios_all_saver guard;
 
 
-struct Uniform {
-    virtual void set(GLint location) = 0;
-    virtual ~Uniform() = default;
-};
-
-struct Uniform1f: Uniform {
-    GLfloat v0;
-
-    void set(GLint location) override {
-        glUniform1f(location, v0);
-    }
-};
-
-struct Uniform2f: Uniform {
-    GLfloat v0;
-    GLfloat v1;
-
-    void set(GLint location) override {
-        glUniform2f(location, v0, v1);
-    }
-};
-
 
 void drawBuffer(const VertexArrayPtr& vb) {
     glBindVertexArray(vb->glName);
@@ -353,14 +331,6 @@ struct SceneManager {
         return scene;
     }
 
-    const ObjectPtr& find(std::string path) const {
-        auto pos = path.find('/');
-        if (pos == std::string::npos) {
-            // TODO: do sth
-        } else {
-            // do sth as well
-        }
-    }
 
     void update() {
         root->update();
@@ -368,7 +338,7 @@ struct SceneManager {
 
     void draw() {
         ProgramPtr program = programs["program"];
-        program->use();
+        glUseProgram(program->ref());
 
         glm::mat4 viewMatrix = camera.viewMatrix();
         glm::mat4 projMatrix = camera.projectionMatrix();
@@ -391,10 +361,6 @@ struct SceneManager {
 
 private:
 
-    const ObjectPtr& find(std::string& path, const ObjectPtr& root) const {
-        return nullptr;
-    }
-
     void createProgram() {
 
         shaders["vertex"] = newVertexShader("resources/shader.vert");
@@ -405,9 +371,9 @@ private:
             shaders["fragment"]
         });
         ProgramPtr program = programs["program"];
-        modelUniform = program->getUniformLocation("modelMatrix");
+        modelUniform = program->uniformLocation("modelMatrix");
 
-        cameraBlockIndex = program->getUniformBlockIndex("CameraMatrices");
+        cameraBlockIndex = program->uniformBlockIndex("CameraMatrices");
 
         glGenBuffers(1, &cameraBuffer);
         glBindBuffer(GL_UNIFORM_BUFFER, cameraBuffer);
@@ -420,9 +386,9 @@ private:
 
 
 
-        sunDirectionUniform = program->getUniformLocation("sunDirection");
-        sunIntensityUniform = program->getUniformLocation("sunIntensity");
-        ambientUniform = program->getUniformLocation("ambient");
+        sunDirectionUniform = program->uniformLocation("sunDirection");
+        sunIntensityUniform = program->uniformLocation("sunIntensity");
+        ambientUniform = program->uniformLocation("ambient");
     }
 };
 

@@ -45,7 +45,7 @@ inline GLuint createShader(GLenum type, const std::string& shaderText) {
     return shader;
 }
 
-std::string read_file(const std::string& name) {
+std::string readFile(const std::string& name) {
     std::ifstream in(name);
     return {
         std::istreambuf_iterator<char>(in),
@@ -59,14 +59,14 @@ private:
 
 public:
     Shader(GLenum type, const std::string& path)
-    : shader_(createShader(type, read_file(path)))
+    : shader_(createShader(type, readFile(path)))
     { }
 
     ~Shader() {
         glDeleteShader(shader_);
     }
 
-    GLuint getRef() const {
+    GLuint ref() const {
         return shader_;
     }
 
