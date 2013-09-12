@@ -60,7 +60,6 @@ namespace detail {
                     buffer);
             buffer[maxLength] = '\0';
             uniforms[buffer] = glGetUniformLocation(program, buffer);
-            std::cout << "Got " << buffer << "( " << uniforms[buffer] << ")!" << std::endl;
         }
         return uniforms;
     }
@@ -75,7 +74,6 @@ namespace detail {
             char buffer[maxLength + 1];
             glGetActiveUniformBlockName(program, i, maxLength, nullptr, buffer);
             blocks[buffer] = glGetUniformBlockIndex(program, buffer);
-            std::cout << "Uniform block: " << buffer << "( " << blocks[buffer] << ")!" << std::endl;
         }
 
         return blocks;
@@ -87,13 +85,6 @@ namespace detail {
 class Program: public std::enable_shared_from_this<Program> {
 public:
 
-    template <typename Container>
-    Program (const Container& shaders)
-    : program_ { detail::create(begin(shaders), end(shaders)) }
-    , uniforms_ { detail::getUniforms(program_) }
-    , uniformBlocks_ { detail::getUniformBlocks(program_) }
-    { }
-
     template <typename Iter>
     Program (Iter begin, Iter end)
     : program_ { detail::create(begin, end) }
@@ -101,10 +92,13 @@ public:
     , uniformBlocks_ { detail::getUniformBlocks(program_) }
     { }
 
+    template <typename Container>
+    Program (const Container& shaders)
+    : Program(begin(shaders), end(shaders))
+    { }
+
     Program(std::initializer_list<ShaderPtr> shaders)
-    : program_ { detail::create(begin(shaders), end(shaders)) }
-    , uniforms_ { detail::getUniforms(program_) }
-    , uniformBlocks_ { detail::getUniformBlocks(program_) }
+    : Program(begin(shaders), end(shaders))
     { }
 
     ~Program() {

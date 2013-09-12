@@ -8,6 +8,8 @@
 #ifndef ZEPHYR_GFX_STAR_HPP_
 #define ZEPHYR_GFX_STAR_HPP_
 
+#include <zephyr/gfx/Mesh.hpp>
+#include <glm/glm.hpp>
 #include <cstdlib>
 #include <cmath>
 #include <vector>
@@ -16,116 +18,49 @@
 namespace zephyr {
 namespace gfx {
 
-inline float randFloat() {
-    return (1.0f * std::rand()) / RAND_MAX;
-}
 
-inline std::vector<float> makeStar(int n, float w) {
-    std::vector<float> storage(2 * 4 * 3 * 4 * n);
-    float* v = &storage[0];
-    float* col = v +  4 * 3 * 4 *n;
-
+inline std::vector<glm::vec4> makeStarVertices(int n, float w) {
+    std::vector<glm::vec4> v(2 * n + 2);
     const float d = M_PI / n;
 
-    for (int i = 0; i < 4 * 3 * n; ++i) {
-        col[i * 4 + 0] = randFloat();
-        col[i * 4 + 1] = randFloat();
-        col[i * 4 + 2] = randFloat();
-        col[i * 4 + 3] = 1.0f;
-    }
+    for (int i = 0; i < 2 * n; ++ i) {
+        float theta = i * M_PI / n;
 
-    for (int i = 0; i < n; ++ i) {
-        float theta = 2 * i * M_PI / n;
         float x = std::sin(theta);
         float y = std::cos(theta);
 
-        float s = 0.5f;
-        float px = s * std::sin(theta - d);
-        float py = s * std::cos(theta - d);
+        float s = (i % 2 == 0) ? 1.0f : 0.5f;
 
-        float nx = s * std::sin(theta + d);
-        float ny = s * std::cos(theta + d);
-
-        int k = i * 4 * 3 * 4;
-
-        v[k + 0] = 0.0f;
-        v[k + 1] = 0.0f;
-        v[k + 2] = w;
-        v[k + 3] = 1.0f;
-
-        k += 4;
-        v[k + 0] = px;
-        v[k + 1] = py;
-        v[k + 2] = 0.0f;
-        v[k + 3] = 1.0f;
-
-        k += 4;
-        v[k + 0] = x;
-        v[k + 1] = y;
-        v[k + 2] = 0.0f;
-        v[k + 3] = 1.0f;
-
-
-        k += 4;
-        v[k + 0] = 0.0f;
-        v[k + 1] = 0.0f;
-        v[k + 2] = -w;
-        v[k + 3] = 1.0f;
-
-        k += 4;
-        v[k + 0] = x;
-        v[k + 1] = y;
-        v[k + 2] = 0.0f;
-        v[k + 3] = 1.0f;
-
-        k += 4;
-        v[k + 0] = px;
-        v[k + 1] = py;
-        v[k + 2] = 0.0f;
-        v[k + 3] = 1.0f;
-
-
-
-        k += 4;
-        v[k + 0] = 0.0f;
-        v[k + 1] = 0.0f;
-        v[k + 2] = w;
-        v[k + 3] = 1.0f;
-
-        k += 4;
-        v[k + 0] = x;
-        v[k + 1] = y;
-        v[k + 2] = 0.0f;
-        v[k + 3] = 1.0f;
-
-        k += 4;
-        v[k + 0] = nx;
-        v[k + 1] = ny;
-        v[k + 2] = 0.0f;
-        v[k + 3] = 1.0f;
-
-
-        k += 4;
-        v[k + 0] = 0.0f;
-        v[k + 1] = 0.0f;
-        v[k + 2] = -w;
-        v[k + 3] = 1.0f;
-
-        k += 4;
-        v[k + 0] = nx;
-        v[k + 1] = ny;
-        v[k + 2] = 0.0f;
-        v[k + 3] = 1.0f;
-
-        k += 4;
-        v[k + 0] = x;
-        v[k + 1] = y;
-        v[k + 2] = 0.0f;
-        v[k + 3] = 1.0f;
-
+        v[i] = glm::vec4 { s * x, s * y, 0, 1 };
     }
+    v[2 * n + 0] = glm::vec4 { 0, 0,  w, 1 };
+    v[2 * n + 1] = glm::vec4 { 0, 0, -w, 1 };
+    return v;
+}
 
-    return storage;
+template <typename IndexType>
+inline std::vector<IndexType> makeStarIndices(int n) {
+    std::vector<IndexType> idx(2 * 2 * n * 3);
+    for (int j = 2 * n - 1, i = 0; i < 2 * n; j = i++) {
+        int k = 2 * 3 * i, m = k + 3;
+        idx[k + 0] = 2 * n;
+        idx[m + 0] = 2 * n + 1;
+        idx[k + 1] = idx[m + 2] = j;
+        idx[k + 2] = idx[m + 1] = i;
+    }
+    return idx;
+}
+
+inline VertexArrayPtr makeStar(int n, float w) {
+    auto vertices = makeStarVertices(n, w);
+    auto indices = makeStarIndices<GLuint>(n);
+
+    return MeshBuilder()
+            .setBuffer(vertices).attribute(0, 4)
+            .setBuffer(randomColors(2 * n + 2)).attribute(1, 4)
+            .setBuffer(generateNormals(vertices, indices)).attribute(2, 3)
+            .setIndices(indices)
+            .create();
 }
 
 } /* namespace gfx */

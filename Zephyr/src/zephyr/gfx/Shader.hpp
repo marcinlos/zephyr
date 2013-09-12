@@ -38,9 +38,10 @@ inline GLuint createShader(GLenum type, const std::string& shaderText) {
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLength);
         std::vector<GLchar> buffer(infoLength + 1);
         glGetShaderInfoLog(shader, infoLength, nullptr, buffer.data());
-        std::string msg = util::format("Error while compiling {} shader: {}",
-                shaderTypeToString(type), buffer.data());
-        throw std::runtime_error(msg);
+
+        throw std::runtime_error(util::format(
+                "Error while compiling {} shader: {}", shaderTypeToString(type),
+                buffer.data()));
     }
     return shader;
 }

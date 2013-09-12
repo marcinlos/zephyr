@@ -70,7 +70,8 @@ public:
         return *this;
     }
 
-    MeshBuilder& attribute(GLuint index, GLint size, std::size_t offset,
+    MeshBuilder& attribute(GLuint index, GLint size,
+            std::size_t offset = 0,
             GLenum type = GL_FLOAT,
             GLboolean normalized = false,
             GLsizei stride = 0) {
@@ -80,14 +81,14 @@ public:
         return *this;
     }
 
-    VertexArrayPtr create() {
+    VertexArrayPtr create(Primitive mode = Primitive::TRIANGLES) {
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         if (indexed()) {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             glDeleteBuffers(1, &indexBuffer_);
         }
-        return newVertexArray(vao_, indexCount_, indexed(), indexType_);
+        return newVertexArray(vao_, indexCount_, indexed(), indexType_, mode);
     }
 
     bool indexed() const {

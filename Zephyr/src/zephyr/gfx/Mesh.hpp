@@ -60,27 +60,6 @@ struct MeshData {
 };
 
 
-/*
-template <typename IndexType>
-struct IndexTraits;
-
-template <>
-struct IndexTraits<std::uint8_t> {
-    enum { gl_type = GL_UNSIGNED_BYTE };
-};
-
-template <>
-struct IndexTraits<std::uint16_t> {
-    enum { gl_type = GL_UNSIGNED_SHORT };
-};
-
-template <>
-struct IndexTraits<std::uint32_t> {
-    enum { gl_type = GL_UNSIGNED_INT };
-};
-*/
-
-
 VertexArrayPtr vertexArrayFrom(const MeshData& data) {
     MeshBuilder builder;
     return builder
@@ -110,7 +89,7 @@ std::vector<glm::vec3> generateNormals(const std::vector<glm::vec4>& vertices,
 
 
 
-std::vector<glm::vec4> generateRandomColors(std::size_t count) {
+std::vector<glm::vec4> randomColors(std::size_t count) {
     std::default_random_engine generator(std::time(nullptr));
     std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
 
@@ -123,6 +102,27 @@ std::vector<glm::vec4> generateRandomColors(std::size_t count) {
     }
     return colors;
 }
+
+/**
+ * Strategy of normal vectors computation.
+ */
+enum class NormCalc {
+    /**
+     * One of the adjacent faces completely determines vertex normal
+     */
+    FIRST,
+
+    /**
+     * Vertex normal is computed as an average of adjacent faces' normals
+     */
+    AVG,
+
+    /**
+     * Vertices are duplicated, each adjacent face has its own copy of the
+     * vertex, with normal equal to the face's normal
+     */
+    SPLIT
+};
 
 
 MeshData loadMeshData(const char* filename) {
@@ -157,7 +157,7 @@ MeshData loadMeshData(const char* filename) {
     }
 
     data.normals = generateNormals(data.vertices, data.indices);
-    data.colors = generateRandomColors(data.vertices.size());
+    data.colors = randomColors(data.vertices.size());
     return data;
 }
 

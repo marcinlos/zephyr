@@ -250,7 +250,7 @@ struct SceneManager {
 
         SimpleTerrainGenerator gen(100.0f, 8, 45.0f);
         meshes["quad"] = gen.create();
-        meshes["star 9"] = fillVertexArray(makeStar(10, 0.3f));
+        meshes["star 9"] = makeStar(10, 0.3f);
 
         using namespace scene;
         using scene::Entity;
@@ -313,7 +313,7 @@ struct SceneManager {
         ObjectPtr suzanne = newObject(entities["suzanne_ent"], scene);
         scene->addChild(suzanne);
 
-        meshes["starMesh"] = fillVertexArray(makeStar(10, 0.3f));
+        meshes["starMesh"] = makeStar(7, 0.3f);
         entities["star"] = newEntity(materials["dull"], meshes["starMesh"]);
 //        ObjectPtr star = objects["root"] = newObject(entities["star"], scene);
 //        scene->addChild(star);
