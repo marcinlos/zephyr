@@ -1,8 +1,5 @@
-/*
- * star.hpp
- *
- *  Created on: Sep 4, 2013
- *      Author: los
+/**
+ * @file star.hpp
  */
 
 #ifndef ZEPHYR_GFX_STAR_HPP_
@@ -51,7 +48,7 @@ inline std::vector<IndexType> makeStarIndices(int n) {
     return idx;
 }
 
-inline VertexArrayPtr makeStar(int n, float w) {
+inline MeshPtr makeStar(int n, float w) {
     auto vertices = makeStarVertices(n, w);
     auto indices = makeStarIndices<GLuint>(n);
 

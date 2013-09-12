@@ -20,7 +20,7 @@ namespace gfx {
 using namespace zephyr::resources;
 
 
-typedef std::shared_ptr<struct VertexArray> VertexArrayPtr;
+typedef std::shared_ptr<struct Mesh> MeshPtr;
 typedef std::shared_ptr<struct Material> MaterialPtr;
 typedef std::shared_ptr<struct Entity> EntityPtr;
 typedef std::shared_ptr<struct Object> ObjectPtr;
@@ -37,14 +37,14 @@ inline GLenum primitiveToGL(Primitive primitive) {
 }
 
 
-struct VertexArray: public std::enable_shared_from_this<VertexArray> {
+struct Mesh: public std::enable_shared_from_this<Mesh> {
     GLuint glName;
     std::size_t count;
     bool indexed;
     GLenum indexType;
     Primitive mode;
 
-    VertexArray(GLuint glName, std::size_t count, bool indexed,
+    Mesh(GLuint glName, std::size_t count, bool indexed,
             GLenum indexType, Primitive mode = Primitive::TRIANGLES)
     : glName(glName)
     , count(count)
@@ -53,15 +53,15 @@ struct VertexArray: public std::enable_shared_from_this<VertexArray> {
     , mode(mode)
     { }
 
-    ~VertexArray() {
+    ~Mesh() {
         glDeleteVertexArrays(1, &glName);
     }
 };
 
 
 template <typename... Args>
-VertexArrayPtr newVertexArray(Args&&... args) {
-    return std::make_shared<VertexArray>(std::forward<Args>(args)...);
+MeshPtr newMesh(Args&&... args) {
+    return std::make_shared<Mesh>(std::forward<Args>(args)...);
 }
 
 struct Material: public std::enable_shared_from_this<Material> {
@@ -83,9 +83,9 @@ MaterialPtr newMaterial(Args&&... args) {
 
 struct Entity: public std::enable_shared_from_this<Entity> {
     MaterialPtr material;
-    VertexArrayPtr buffer;
+    MeshPtr buffer;
 
-    Entity(MaterialPtr material, VertexArrayPtr buffer)
+    Entity(MaterialPtr material, MeshPtr buffer)
     : material(material)
     , buffer(buffer)
     { }
@@ -136,44 +136,10 @@ ObjectPtr newObject(Args&&... args) {
 typedef ResourceManager<ShaderPtr> ShaderManager;
 typedef ResourceManager<ProgramPtr> ProgramManager;
 typedef ResourceManager<MaterialPtr> MaterialManager;
-typedef ResourceManager<VertexArrayPtr> VertexArrayManager;
+typedef ResourceManager<MeshPtr> VertexArrayManager;
 typedef ResourceManager<EntityPtr>EntityManager;
 typedef ResourceManager<ObjectPtr> ObjectManager;
 
-
-VertexArrayPtr fillVertexArray(const float* data, std::size_t n) {
-    GLuint vbo;
-    glGenVertexArrays(1, &vbo);
-    glBindVertexArray(vbo);
-
-    GLuint buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * n, data, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)(2 * n));
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    glDeleteBuffers(1, &buffer);
-
-    return newVertexArray(vbo, n >> 3, false, 0);
-}
-
-template <std::size_t N>
-VertexArrayPtr fillVertexArray(const float (&data)[N]) {
-    return fillVertexArray(data, N);
-}
-
-VertexArrayPtr fillVertexArray(const std::vector<float>& data) {
-    return fillVertexArray(&data[0], data.size());
-}
 
 
 } /* namespace gfx */

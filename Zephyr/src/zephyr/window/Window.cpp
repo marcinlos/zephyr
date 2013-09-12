@@ -21,11 +21,14 @@ using input::ButtonEvent;
 Window::Window(const InitInfo& info, MessageQueue& queue)
 : queue(queue)
 , inputListener_(nullptr)
-, fullscreen_(false)
+, fullscreen_(info.fullscreen)
 , mouseMode_(MouseMode::ABSOLUTE)
 , title_(info.title)
 {
     window_ = createWindow(info);
+    if (fullscreen_) {
+        enableFullscren();
+    }
     glfwMakeContextCurrent(window_.get());
     mouseMode(MouseMode::RELATIVE);
 }

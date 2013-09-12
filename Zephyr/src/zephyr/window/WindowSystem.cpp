@@ -38,13 +38,14 @@ std::unique_ptr<Window> WindowSystem::createWindow(const Context& ctx) {
     int width = config_.get("zephyr.window.width", 800);
     int height = config_.get("zephyr.window.height", 600);
     std::string title = config_.get<std::string>("zephyr.window.title");
+    bool fullscreen = config_.get<bool>("zephyr.window.fullscreen", false);
 
     std::cout << "[Window] Size: " << width << "x" << height << std::endl;
     return util::make_unique<Window>(InitInfo {
         width,
         height,
         title,
-        false
+        fullscreen
     }, ctx.messageQueue);
 }
 

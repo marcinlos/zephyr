@@ -12,6 +12,7 @@
 
 
 #include <zephyr/gfx/HackyRenderer.hpp>
+#include <zephyr/gfx/Renderer.hpp>
 
 namespace zephyr {
 
@@ -53,9 +54,11 @@ void Root::initSubsystems() {
     window = util::make_unique<window::WindowSystem>(ctx);
     input = util::make_unique<input::InputSystem>(ctx);
 
+    TaskPtr task = std::make_shared<gfx::Renderer>(/*ctx*/);
+    scheduler.startTask("renderer", 500000, task);
 
-    TaskPtr task = std::make_shared<gfx::HackyRenderer>(ctx);
-    scheduler.startTask("hacky-renderer", 500000, task);
+    task = std::make_shared<gfx::HackyRenderer>(ctx);
+    scheduler.startTask("hacky-renderer", 400000, task);
 }
 
 void Root::runCoreTasks() {

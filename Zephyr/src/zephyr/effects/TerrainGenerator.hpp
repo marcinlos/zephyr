@@ -111,7 +111,7 @@ public:
     , colors(&data[0], vertexCount, onEdge)
     { }
 
-    VertexArrayPtr create() {
+    MeshPtr create() {
         generateVertices();
         generateIndices();
 

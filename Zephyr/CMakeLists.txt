@@ -32,6 +32,7 @@ add_executable(game
     ${SRC}/input/InputSystem.cpp
     ${SRC}/time/ClockManager.cpp
     ${SRC}/gfx/HackyRenderer.cpp
+    ${SRC}/gfx/Renderer.cpp
     ${SRC}/Root.cpp
     
     ${SRC}/demo/MainController.cpp

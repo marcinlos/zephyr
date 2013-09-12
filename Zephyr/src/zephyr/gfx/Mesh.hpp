@@ -60,7 +60,7 @@ struct MeshData {
 };
 
 
-VertexArrayPtr vertexArrayFrom(const MeshData& data) {
+MeshPtr vertexArrayFrom(const MeshData& data) {
     MeshBuilder builder;
     return builder
             .setBuffer(data.vertices).attribute(0, 4, 0)
@@ -161,7 +161,7 @@ MeshData loadMeshData(const char* filename) {
     return data;
 }
 
-VertexArrayPtr loadMesh(const char* filename) {
+MeshPtr loadMesh(const char* filename) {
     MeshData data = loadMeshData(filename);
     return vertexArrayFrom(data);
 }

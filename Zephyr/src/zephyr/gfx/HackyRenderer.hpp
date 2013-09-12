@@ -29,10 +29,6 @@ public:
 
 private:
 
-    void initOpenGL();
-
-    void inputHandler(const core::Message& msg);
-
     void updateTime();
 
     const time::ClockManager& clocks;
@@ -40,8 +36,6 @@ private:
 
     time::TaskletScheduler taskletScheduler;
     time::ActionScheduler actionScheduler;
-
-    bool vsync = true;
 
     std::shared_ptr<struct SceneManager> scene;
 

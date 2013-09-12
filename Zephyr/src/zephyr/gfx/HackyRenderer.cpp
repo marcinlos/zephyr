@@ -37,6 +37,8 @@
 #include <zephyr/effects/SimpleTerrainGenerator.hpp>
 #include <zephyr/gfx/Mesh.hpp>
 
+#include <zephyr/gfx/uniforms.hpp>
+
 using zephyr::resources::ResourceManager;
 
 using zephyr::effects::SimpleTerrainGenerator;
@@ -49,7 +51,7 @@ typedef boost::io::ios_all_saver guard;
 
 
 
-void drawBuffer(const VertexArrayPtr& vb) {
+void drawBuffer(const MeshPtr& vb) {
     glBindVertexArray(vb->glName);
     GLenum mode = primitiveToGL(vb->mode);
     if (vb->indexed) {
@@ -63,7 +65,7 @@ void drawBuffer(const VertexArrayPtr& vb) {
 void drawGraph(ObjectPtr object, GLint transformLocation) {
     if (object->entity) {
         const EntityPtr& model = object->entity;
-        if (const VertexArrayPtr& vb = model->buffer) {
+        if (const MeshPtr& vb = model->buffer) {
             auto data = glm::value_ptr(object->totalTransform);
             glUniformMatrix4fv(transformLocation, 1, GL_FALSE, data);
             drawBuffer(vb);
@@ -195,7 +197,7 @@ struct SceneManager {
     }
 
     void parseEntity(const scene::Entity& entity) {
-        VertexArrayPtr mesh;
+        MeshPtr mesh;
         if (! entity.mesh.empty()) {
             mesh = meshes[entity.mesh];
         }
@@ -349,12 +351,13 @@ struct SceneManager {
         glBufferSubData(GL_UNIFORM_BUFFER, size, size, glm::value_ptr(projMatrix));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+        uniform3f sunDir { sunDirection.x, sunDirection.y, sunDirection.z };
+        uniform1f sunIntensity { sunIntensity };
+        uniform1f ambientIntensity { ambient };
 
-        glUniform3f(sunDirectionUniform, sunDirection.x, sunDirection.y,
-                sunDirection.z);
-        glUniform1f(sunIntensityUniform, sunIntensity);
-        glUniform1f(ambientUniform, ambient);
-
+        sunDir.set(sunDirectionUniform);
+        sunIntensity.set(sunIntensityUniform);
+        ambientIntensity.set(ambientUniform);
 
         drawGraph(root, modelUniform);
     }
@@ -468,11 +471,7 @@ HackyRenderer::HackyRenderer(Context ctx)
 , counter(0)
 {
     std::cout << "[Hacky] Initializing hacky renderer" << std::endl;
-    initOpenGL();
     scene->root = scene->createScene();
-
-    core::registerHandler(ctx.dispatcher, input::msg::INPUT_SYSTEM, this,
-            &HackyRenderer::inputHandler);
 
     core::registerHandler(ctx.dispatcher, input::msg::INPUT_SYSTEM,
             &cameraController, &CameraController::handle);
@@ -513,20 +512,6 @@ HackyRenderer::HackyRenderer(Context ctx)
     actionScheduler.scheduleIn(action, 1.0);
 }
 
-void HackyRenderer::initOpenGL() {
-    glewInit();
-    glfwSwapInterval(vsync);
-
-    glEnable(GL_CULL_FACE);
-    glFrontFace(GL_CW);
-    glCullFace(GL_BACK);
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
-    glDepthFunc(GL_LESS);
-    glDepthRange(0.0f, 1.0f);
-
-}
 
 void HackyRenderer::updateTime() {
     ++counter;
@@ -546,29 +531,12 @@ void HackyRenderer::update() {
 
     float ratio = w / (float) h;
 
-    glClearColor(0.6f, 0.6f, 0.8f, 0.0f);
-    glClearDepth(1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     scene->camera.adjustRatio(ratio);
     cameraController.update();
     scene->update();
     scene->draw();
 }
 
-
-
-void HackyRenderer::inputHandler(const core::Message& msg) {
-    using namespace zephyr::input;
-    if (msg.type == msg::KEYBOARD_EVENT) {
-        KeyEvent e = util::any_cast<KeyEvent>(msg.data);
-        if (e.type == KeyEvent::Type::DOWN) {
-            if (e.key == Key::F11) {
-                glfwSwapInterval(vsync = !vsync);
-            }
-        }
-    }
-}
 
 } /* namespace gfx */
 } /* namespace zephyr */

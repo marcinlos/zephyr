@@ -35,6 +35,29 @@ struct IndexTraits<std::uint32_t> {
 };
 
 
+struct AttributeData {
+    GLuint index;
+    GLint size;
+    std::size_t offset;
+    GLenum type;
+    GLboolean normalized;
+    GLsizei stride;
+
+    AttributeData(GLuint index, GLint size,
+        std::size_t offset = 0,
+        GLenum type = GL_FLOAT,
+        GLboolean normalized = false,
+        GLsizei stride = 0)
+    : index { index }
+    , size { size }
+    , offset { offset }
+    , type { type }
+    , normalized { normalized }
+    , stride { stride }
+    { }
+};
+
+
 class MeshBuilder {
 public:
 
@@ -81,14 +104,22 @@ public:
         return *this;
     }
 
-    VertexArrayPtr create(Primitive mode = Primitive::TRIANGLES) {
+    MeshBuilder& attribute(const AttributeData& attr) {
+        glEnableVertexAttribArray(attr.index);
+        void* ptr = asPtr(attr.offset);
+        glVertexAttribPointer(attr.index, attr.size, attr.type,
+                attr.normalized, attr.stride, ptr);
+        return *this;
+    }
+
+    MeshPtr create(Primitive mode = Primitive::TRIANGLES) {
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         if (indexed()) {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             glDeleteBuffers(1, &indexBuffer_);
         }
-        return newVertexArray(vao_, indexCount_, indexed(), indexType_, mode);
+        return newMesh(vao_, indexCount_, indexed(), indexType_, mode);
     }
 
     bool indexed() const {
