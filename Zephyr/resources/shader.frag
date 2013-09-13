@@ -1,7 +1,7 @@
 #version 330
 
-in vec4 diffuseColor;
-in vec3 normal;
+flat in vec4 diffuseColor;
+flat in vec3 normal;
 
 out vec4 outputColor;
 

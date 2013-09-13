@@ -3,6 +3,10 @@
     <width>1024</width>
     <height>768</height>
     <title>Zephyr</title>
-    <fullscreen>no</fullscreen>
+    <fullscreen>false</fullscreen>
   </window>
+  
+  <gfx>
+    <vsync>true</vsync>
+  </gfx>
 </zephyr>

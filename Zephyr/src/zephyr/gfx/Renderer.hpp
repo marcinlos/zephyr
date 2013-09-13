@@ -27,7 +27,7 @@ private:
 
     Viewport viewport_;
 
-    bool vsync_;
+    bool vsync_ = true;
 
     void setCulling();
     void setDepthTest();

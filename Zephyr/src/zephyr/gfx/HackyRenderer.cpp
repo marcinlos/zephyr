@@ -144,7 +144,7 @@ inline constexpr float rad(float deg) {
     return deg * M_PI / 180;
 }
 
-struct SceneManager {
+struct SceneManager_ {
 
     ObjectPtr root;
 
@@ -175,7 +175,7 @@ struct SceneManager {
     static constexpr float zNear = 0.1f;
     static constexpr float zFar = 100.0f;
 
-    SceneManager()
+    SceneManager_()
     : camera {
         Projection { FOV, 1, zNear, zFar },
         glm::vec3 { 0.0f, 0.0f, 3.0f }
@@ -395,7 +395,7 @@ private:
     }
 };
 
-typedef std::shared_ptr<SceneManager> SceneManagerPtr;
+typedef std::shared_ptr<SceneManager_> SceneManagerPtr;
 
 
 class Client  {
@@ -466,7 +466,7 @@ struct MatrixTranslator {
 HackyRenderer::HackyRenderer(Context ctx)
 : clocks(ctx.clockManager)
 , clock(clocks.getMainClock())
-, scene(std::make_shared<SceneManager>())
+, scene(std::make_shared<SceneManager_>())
 , cameraController(scene->camera, clock)
 , counter(0)
 {

@@ -37,7 +37,7 @@ private:
     time::TaskletScheduler taskletScheduler;
     time::ActionScheduler actionScheduler;
 
-    std::shared_ptr<struct SceneManager> scene;
+    std::shared_ptr<struct SceneManager_> scene;
 
     CameraController cameraController;
 

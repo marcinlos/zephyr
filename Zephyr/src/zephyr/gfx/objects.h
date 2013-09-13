@@ -75,11 +75,11 @@ struct Material: public std::enable_shared_from_this<Material> {
 };
 
 
-
 template <typename... Args>
 MaterialPtr newMaterial(Args&&... args) {
     return std::make_shared<Material>(std::forward<Args>(args)...);
 }
+
 
 struct Entity: public std::enable_shared_from_this<Entity> {
     MaterialPtr material;
