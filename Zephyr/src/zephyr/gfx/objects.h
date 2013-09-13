@@ -8,11 +8,13 @@
 #ifndef OBJECTS_H_
 #define OBJECTS_H_
 
-#include <GL/glew.h>
-#include <GL/gl.h>
+#include <zephyr/gfx/uniforms.hpp>
 #include <zephyr/resources/ResourceManager.hpp>
 #include <zephyr/gfx/Program.hpp>
+#include <GL/glew.h>
+#include <GL/gl.h>
 #include <glm/glm.hpp>
+#include <unordered_map>
 
 namespace zephyr {
 namespace gfx {
@@ -66,10 +68,15 @@ MeshPtr newMesh(Args&&... args) {
 
 struct Material: public std::enable_shared_from_this<Material> {
 
-    ProgramPtr program;
+    typedef std::unordered_map<std::string, UniformPtr> UniformMap;
 
-    explicit Material(ProgramPtr program)
-    : program(program)
+    ProgramPtr program;
+    UniformMap uniforms;
+
+
+    explicit Material(ProgramPtr program, UniformMap uniforms = UniformMap { })
+    : program { std::move(program) }
+    , uniforms { std::move(uniforms) }
     { }
 
 };
@@ -86,8 +93,8 @@ struct Entity: public std::enable_shared_from_this<Entity> {
     MeshPtr buffer;
 
     Entity(MaterialPtr material, MeshPtr buffer)
-    : material(material)
-    , buffer(buffer)
+    : material { std::move(material) }
+    , buffer { std::move(buffer) }
     { }
 
 };
@@ -96,6 +103,12 @@ template <typename... Args>
 EntityPtr newEntity(Args&&... args) {
     return std::make_shared<Entity>(std::forward<Args>(args)...);
 }
+
+
+struct Renderable {
+    EntityPtr entity;
+    glm::mat4 transform;
+};
 
 
 struct Object: public std::enable_shared_from_this<Object> {
@@ -108,8 +121,8 @@ struct Object: public std::enable_shared_from_this<Object> {
 
 
     explicit Object(EntityPtr entity, WeakObjectPtr parent = WeakObjectPtr { })
-    : entity(entity)
-    , parent(parent)
+    : entity { std::move(entity) }
+    , parent { std::move(parent) }
     { }
 
     void addChild(ObjectPtr child) {
@@ -125,6 +138,10 @@ struct Object: public std::enable_shared_from_this<Object> {
         for (auto child : children) {
             child->update();
         }
+    }
+
+    Renderable renderable() const {
+        return { entity, transform };
     }
 };
 

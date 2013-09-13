@@ -55,10 +55,16 @@ void Renderer::clearBuffers() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Renderer::update() {
+void Renderer::render() {
     updateViewport();
     clearBuffers();
 
+    for (auto&& item : renderables_) {
+        GLint location = item.entity->material->program->uniformLocation("modelMatrix");
+        auto data = glm::value_ptr(item.transform);
+        glUniformMatrix4fv(location, 1, GL_FALSE, data);
+    }
+    renderables_.clear();
 }
 
 

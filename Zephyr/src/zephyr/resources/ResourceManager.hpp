@@ -5,6 +5,11 @@
 #ifndef ZEPHYR_RESOURCES_RESOURCEMANAGER_HPP_
 #define ZEPHYR_RESOURCES_RESOURCEMANAGER_HPP_
 
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+
+
 
 namespace zephyr {
 namespace resources {

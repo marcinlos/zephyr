@@ -55,6 +55,6 @@ public:
 };
 
 } /* namespace core */
-} /* namespace core */
+} /* namespace zephyr */
 
 #endif /* ZEPHYR_CORE_TASK_HPP_ */

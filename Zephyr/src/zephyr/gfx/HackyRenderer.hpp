@@ -5,7 +5,7 @@
 #ifndef ZEPHYR_GFX_HACKYRENDERER_HPP_
 #define ZEPHYR_GFX_HACKYRENDERER_HPP_
 
-#include <zephyr/Context.hpp>
+#include <zephyr/Root.hpp>
 #include <zephyr/core/Task.hpp>
 #include <zephyr/time/ClockManager.hpp>
 #include <zephyr/time/Clock.hpp>
@@ -23,7 +23,7 @@ namespace gfx {
 class HackyRenderer: public core::Task {
 public:
 
-    HackyRenderer(Context ctx);
+    HackyRenderer(Root& root);
 
     void update() override;
 

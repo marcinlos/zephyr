@@ -8,6 +8,7 @@
 #include <zephyr/input/InputListener.hpp>
 #include <zephyr/input/Position.hpp>
 #include <zephyr/core/MessageQueue.hpp>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <memory>
 #include <string>

@@ -336,6 +336,9 @@ MAKE_TYPE(3, 4, glUniformMatrix3x4fv, uniformMatrix3x4f)
 
 #undef MAKE_TYPE
 
+typedef Uniform uniform;
+
+typedef std::shared_ptr<uniform> UniformPtr;
 
 } /* namespace gfx */
 } /* namespace zephyr */

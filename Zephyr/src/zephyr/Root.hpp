@@ -13,6 +13,7 @@
 #include <zephyr/input/InputSystem.hpp>
 #include <zephyr/time/ClockManager.hpp>
 #include <zephyr/util/static_hash.hpp>
+#include <zephyr/gfx/GraphicsSystem.hpp>
 #include <memory>
 #include <string>
 
@@ -60,18 +61,52 @@ public:
 
     /// @}
 
+    core::Scheduler& scheduler() {
+        return scheduler_;
+    }
+
+    core::Config& config() {
+        return config_;
+    }
+
+    core::MessageQueue& messageQueue() {
+        return messageQueue_;
+    }
+
+    core::MessageDispatcher& dispatcher() {
+        return dispatcher_;
+    }
+
+    time::ClockManager& clockManager() {
+        return clockManager_;
+    }
+
+    window::WindowSystem& window() {
+        return *window_;
+    }
+
+    input::InputSystem& input() {
+        return *input_;
+    }
+
+    gfx::GraphicsSystem& graphics() {
+        return *graphics_;
+    }
+
 private:
-    core::Scheduler scheduler;
-    core::Config config;
+    core::Scheduler scheduler_;
+    core::Config config_;
 
-    core::MessageQueue messageQueue;
-    core::MessageDispatcher dispatcher;
+    core::MessageQueue messageQueue_;
+    core::MessageDispatcher dispatcher_;
 
-    time::ClockManager clockManager;
+    time::ClockManager clockManager_;
 
-    std::unique_ptr<window::WindowSystem> window;
+    std::unique_ptr<window::WindowSystem> window_;
 
-    std::unique_ptr<input::InputSystem> input;
+    std::unique_ptr<input::InputSystem> input_;
+
+    std::unique_ptr<gfx::GraphicsSystem> graphics_;
 
     /**
      * Initializes all the immediately necessary subsystems.

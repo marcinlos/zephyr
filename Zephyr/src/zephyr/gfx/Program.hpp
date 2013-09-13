@@ -9,6 +9,7 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <memory>
+#include <vector>
 #include <unordered_map>
 
 
@@ -17,7 +18,7 @@ namespace gfx {
 
 namespace detail {
 
-    void checkCreationStatus(GLuint program) {
+    inline void checkCreationStatus(GLuint program) {
         int status;
         glGetProgramiv(program, GL_LINK_STATUS, &status);
         if (status != GL_TRUE) {
@@ -46,7 +47,7 @@ namespace detail {
         return program;
     }
 
-    std::unordered_map<std::string, GLuint> getUniforms(GLuint program) {
+    inline std::unordered_map<std::string, GLuint> getUniforms(GLuint program) {
         std::unordered_map<std::string, GLuint> uniforms;
 
         GLint uniformCount;
@@ -64,7 +65,7 @@ namespace detail {
         return uniforms;
     }
 
-    std::unordered_map<std::string, GLuint> getUniformBlocks(GLuint program) {
+    inline std::unordered_map<std::string, GLuint> getUniformBlocks(GLuint program) {
         std::unordered_map<std::string, GLuint> blocks;
 
         GLint blockCount;
@@ -164,7 +165,7 @@ private:
 
 typedef std::shared_ptr<Program> ProgramPtr;
 
-ProgramPtr newProgram(std::initializer_list<ShaderPtr> shaders) {
+inline ProgramPtr newProgram(std::initializer_list<ShaderPtr> shaders) {
     return std::make_shared<Program>(shaders);
 }
 

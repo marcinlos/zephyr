@@ -352,11 +352,11 @@ struct SceneManager_ {
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
         uniform3f sunDir { sunDirection.x, sunDirection.y, sunDirection.z };
-        uniform1f sunIntensity { sunIntensity };
+        uniform1f sunInt { sunIntensity };
         uniform1f ambientIntensity { ambient };
 
         sunDir.set(sunDirectionUniform);
-        sunIntensity.set(sunIntensityUniform);
+        sunInt.set(sunIntensityUniform);
         ambientIntensity.set(ambientUniform);
 
         drawGraph(root, modelUniform);
@@ -463,8 +463,8 @@ struct MatrixTranslator {
 };
 
 
-HackyRenderer::HackyRenderer(Context ctx)
-: clocks(ctx.clockManager)
+HackyRenderer::HackyRenderer(Root& root)
+: clocks(root.clockManager())
 , clock(clocks.getMainClock())
 , scene(std::make_shared<SceneManager_>())
 , cameraController(scene->camera, clock)
@@ -473,7 +473,7 @@ HackyRenderer::HackyRenderer(Context ctx)
     std::cout << "[Hacky] Initializing hacky renderer" << std::endl;
     scene->root = scene->createScene();
 
-    core::registerHandler(ctx.dispatcher, input::msg::INPUT_SYSTEM,
+    core::registerHandler(root.dispatcher(), input::msg::INPUT_SYSTEM,
             &cameraController, &CameraController::handle);
 
     MatrixRotator rotator { 30, glm::vec3 { 0, 1, 0 } };

@@ -5,8 +5,11 @@
 #ifndef ZEPHYR_GFX_SHADER_HPP_
 #define ZEPHYR_GFX_SHADER_HPP_
 
+#include <zephyr/util/format.hpp>
 #include <GL/glew.h>
 #include <GL/gl.h>
+#include <stdexcept>
+#include <vector>
 #include <fstream>
 #include <memory>
 
@@ -46,7 +49,7 @@ inline GLuint createShader(GLenum type, const std::string& shaderText) {
     return shader;
 }
 
-std::string readFile(const std::string& name) {
+inline std::string readFile(const std::string& name) {
     std::ifstream in(name);
     return {
         std::istreambuf_iterator<char>(in),
