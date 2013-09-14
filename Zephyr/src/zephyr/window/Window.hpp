@@ -34,6 +34,7 @@ struct InitInfo {
     int height;
     std::string title;
     bool fullscreen;
+    MouseMode mode;
 };
 
 /**

@@ -90,11 +90,11 @@ MaterialPtr newMaterial(Args&&... args) {
 
 struct Entity: public std::enable_shared_from_this<Entity> {
     MaterialPtr material;
-    MeshPtr buffer;
+    MeshPtr mesh;
 
-    Entity(MaterialPtr material, MeshPtr buffer)
+    Entity(MaterialPtr material, MeshPtr mesh)
     : material { std::move(material) }
-    , buffer { std::move(buffer) }
+    , mesh { std::move(mesh) }
     { }
 
 };

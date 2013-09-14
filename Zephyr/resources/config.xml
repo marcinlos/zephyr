@@ -3,7 +3,8 @@
     <width>1024</width>
     <height>768</height>
     <title>Zephyr</title>
-    <fullscreen>false</fullscreen>
+    <fullscreen>true</fullscreen>
+    <capture-mouse>true</capture-mouse>
   </window>
   
   <gfx>

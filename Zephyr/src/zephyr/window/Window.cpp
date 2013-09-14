@@ -22,7 +22,7 @@ Window::Window(const InitInfo& info, MessageQueue& queue)
 : queue(queue)
 , inputListener_(nullptr)
 , fullscreen_(info.fullscreen)
-, mouseMode_(MouseMode::ABSOLUTE)
+, mouseMode_(info.mode)
 , title_(info.title)
 {
     window_ = createWindow(info);
@@ -30,7 +30,7 @@ Window::Window(const InitInfo& info, MessageQueue& queue)
         enableFullscren();
     }
     glfwMakeContextCurrent(window_.get());
-    mouseMode(MouseMode::RELATIVE);
+    mouseMode(mouseMode_);
 }
 
 void Window::pollEvents() const {

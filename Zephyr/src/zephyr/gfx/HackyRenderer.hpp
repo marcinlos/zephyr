@@ -31,6 +31,8 @@ private:
 
     void updateTime();
 
+    Root& root;
+
     const time::ClockManager& clocks;
     const time::Clock& clock;
 

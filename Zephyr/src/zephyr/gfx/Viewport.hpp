@@ -58,7 +58,7 @@ public:
         return width_ / static_cast<float>(height_);
     }
 
-    void setListener(Listener listener) {
+    void listener(Listener listener) {
         this->listener_ = std::move(listener);
     }
 

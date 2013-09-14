@@ -50,33 +50,6 @@ namespace gfx {
 typedef boost::io::ios_all_saver guard;
 
 
-
-void drawBuffer(const MeshPtr& vb) {
-    glBindVertexArray(vb->glName);
-    GLenum mode = primitiveToGL(vb->mode);
-    if (vb->indexed) {
-        glDrawElements(mode, vb->count, vb->indexType, 0);
-    } else {
-        glDrawArrays(mode, 0, vb->count);
-    }
-    glBindVertexArray(0);
-}
-
-void drawGraph(ObjectPtr object, GLint transformLocation) {
-    if (object->entity) {
-        const EntityPtr& model = object->entity;
-        if (const MeshPtr& vb = model->buffer) {
-            auto data = glm::value_ptr(object->totalTransform);
-            glUniformMatrix4fv(transformLocation, 1, GL_FALSE, data);
-            drawBuffer(vb);
-        }
-    }
-
-    for (ObjectPtr child : object->children) {
-        drawGraph(child, transformLocation);
-    }
-}
-
 namespace scene {
 
     struct Material {
@@ -358,8 +331,6 @@ struct SceneManager_ {
         sunDir.set(sunDirectionUniform);
         sunInt.set(sunIntensityUniform);
         ambientIntensity.set(ambientUniform);
-
-        drawGraph(root, modelUniform);
     }
 
 private:
@@ -464,7 +435,8 @@ struct MatrixTranslator {
 
 
 HackyRenderer::HackyRenderer(Root& root)
-: clocks(root.clockManager())
+: root(root)
+, clocks(root.clockManager())
 , clock(clocks.getMainClock())
 , scene(std::make_shared<SceneManager_>())
 , cameraController(scene->camera, clock)
@@ -475,6 +447,10 @@ HackyRenderer::HackyRenderer(Root& root)
 
     core::registerHandler(root.dispatcher(), input::msg::INPUT_SYSTEM,
             &cameraController, &CameraController::handle);
+
+    using std::placeholders::_1;
+    auto ratioUpdate = std::bind(&Camera::adjustRatio, &scene->camera, _1);
+    root.graphics().renderer().viewport().listener(ratioUpdate);
 
     MatrixRotator rotator { 30, glm::vec3 { 0, 1, 0 } };
 //    taskletScheduler.add(changer(scene->root->transform, rotator));
@@ -521,20 +497,23 @@ void HackyRenderer::updateTime() {
 }
 
 
+void drawScene(ObjectPtr obj, gfx::Renderer& renderer) {
+    if (obj->entity && obj->entity->mesh) {
+        renderer.submit(obj->renderable());
+    }
+    for (const auto& child : obj->children) {
+        drawScene(child, renderer);
+    }
+}
+
+
 void HackyRenderer::update() {
     updateTime();
 
-    int w, h;
-    GLFWwindow* window = glfwGetCurrentContext();
-    glfwGetFramebufferSize(window, &w, &h);
-    glViewport(0, 0, w, h);
-
-    float ratio = w / (float) h;
-
-    scene->camera.adjustRatio(ratio);
     cameraController.update();
     scene->update();
     scene->draw();
+    drawScene(scene->root, root.graphics().renderer());
 }
 
 
