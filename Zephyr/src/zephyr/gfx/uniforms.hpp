@@ -15,7 +15,7 @@ namespace zephyr {
 namespace gfx {
 
 
-struct Uniform {
+struct Uniform : public std::enable_shared_from_this<Uniform> {
 
     virtual void set(GLint location) const = 0;
 
@@ -312,9 +312,9 @@ namespace detail {
 template <std::size_t N, std::size_t M, typename F, F Setter>
 struct UniformMatrix {
     typedef typename detail::MatrixChooser<N, M>::type MatrixType;
+    const MatrixType matrix;
     GLsizei count;
     GLboolean transponse;
-    const MatrixType matrix;
 
     void set(GLint location) const override {
         Setter(location, count, transponse, glm::value_ptr(matrix));

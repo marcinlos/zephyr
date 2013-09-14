@@ -7,8 +7,6 @@
 #include <GLFW/glfw3.h>
 #include <zephyr/gfx/Renderer.hpp>
 
-#include <zephyr/gfx/uniforms.hpp>
-
 
 namespace zephyr {
 namespace gfx {
@@ -55,26 +53,44 @@ void Renderer::clearBuffers() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+void Renderer::drawMesh(const MeshPtr& mesh) {
+    glBindVertexArray(mesh->glName);
+    GLenum mode = primitiveToGL(mesh->mode);
+    if (mesh->indexed) {
+        glDrawElements(mode, mesh->count, mesh->indexType, 0);
+    } else {
+        glDrawArrays(mode, 0, mesh->count);
+    }
+    glBindVertexArray(0);
+}
+
+void Renderer::setMaterial(const MaterialPtr& material) {
+    if (currentProgram_ != material->program) {
+        glUseProgram(material->program->ref());
+        currentProgram_ = material->program;
+    }
+    for (const auto& needed : currentProgram_->uniforms()) {
+        const std::string& name = needed.first;
+        if (Uniform* value = uniforms_.uniform(name)) {
+            value->set(needed.second);
+        }
+    }
+}
+
+void Renderer::setModelTransform(const glm::mat4& transform) {
+    GLint location = currentProgram_->uniformLocation("modelMatrix");
+    auto data = glm::value_ptr(transform);
+    glUniformMatrix4fv(location, 1, GL_FALSE, data);
+}
+
 void Renderer::render() {
     updateViewport();
     clearBuffers();
 
-    for (auto&& item : renderables_) {
-        MaterialPtr material = item.entity->material;
-        glUseProgram(material->program->ref());
-        GLint location = material->program->uniformLocation("modelMatrix");
-        auto data = glm::value_ptr(item.transform);
-        glUniformMatrix4fv(location, 1, GL_FALSE, data);
-
-        const MeshPtr& mesh = item.entity->mesh;
-        glBindVertexArray(mesh->glName);
-        GLenum mode = primitiveToGL(mesh->mode);
-        if (mesh->indexed) {
-            glDrawElements(mode, mesh->count, mesh->indexType, 0);
-        } else {
-            glDrawArrays(mode, 0, mesh->count);
-        }
-        glBindVertexArray(0);
+    for (const Renderable& item : renderables_) {
+        setMaterial(item.entity->material);
+        setModelTransform(item.transform);
+        drawMesh(item.entity->mesh);
     }
     renderables_.clear();
 }

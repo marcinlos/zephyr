@@ -86,6 +86,10 @@ namespace detail {
 class Program: public std::enable_shared_from_this<Program> {
 public:
 
+    typedef std::unordered_map<std::string, GLuint> UniformMap;
+
+    typedef std::unordered_map<std::string, GLuint> UniformBlockMap;
+
     template <typename Iter>
     Program (Iter begin, Iter end)
     : program_ { detail::create(begin, end) }
@@ -153,15 +157,32 @@ public:
         glUniformBlockBinding(program_, index, bindingIndex);
     }
 
+    const UniformMap& uniforms() const {
+        return uniforms_;
+    }
+
+    const UniformBlockMap& uniformBlocks() const {
+        return uniformBlocks_;
+    }
+
 private:
 
     GLuint program_;
 
-    std::unordered_map<std::string, GLuint> uniforms_;
+    UniformMap uniforms_;
 
-    std::unordered_map<std::string, GLuint> uniformBlocks_;
+    UniformBlockMap uniformBlocks_;
 
 };
+
+
+inline bool operator == (const Program& a, const Program& b) {
+    return a.ref() == b.ref();
+}
+
+inline bool operator != (const Program& a, const Program& b) {
+    return ! (a == b);
+}
 
 typedef std::shared_ptr<Program> ProgramPtr;
 

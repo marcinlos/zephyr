@@ -130,15 +130,9 @@ struct SceneManager_ {
 
     Camera camera;
 
-    GLint modelUniform;
-
     GLuint cameraBlockIndex;
     GLuint cameraBuffer;
     static const GLuint cameraBindingIndex = 10;
-
-    GLuint sunDirectionUniform = 0;
-    GLuint sunIntensityUniform = 0;
-    GLuint ambientUniform = 0;
 
     glm::vec3 sunDirection;
     float sunIntensity;
@@ -153,14 +147,10 @@ struct SceneManager_ {
         Projection { FOV, 1, zNear, zFar },
         glm::vec3 { 0.0f, 0.0f, 3.0f }
     }
-    , modelUniform { -1 }
     , cameraBlockIndex { 0 }
     , cameraBuffer { 0 }
-    , sunDirectionUniform { 0 }
-    , sunIntensityUniform { 0 }
-    , ambientUniform { 0 }
 
-    , sunIntensity { 1.0f }
+    , sunIntensity { 1.5f }
     , ambient { 0.2f }
     { }
 
@@ -290,13 +280,7 @@ struct SceneManager_ {
 
         meshes["starMesh"] = makeStar(7, 0.3f);
         entities["star"] = newEntity(materials["dull"], meshes["starMesh"]);
-//        ObjectPtr star = objects["root"] = newObject(entities["star"], scene);
-//        scene->addChild(star);
-//
-//        ObjectPtr small = newObject(entities["star"], star);
-//        small->transform = glm::translate(0.9f, 0.0f, 0.0f) * glm::scale(0.2f, 0.2f, 0.2f);
-//        star->addChild(small);
-//
+
         ObjectPtr left = newObject(entities["star"], scene);
         left->transform = glm::translate(-2.9f, 0.0f, 0.0f) *
                 glm::scale(1.2f, 1.2f, 1.2f) *
@@ -323,14 +307,6 @@ struct SceneManager_ {
         glBufferSubData(GL_UNIFORM_BUFFER, 0, size, glm::value_ptr(viewMatrix));
         glBufferSubData(GL_UNIFORM_BUFFER, size, size, glm::value_ptr(projMatrix));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-        uniform3f sunDir { sunDirection.x, sunDirection.y, sunDirection.z };
-        uniform1f sunInt { sunIntensity };
-        uniform1f ambientIntensity { ambient };
-
-        sunDir.set(sunDirectionUniform);
-        sunInt.set(sunIntensityUniform);
-        ambientIntensity.set(ambientUniform);
     }
 
 private:
@@ -345,8 +321,6 @@ private:
             shaders["fragment"]
         });
         ProgramPtr program = programs["program"];
-        modelUniform = program->uniformLocation("modelMatrix");
-
         cameraBlockIndex = program->uniformBlockIndex("CameraMatrices");
 
         glGenBuffers(1, &cameraBuffer);
@@ -357,37 +331,12 @@ private:
         program->bindBlock(cameraBlockIndex, cameraBindingIndex);
         glBindBufferRange(GL_UNIFORM_BUFFER, cameraBindingIndex, cameraBuffer,
                 0, 2 * sizeof(glm::mat4));
-
-
-
-        sunDirectionUniform = program->uniformLocation("sunDirection");
-        sunIntensityUniform = program->uniformLocation("sunIntensity");
-        ambientUniform = program->uniformLocation("ambient");
     }
 };
 
 typedef std::shared_ptr<SceneManager_> SceneManagerPtr;
 
-
-class Client  {
-public:
-
-    Client(SceneManagerPtr scene)
-    : scene(std::move(scene))
-    { }
-
-private:
-    SceneManagerPtr scene;
-
-    ShaderManager shaders;
-    ProgramManager programs;
-    VertexArrayManager meshes;
-    EntityManager entities;
-    ObjectManager objects;
-
-};
-
-
+/*
 template <typename T, typename Fun>
 struct ValueChanger {
 
@@ -432,7 +381,7 @@ struct MatrixTranslator {
         return true;
     }
 };
-
+*/
 
 HackyRenderer::HackyRenderer(Root& root)
 : root(root)
@@ -448,11 +397,24 @@ HackyRenderer::HackyRenderer(Root& root)
     core::registerHandler(root.dispatcher(), input::msg::INPUT_SYSTEM,
             &cameraController, &CameraController::handle);
 
+    Renderer& renderer = root.graphics().renderer();
     using std::placeholders::_1;
     auto ratioUpdate = std::bind(&Camera::adjustRatio, &scene->camera, _1);
-    root.graphics().renderer().viewport().listener(ratioUpdate);
+    renderer.viewport().listener(ratioUpdate);
 
-    MatrixRotator rotator { 30, glm::vec3 { 0, 1, 0 } };
+    UniformPtr sunDir { new uniform3f {
+        scene->sunDirection.x,
+        scene->sunDirection.y,
+        scene->sunDirection.z
+    }};
+    UniformPtr sunInt { new uniform1f { scene->sunIntensity } };
+    UniformPtr ambientIntensity { new uniform1f { scene->ambient } };
+
+    renderer.uniforms().uniform("sunDirection", sunDir);
+    renderer.uniforms().uniform("sunIntensity", sunInt);
+    renderer.uniforms().uniform("ambient", ambientIntensity);
+
+//    MatrixRotator rotator { 30, glm::vec3 { 0, 1, 0 } };
 //    taskletScheduler.add(changer(scene->root->transform, rotator));
 
     using std::sin;
@@ -473,7 +435,7 @@ HackyRenderer::HackyRenderer(Root& root)
         return true;
     });
 
-    time::Action action = repeatedly(actionScheduler, [this](){
+    /*time::Action action = repeatedly(actionScheduler, [this](){
         double time = clock.time();
         double fps = counter;
         {
@@ -485,7 +447,7 @@ HackyRenderer::HackyRenderer(Root& root)
         counter = 0;
     }, 1.0);
 
-    actionScheduler.scheduleIn(action, 1.0);
+    actionScheduler.scheduleIn(action, 1.0);*/
 }
 
 
@@ -513,6 +475,21 @@ void HackyRenderer::update() {
     cameraController.update();
     scene->update();
     scene->draw();
+
+    UniformPtr sunDir { new uniform3f {
+        scene->sunDirection.x,
+        scene->sunDirection.y,
+        scene->sunDirection.z
+    }};
+    UniformPtr sunInt { new uniform1f { scene->sunIntensity } };
+    UniformPtr ambientIntensity { new uniform1f { scene->ambient } };
+
+    Renderer& renderer = root.graphics().renderer();
+    renderer.uniforms().uniform("sunDirection", sunDir);
+    renderer.uniforms().uniform("sunIntensity", sunInt);
+    renderer.uniforms().uniform("ambient", ambientIntensity);
+
+
     drawScene(scene->root, root.graphics().renderer());
 }
 

@@ -8,6 +8,7 @@
 #include <zephyr/core/Task.hpp>
 #include <zephyr/gfx/Viewport.hpp>
 #include <zephyr/gfx/objects.h>
+#include <zephyr/gfx/uniforms.hpp>
 #include <vector>
 #include <unordered_map>
 
@@ -18,19 +19,40 @@ namespace gfx {
 class UniformManager {
 public:
 
-    void global(const std::string& name, UniformPtr uniform) {
+    void uniform(const std::string& name, UniformPtr uniform) {
         uniforms_[name] = std::move(uniform);
     }
 
-    Uniform& operator [] (const std::string& name) {
-        return *(uniforms_[name]);
+    Uniform* uniform(const std::string& name) {
+        auto it = uniforms_.find(name);
+        if (it != end(uniforms_)) {
+            return it->second.get();
+        } else {
+            return nullptr;
+        }
     }
 
+    void registerUniformBlock(const std::string& name) {
+        blocks_[name] = nextBindingIndex_ ++;
+    }
+
+    GLint uniformBlockBindingIndex(const std::string& name) {
+        auto it = blocks_.find(name);
+        if (it != end(blocks_)) {
+            return it->second;
+        } else {
+            return -1;
+        }
+    }
 
 private:
     typedef std::unordered_map<std::string, UniformPtr> UniformMap;
 
     UniformMap uniforms_;
+
+    std::unordered_map<std::string, GLuint> blocks_;
+
+    GLint nextBindingIndex_ = 1;
 };
 
 
@@ -50,6 +72,10 @@ public:
         renderables_.push_back(std::move(renderable));
     }
 
+    UniformManager& uniforms() {
+        return uniforms_;
+    }
+
 private:
 
     Viewport viewport_;
@@ -60,11 +86,16 @@ private:
 
     UniformManager uniforms_;
 
+    ProgramPtr currentProgram_;
+
     void setCulling();
     void setDepthTest();
     void updateViewport();
     void clearBuffers();
     void toggleVSync();
+    void drawMesh(const MeshPtr& mesh);
+    void setMaterial(const MaterialPtr& material);
+    void setModelTransform(const glm::mat4& transform);
 };
 
 } /* namespace gfx */
