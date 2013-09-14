@@ -23,6 +23,7 @@ using namespace zephyr::resources;
 
 
 typedef std::shared_ptr<struct Mesh> MeshPtr;
+typedef std::shared_ptr<struct Texture> TexturePtr;
 typedef std::shared_ptr<struct Material> MaterialPtr;
 typedef std::shared_ptr<struct Entity> EntityPtr;
 typedef std::shared_ptr<struct Object> ObjectPtr;
@@ -38,17 +39,16 @@ inline GLenum primitiveToGL(Primitive primitive) {
     return static_cast<GLenum>(primitive);
 }
 
-
 struct Mesh: public std::enable_shared_from_this<Mesh> {
-    GLuint glName;
+    GLuint id;
     std::size_t count;
     bool indexed;
     GLenum indexType;
     Primitive mode;
 
-    Mesh(GLuint glName, std::size_t count, bool indexed,
+    Mesh(GLuint id, std::size_t count, bool indexed,
             GLenum indexType, Primitive mode = Primitive::TRIANGLES)
-    : glName(glName)
+    : id(id)
     , count(count)
     , indexed(indexed)
     , indexType(indexType)
@@ -56,7 +56,7 @@ struct Mesh: public std::enable_shared_from_this<Mesh> {
     { }
 
     ~Mesh() {
-        glDeleteVertexArrays(1, &glName);
+        glDeleteVertexArrays(1, &id);
     }
 };
 
@@ -64,6 +64,16 @@ struct Mesh: public std::enable_shared_from_this<Mesh> {
 template <typename... Args>
 MeshPtr newMesh(Args&&... args) {
     return std::make_shared<Mesh>(std::forward<Args>(args)...);
+}
+
+
+struct Texture: public std::enable_shared_from_this<Texture> {
+    GLuint id;
+};
+
+template <typename... Args>
+TexturePtr newTexture(Args&&... args) {
+    return std::make_shared<Texture>(std::forward<Args>(args)...);
 }
 
 struct Material: public std::enable_shared_from_this<Material> {

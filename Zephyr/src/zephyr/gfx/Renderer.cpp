@@ -54,7 +54,7 @@ void Renderer::clearBuffers() {
 }
 
 void Renderer::drawMesh(const MeshPtr& mesh) {
-    glBindVertexArray(mesh->glName);
+    glBindVertexArray(mesh->id);
     GLenum mode = primitiveToGL(mesh->mode);
     if (mesh->indexed) {
         glDrawElements(mode, mesh->count, mesh->indexType, 0);
