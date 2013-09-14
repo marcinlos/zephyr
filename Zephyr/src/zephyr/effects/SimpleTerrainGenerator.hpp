@@ -52,6 +52,7 @@ private:
         }
 
         colorFromHeight();
+        makeFlat();
     }
 
     void step(Grid grid, int level, float scale) {

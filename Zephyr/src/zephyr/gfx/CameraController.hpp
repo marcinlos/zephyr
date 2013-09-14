@@ -15,7 +15,8 @@
 namespace zephyr {
 namespace gfx {
 
-
+using namespace zephyr::input;
+namespace events = zephyr::input::msg;
 
 class CameraController {
 public:
@@ -30,53 +31,13 @@ public:
         namespace events = zephyr::input::msg;
 
         if (message.type == events::KEYBOARD_EVENT) {
-            KeyEvent e = util::any_cast<KeyEvent>(message.data);
-            if (e.type == KeyEvent::Type::DOWN) {
-                input[e.key] = true;
-
-                if (e.key == Key::SPACE) {
-                    std::cout << "dir: " << camera.dirFromView(FWD) << std::endl;
-                    std::cout << "pos: " << camera.pos << std::endl;
-                }
-
-            } else if (e.type == KeyEvent::Type::UP) {
-                input[e.key] = false;
-            }
+            onKey(message);
         } else if (message.type == events::BUTTON_EVENT) {
-            ButtonEvent e = util::any_cast<ButtonEvent>(message.data);
-            input[e.button] = (e.type == ButtonEvent::Type::DOWN);
+            onButton(message);
         } else if (message.type == events::CURSOR_EVENT) {
-            const float sensitivity = 0.5f;
-            const float moveScale = 0.3f;
-            const float rotScale = 1.0f;
-
-            Position pos = util::any_cast<Position>(message.data);
-            float dx =   sensitivity * (pos.x - input.mouse().x);
-            float dy = - sensitivity * (pos.y - input.mouse().y);
-            if (input[Button::RIGHT]) {
-                auto viewLeft = camera.dirFromView(RIGHT);
-                auto viewUp = camera.dirFromView(UP);
-                camera.pos += moveScale * (dx * viewLeft + dy * viewUp);
-            } else {
-                float z = -100.0f;
-                dx *= rotScale;
-                dy *= rotScale;
-                if (dx * dx + dy * dy < 500) {
-                    camera.rotate(dx, dy, UP);
-                }
-            }
-            input.mouse(pos);
+            onMouseMove(message);
         } else if (message.type == events::SCROLL_EVENT) {
-            float scroll = util::any_cast<double>(message.data);
-            if (input[Key::LEFT_SHIFT]) {
-                Projection proj = camera.projection();
-                proj.fov -= scroll;
-                proj.fov = glm::clamp(proj.fov, 10.0f, 140.0f);
-                camera.projection(proj);
-                std::cout << "FOV: " << proj.fov << std::endl;
-            } else {
-                camera.pos += scroll * camera.forward();
-            }
+            onScroll(message);
         }
     }
 
@@ -131,6 +92,61 @@ private:
     const time::Clock& clock;
 
     input::InputState input;
+
+    void onScroll(const core::Message& message) {
+        float scroll = util::any_cast<double>(message.data);
+        if (input[Key::LEFT_SHIFT]) {
+            Projection proj = camera.projection();
+            proj.fov -= scroll;
+            proj.fov = glm::clamp(proj.fov, 10.0f, 140.0f);
+            camera.projection(proj);
+            std::cout << "FOV: " << proj.fov << std::endl;
+        } else {
+            camera.pos += scroll * camera.forward();
+        }
+    }
+
+    void onMouseMove(const core::Message& message) {
+        const float sensitivity = 0.5f;
+        const float moveScale = 0.3f;
+        const float rotScale = 1.0f;
+        Position pos = util::any_cast<Position>(message.data);
+        float dx = sensitivity * (pos.x - input.mouse().x);
+        float dy = -sensitivity * (pos.y - input.mouse().y);
+        if (input[Button::RIGHT]) {
+            auto viewLeft = camera.dirFromView(RIGHT);
+            auto viewUp = camera.dirFromView(UP);
+            camera.pos += moveScale * (dx * viewLeft + dy * viewUp);
+        } else {
+            float z = -100.0f;
+            dx *= rotScale;
+            dy *= rotScale;
+            if (dx * dx + dy * dy < 500) {
+                camera.rotate(dx, dy, UP);
+            }
+        }
+        input.mouse(pos);
+    }
+
+    void onButton(const core::Message& message) {
+        ButtonEvent e = util::any_cast<ButtonEvent>(message.data);
+        input[e.button] = (e.type == ButtonEvent::Type::DOWN);
+    }
+
+    void onKey(const core::Message& message) {
+        KeyEvent e = util::any_cast<KeyEvent>(message.data);
+        if (e.type == KeyEvent::Type::DOWN) {
+            input[e.key] = true;
+
+            if (e.key == Key::SPACE) {
+                std::cout << "dir: " << camera.dirFromView(FWD) << std::endl;
+                std::cout << "pos: " << camera.pos << std::endl;
+            }
+
+        } else if (e.type == KeyEvent::Type::UP) {
+            input[e.key] = false;
+        }
+    }
 };
 
 

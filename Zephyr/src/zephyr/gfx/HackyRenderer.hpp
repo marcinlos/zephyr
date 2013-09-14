@@ -30,7 +30,7 @@ public:
 private:
 
     static constexpr float FOV = 60.0f;
-    static constexpr float zNear = 0.1f;
+    static constexpr float zNear = 1.0f;
     static constexpr float zFar = 100.0f;
 
     void updateTime();

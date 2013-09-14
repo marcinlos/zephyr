@@ -308,7 +308,7 @@ HackyRenderer::HackyRenderer(Root& root)
 , clock(clocks.getMainClock())
 , builder(std::make_shared<SceneBuilder>())
 , cameraController(camera, clock)
-, sunIntensity { 1.5f }
+, sunIntensity { 2.5f }
 , ambient { 0.2f }
 {
     std::cout << "[Hacky] Initializing hacky renderer" << std::endl;

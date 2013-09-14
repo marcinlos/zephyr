@@ -166,7 +166,8 @@ private:
                 v[i][j].w = 1;
 
                 int r = rand();
-                float* c = palette[r % std::extent<decltype(palette)>::value];
+//                float* c = palette[r % std::extent<decltype(palette)>::value];
+                float c[] = {1, 1, 1, 1};
                 colors[i][j].x = c[0];
                 colors[i][j].y = c[1];
                 colors[i][j].z = c[2];
