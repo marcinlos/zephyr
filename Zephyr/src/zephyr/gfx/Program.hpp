@@ -119,8 +119,9 @@ public:
         if (location != -1) {
             return location;
         } else {
-            throw std::runtime_error(util::format(
-                    "Cannot get location of \"{}\" uniform variable", name));
+            return -1;
+            // throw std::runtime_error(util::format(
+            //         "Cannot get location of \"{}\" uniform variable", name));
         }
     }
 
@@ -129,22 +130,24 @@ public:
         if (it != uniforms_.end()) {
             return it->second;
         } else {
-            throw std::runtime_error(util::format(
-                    "Cannot get location of \"{}\" uniform variable", name));
+            return -1;
+            // throw std::runtime_error(util::format(
+            //         "Cannot get location of \"{}\" uniform variable", name));
         }
     }
 
-    GLuint uniformBlockIndex(const char* name) const {
+    GLint uniformBlockIndex(const char* name) const {
         return uniformBlockIndex(std::string { name });
     }
 
-    GLuint uniformBlockIndex(const std::string& name) const {
+    GLint uniformBlockIndex(const std::string& name) const {
         auto it = uniformBlocks_.find(name);
         if (it != uniforms_.end()) {
             return it->second;
         } else {
-            throw std::runtime_error(util::format(
-                    "Cannot get location of \"{}\" uniform block", name));
+            return -1;
+            // throw std::runtime_error(util::format(
+            //         "Cannot get location of \"{}\" uniform block", name));
         }
     }
 

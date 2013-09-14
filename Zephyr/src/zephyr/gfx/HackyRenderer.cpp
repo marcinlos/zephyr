@@ -110,9 +110,6 @@ namespace scene {
 
 
 
-
-
-
 inline constexpr float rad(float deg) {
     return deg * M_PI / 180;
 }
@@ -130,10 +127,6 @@ struct SceneManager_ {
 
     Camera camera;
 
-    GLuint cameraBlockIndex;
-    GLuint cameraBuffer;
-    static const GLuint cameraBindingIndex = 10;
-
     glm::vec3 sunDirection;
     float sunIntensity;
     float ambient;
@@ -147,8 +140,6 @@ struct SceneManager_ {
         Projection { FOV, 1, zNear, zFar },
         glm::vec3 { 0.0f, 0.0f, 3.0f }
     }
-    , cameraBlockIndex { 0 }
-    , cameraBuffer { 0 }
 
     , sunIntensity { 1.5f }
     , ambient { 0.2f }
@@ -295,24 +286,9 @@ struct SceneManager_ {
         root->update();
     }
 
-    void draw() {
-        ProgramPtr program = programs["program"];
-        glUseProgram(program->ref());
-
-        glm::mat4 viewMatrix = camera.viewMatrix();
-        glm::mat4 projMatrix = camera.projectionMatrix();
-        const std::size_t size = sizeof(glm::mat4);
-
-        glBindBuffer(GL_UNIFORM_BUFFER, cameraBuffer);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, size, glm::value_ptr(viewMatrix));
-        glBufferSubData(GL_UNIFORM_BUFFER, size, size, glm::value_ptr(projMatrix));
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    }
-
 private:
 
     void createProgram() {
-
         shaders["vertex"] = newVertexShader("resources/shader.vert");
         shaders["fragment"] = newFragmentShader("resources/shader.frag");
 
@@ -320,17 +296,6 @@ private:
             shaders["vertex"],
             shaders["fragment"]
         });
-        ProgramPtr program = programs["program"];
-        cameraBlockIndex = program->uniformBlockIndex("CameraMatrices");
-
-        glGenBuffers(1, &cameraBuffer);
-        glBindBuffer(GL_UNIFORM_BUFFER, cameraBuffer);
-        glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STREAM_DRAW);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-        program->bindBlock(cameraBlockIndex, cameraBindingIndex);
-        glBindBufferRange(GL_UNIFORM_BUFFER, cameraBindingIndex, cameraBuffer,
-                0, 2 * sizeof(glm::mat4));
     }
 };
 
@@ -414,6 +379,9 @@ HackyRenderer::HackyRenderer(Root& root)
     renderer.uniforms().uniform("sunIntensity", sunInt);
     renderer.uniforms().uniform("ambient", ambientIntensity);
 
+    std::size_t size = 2 * sizeof(glm::mat4);
+    renderer.uniforms().createUniformBlock("CameraMatrices", size);
+
 //    MatrixRotator rotator { 30, glm::vec3 { 0, 1, 0 } };
 //    taskletScheduler.add(changer(scene->root->transform, rotator));
 
@@ -474,7 +442,6 @@ void HackyRenderer::update() {
 
     cameraController.update();
     scene->update();
-    scene->draw();
 
     UniformPtr sunDir { new uniform3f {
         scene->sunDirection.x,
@@ -489,7 +456,11 @@ void HackyRenderer::update() {
     renderer.uniforms().uniform("sunIntensity", sunInt);
     renderer.uniforms().uniform("ambient", ambientIntensity);
 
-
+    glm::mat4 viewMatrix = scene->camera.viewMatrix();
+    glm::mat4 projMatrix = scene->camera.projectionMatrix();
+    std::size_t size = sizeof(glm::mat4);
+    renderer.uniforms().fillUniformBlock("CameraMatrices", glm::value_ptr(viewMatrix), 0, size);
+    renderer.uniforms().fillUniformBlock("CameraMatrices", glm::value_ptr(projMatrix), size, size);
     drawScene(scene->root, root.graphics().renderer());
 }
 

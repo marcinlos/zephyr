@@ -32,8 +32,22 @@ public:
         }
     }
 
-    void registerUniformBlock(const std::string& name) {
-        blocks_[name] = nextBindingIndex_ ++;
+    GLuint registerUniformBlock(const std::string& name, GLuint buffer,
+            std::size_t size) {
+        GLuint index = nextBindingIndex_ ++;
+        blocks_[name] = index;
+        buffers_[name] = buffer;
+        glBindBufferRange(GL_UNIFORM_BUFFER, index, buffer, 0, size);
+        return index;
+    }
+
+    GLuint createUniformBlock(const std::string& name,  GLsizei size) {
+        GLuint buffer;
+        glGenBuffers(1, &buffer);
+        glBindBuffer(GL_UNIFORM_BUFFER, buffer);
+        glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STREAM_DRAW);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        return registerUniformBlock(name, buffer, size);
     }
 
     GLint uniformBlockBindingIndex(const std::string& name) {
@@ -45,6 +59,14 @@ public:
         }
     }
 
+    void fillUniformBlock(const std::string& name, void* data,
+            std::ptrdiff_t offset, std::size_t size) {
+        GLuint buffer = buffers_[name];
+        glBindBuffer(GL_UNIFORM_BUFFER, buffer);
+        glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+
 private:
     typedef std::unordered_map<std::string, UniformPtr> UniformMap;
 
@@ -52,7 +74,10 @@ private:
 
     std::unordered_map<std::string, GLuint> blocks_;
 
+    std::unordered_map<std::string, GLuint> buffers_;
+
     GLint nextBindingIndex_ = 1;
+
 };
 
 
@@ -78,6 +103,21 @@ public:
 
 private:
 
+    bool isLoaded(const ProgramPtr& program) const {
+        auto it = loaded_.find(program->ref());
+        if (it != end(loaded_)) {
+            return it->second;
+        } else {
+            return false;
+        }
+    }
+
+    bool markAsLoaded(const ProgramPtr& program) {
+        bool wasLoaded = isLoaded(program);
+        loaded_[program->ref()] = true;
+        return wasLoaded;
+    }
+
     Viewport viewport_;
 
     bool vsync_ = true;
@@ -87,6 +127,8 @@ private:
     UniformManager uniforms_;
 
     ProgramPtr currentProgram_;
+
+    std::unordered_map<GLuint, bool> loaded_;
 
     void setCulling();
     void setDepthTest();

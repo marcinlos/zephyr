@@ -68,6 +68,14 @@ void Renderer::setMaterial(const MaterialPtr& material) {
     if (currentProgram_ != material->program) {
         glUseProgram(material->program->ref());
         currentProgram_ = material->program;
+        if (!markAsLoaded(currentProgram_)) {
+            for (const auto& blocks : currentProgram_->uniformBlocks()) {
+                const std::string& name = blocks.first;
+                GLuint index = blocks.second;
+                GLuint bindingIndex = uniforms_.uniformBlockBindingIndex(name);
+                currentProgram_->bindBlock(index, bindingIndex);
+            }
+        }
     }
     for (const auto& needed : currentProgram_->uniforms()) {
         const std::string& name = needed.first;
