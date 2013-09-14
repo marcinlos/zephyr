@@ -19,7 +19,7 @@ uniform float ambient;
 
 void main()
 {
-    vec3 n = normal;
+    vec3 n = normalize(normal);
     float sunComponent = sunIntensity * clamp(dot(n, sunDirection), 0, 1);
     
     float intensity = ambient + sunComponent;

@@ -141,6 +141,10 @@ public:
 
     virtual ~TerrainGenerator() = default;
 
+    const Grid& grid() const {
+        return v;
+    }
+
 private:
 
     virtual void modify() {

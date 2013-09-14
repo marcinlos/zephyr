@@ -15,6 +15,8 @@
 #include <memory>
 #include <queue>
 
+#include <zephyr/effects/DayNightCycle.hpp>
+
 
 namespace zephyr {
 namespace gfx {
@@ -34,6 +36,8 @@ private:
     static constexpr float zFar = 100.0f;
 
     void updateTime();
+    void setCameraPosition();
+    void submitGeometry();
 
     Root& root;
 
@@ -49,9 +53,7 @@ private:
 
     CameraController cameraController;
 
-    glm::vec3 sunDirection;
-    float sunIntensity;
-    float ambient;
+    effects::DayNightCycle dayNightCycle;
 
 };
 
