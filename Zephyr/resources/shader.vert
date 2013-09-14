@@ -12,8 +12,8 @@ layout (std140) uniform CameraMatrices
 
 uniform mat4 modelMatrix;
 
-flat out vec4 diffuseColor;
-flat out vec3 normal; 
+out vec4 diffuseColor;
+out vec3 normal; 
 
 
 void main() 

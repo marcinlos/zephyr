@@ -44,15 +44,14 @@ private:
             jobs.pop();
             step(job.grid, job.level, job.scale);
         }
-        for (int i = 0; i < 5; ++ i) {
-            smooth(0.8f);
+        for (int i = 0; i < 4; ++ i) {
+            smooth(0.9f);
         }
-        for (int i = 0; i < 3; ++ i) {
+        for (int i = 0; i < 7; ++ i) {
             smoothColors(0.6f);
         }
 
-        colorFromHeight();
-        makeFlat();
+        colorFromHeight(0.3f);
     }
 
     void step(Grid grid, int level, float scale) {
@@ -115,7 +114,7 @@ private:
         }
         for (int i = 0; i < onEdge; ++ i) {
             for (int j = 1; j < onEdge; ++ j) {
-                v[j][i].y = v[j - 1][i].y * (1 - k) + v[i][j].y * k;
+                v[j][i].y = v[j - 1][i].y * (1 - k) + v[j][i].y * k;
             }
         }
         for (int i = 0; i < onEdge; ++ i) {
@@ -125,7 +124,7 @@ private:
         }
         for (int i = 0; i < onEdge; ++ i) {
             for (int j = 0; j < onEdge - 1; ++ j) {
-                v[j][i].y = v[j + 1][i].y * (1 - k) + v[i][j].y * k;
+                v[j][i].y = v[j + 1][i].y * (1 - k) + v[j][i].y * k;
             }
         }
     }
@@ -139,7 +138,7 @@ private:
         }
         for (int i = 0; i < onEdge; ++ i) {
             for (int j = 1; j < onEdge; ++ j) {
-                colors[j][i].y = colors[j - 1][i].y * (1 - k) + colors[i][j].y * k;
+                colors[j][i].y = colors[j - 1][i].y * (1 - k) + colors[j][i].y * k;
             }
         }
         for (int i = 0; i < onEdge; ++ i) {
@@ -149,7 +148,7 @@ private:
         }
         for (int i = 0; i < onEdge; ++ i) {
             for (int j = 0; j < onEdge - 1; ++ j) {
-                colors[j][i].y = colors[j + 1][i].y * (1 - k) + colors[i][j].y * k;
+                colors[j][i].y = colors[j + 1][i].y * (1 - k) + colors[j][i].y * k;
             }
         }
     }
@@ -162,7 +161,7 @@ private:
         }
     }
 
-    void colorFromHeight() {
+    void colorFromHeight(float power) {
         float min = 1000.0f, max = -1000.0f;
         for (int i = 0; i < onEdge; ++ i) {
             for (int j = 0; j < onEdge; ++ j) {
@@ -175,9 +174,10 @@ private:
             for (int j = 0; j < onEdge; ++ j) {
                 float x = v[i][j].y;
                 float color = (x - min) / (max - min);
-                colors[i][j].x *= color;
-                colors[i][j].y *= color;
-                colors[i][j].z *= color;
+                float mult = 1 + (1 - power)* color;
+                colors[i][j].x *= mult;
+                colors[i][j].y *= mult;
+                colors[i][j].z *= mult;
             }
         }
     }

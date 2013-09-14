@@ -1,7 +1,7 @@
 #version 330
 
-flat in vec4 diffuseColor;
-flat in vec3 normal;
+in vec4 diffuseColor;
+in vec3 normal;
 
 layout (std140) uniform CameraMatrices 
 {
@@ -29,7 +29,6 @@ void main()
     float yy = (1 + n.y) / 2;
     float zz = (1 - n.z) / 2;
     
-    vec3 nn = vec3(zz, zz, zz);
-    outputColor = vec4(nn, 1);//diffuseColor * clamp(intensity, 0, 1);
-    outputColor = diffuseColor;
+    vec3 nn = vec3(xx, yy, zz);
+    outputColor = diffuseColor * clamp(intensity, 0, 1);
 }
