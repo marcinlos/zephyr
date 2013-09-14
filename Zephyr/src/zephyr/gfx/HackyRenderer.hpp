@@ -29,9 +29,15 @@ public:
 
 private:
 
+    static constexpr float FOV = 60.0f;
+    static constexpr float zNear = 0.1f;
+    static constexpr float zFar = 100.0f;
+
     void updateTime();
 
     Root& root;
+
+    Camera camera;
 
     const time::ClockManager& clocks;
     const time::Clock& clock;
@@ -39,12 +45,13 @@ private:
     time::TaskletScheduler taskletScheduler;
     time::ActionScheduler actionScheduler;
 
-    std::shared_ptr<struct SceneManager_> scene;
+    std::shared_ptr<struct SceneBuilder> builder;
 
     CameraController cameraController;
 
-    int counter;
-
+    glm::vec3 sunDirection;
+    float sunIntensity;
+    float ambient;
 
 };
 

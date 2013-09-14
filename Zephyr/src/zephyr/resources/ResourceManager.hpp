@@ -5,6 +5,7 @@
 #ifndef ZEPHYR_RESOURCES_RESOURCEMANAGER_HPP_
 #define ZEPHYR_RESOURCES_RESOURCEMANAGER_HPP_
 
+#include <zephyr/util/format.hpp>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -22,7 +23,7 @@ template <typename T>
 struct NoLoader {
 
     T operator ()(const std::string& name) {
-        throw std::runtime_error("No such resource");
+        throw std::runtime_error(util::format("No such resource: {}", name));
     }
 
 };

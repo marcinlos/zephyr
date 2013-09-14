@@ -39,6 +39,9 @@
 
 #include <zephyr/gfx/uniforms.hpp>
 
+#include <zephyr/scene/SceneGraph.hpp>
+
+
 using zephyr::resources::ResourceManager;
 
 using zephyr::effects::SimpleTerrainGenerator;
@@ -50,7 +53,7 @@ namespace gfx {
 typedef boost::io::ios_all_saver guard;
 
 
-namespace scene {
+namespace scene2 {
 
     struct Material {
         std::string name;
@@ -108,12 +111,6 @@ namespace scene {
 
 }
 
-
-
-inline constexpr float rad(float deg) {
-    return deg * M_PI / 180;
-}
-
 struct SceneManager_ {
 
     ObjectPtr root;
@@ -125,32 +122,12 @@ struct SceneManager_ {
     EntityManager entities;
     ObjectManager objects;
 
-    Camera camera;
-
-    glm::vec3 sunDirection;
-    float sunIntensity;
-    float ambient;
-
-    static constexpr float FOV = 60.0f;
-    static constexpr float zNear = 0.1f;
-    static constexpr float zFar = 100.0f;
-
-    SceneManager_()
-    : camera {
-        Projection { FOV, 1, zNear, zFar },
-        glm::vec3 { 0.0f, 0.0f, 3.0f }
-    }
-
-    , sunIntensity { 1.5f }
-    , ambient { 0.2f }
-    { }
-
-    void parseMaterial(const scene::Material& material) {
+    void parseMaterial(const scene2::Material& material) {
         ProgramPtr program = programs[material.program];
         materials[material.name] = newMaterial(program);
     }
 
-    void parseEntity(const scene::Entity& entity) {
+    void parseEntity(const scene2::Entity& entity) {
         MeshPtr mesh;
         if (! entity.mesh.empty()) {
             mesh = meshes[entity.mesh];
@@ -159,16 +136,16 @@ struct SceneManager_ {
         entities[entity.name] = newEntity(material, mesh);
     }
 
-    glm::mat4 parseTransform(const scene::Transform& transform) const {
-        const scene::Pos& pos = transform.pos;
-        const scene::Rot& rot = transform.rot;
-        const scene::Scale& scale = transform.scale;
+    glm::mat4 parseTransform(const scene2::Transform& transform) const {
+        const scene2::Pos& pos = transform.pos;
+        const scene2::Rot& rot = transform.rot;
+        const scene2::Scale& scale = transform.scale;
         return glm::translate(pos.x, pos.y, pos.z) *
                 glm::scale(scale.sx, scale.sy, scale.sz) *
                 glm::yawPitchRoll(rot.yaw, rot.pitch, rot.roll);
     }
 
-    void parseNode(const scene::Node& node, const std::string& parent) {
+    void parseNode(const scene2::Node& node, const std::string& parent) {
         EntityPtr entity;
         if (! node.entity.empty()) {
             entity = entities[node.entity];
@@ -187,7 +164,7 @@ struct SceneManager_ {
         }
     }
 
-    void parseSceneDescription(const scene::SceneDescription& scene) {
+    void parseSceneDescription(const scene2::SceneDescription& scene) {
         for (const auto& material : scene.materials) {
             parseMaterial(material);
         }
@@ -199,96 +176,106 @@ struct SceneManager_ {
         }
     }
 
-    ObjectPtr createScene2() {
-        createProgram();
-        materials["dull"] = newMaterial(programs["program"]);
-        objects["root"] = newObject(nullptr);
-
-        SimpleTerrainGenerator gen(100.0f, 8, 45.0f);
-        meshes["quad"] = gen.create();
-        meshes["star 9"] = makeStar(10, 0.3f);
-
-        using namespace scene;
-        using scene::Entity;
-
-        Entity groundEnt { "ground", "dull", "quad" };
-        Entity starEnt { "star", "dull", "star 9" };
-
-        Node groundNode { "groundObject", "ground",
-            { Pos {0, -1, 0} }
-        };
-
-        Node starNode { "starObject", "star" };
-        groundNode.children.push_back(&starNode);
-
-        Node smallStarNode { "smallStarObject", "star", {
-                Pos { 0.9f, 0, 0},
-                Rot { },
-                Scale { 0.2f, 0.2f, 0.2f }
-            }
-        };
-        starNode.children.push_back(&smallStarNode);
-
-        Node leftStarNode { "leftStarObject", "star", {
-                { -2.9f, 0, 0 },
-                { rad(85), 0, 0 },
-                { 1.2f, 1.2f, 1.2f }
-            }
-        };
-        starNode.children.push_back(&leftStarNode);
-
-        scene::SceneDescription scene {
-            { },
-            { groundEnt, starEnt },
-            { groundNode }
-        };
-
-        parseSceneDescription(scene);
-
-        return objects["root"];
-    }
-
-    ObjectPtr createScene() {
-        createProgram();
-
-        materials["dull"] = newMaterial(programs["program"]);
-
-        ObjectPtr scene = newObject(newEntity(materials["dull"], nullptr));
-
-
-        SimpleTerrainGenerator gen(100.0f, 8, 25.0f);
-        meshes["quad"] = gen.create();
-
-        entities["ground"] = newEntity(materials["dull"], meshes["quad"]);
-        ObjectPtr ground = newObject(entities["ground"]);
-        ground->transform = glm::translate<float>(0, -10.1f, 0);
-        scene->addChild(ground);
-
-        meshes["suzanne_mesh"] = loadMesh("resources/suzanne.obj");
-        entities["suzanne_ent"] = newEntity(materials["dull"], meshes["suzanne_mesh"]);
-        ObjectPtr suzanne = newObject(entities["suzanne_ent"], scene);
-        scene->addChild(suzanne);
-
-        meshes["starMesh"] = makeStar(7, 0.3f);
-        entities["star"] = newEntity(materials["dull"], meshes["starMesh"]);
-
-        ObjectPtr left = newObject(entities["star"], scene);
-        left->transform = glm::translate(-2.9f, 0.0f, 0.0f) *
-                glm::scale(1.2f, 1.2f, 1.2f) *
-                glm::rotate<float>(85, 0, 1, 0);
-        scene->addChild(left);
-
-        return scene;
-    }
-
+//    ObjectPtr createScene2() {
+//        createProgram();
+//        materials["dull"] = newMaterial(programs["program"]);
+//        objects["root"] = newObject(nullptr);
+//
+//        SimpleTerrainGenerator gen(100.0f, 8, 45.0f);
+//        meshes["quad"] = gen.create();
+//        meshes["star 9"] = makeStar(10, 0.3f);
+//
+//        using namespace scene2;
+//        using scene2::Entity;
+//
+//        Entity groundEnt { "ground", "dull", "quad" };
+//        Entity starEnt { "star", "dull", "star 9" };
+//
+//        Node groundNode { "groundObject", "ground",
+//            { Pos {0, -1, 0} }
+//        };
+//
+//        Node starNode { "starObject", "star" };
+//        groundNode.children.push_back(&starNode);
+//
+//        Node smallStarNode { "smallStarObject", "star", {
+//                Pos { 0.9f, 0, 0},
+//                Rot { },
+//                Scale { 0.2f, 0.2f, 0.2f }
+//            }
+//        };
+//        starNode.children.push_back(&smallStarNode);
+//
+//        Node leftStarNode { "leftStarObject", "star", {
+//                { -2.9f, 0, 0 },
+//                { glm::radians(85.0f), 0, 0 },
+//                { 1.2f, 1.2f, 1.2f }
+//            }
+//        };
+//        starNode.children.push_back(&leftStarNode);
+//
+//        scene2::SceneDescription scene {
+//            { },
+//            { groundEnt, starEnt },
+//            { groundNode }
+//        };
+//
+//        parseSceneDescription(scene);
+//
+//        return objects["root"];
+//    }
 
     void update() {
         root->update();
     }
 
-private:
+};
 
-    void createProgram() {
+struct SceneBuilder {
+
+    struct Item {
+        scene::NodePtr node;
+        EntityPtr entity;
+    };
+
+    ShaderManager shaders;
+    ProgramManager programs;
+    MaterialManager materials;
+    VertexArrayManager meshes;
+    EntityManager entities;
+    ObjectManager objects;
+
+    std::vector<Item> items;
+    zephyr::scene::SceneGraph graph;
+
+    SceneBuilder() {
+        createResources();
+        build();
+    }
+
+
+    void build() {
+        using namespace zephyr::scene;
+        auto& sceneRoot = graph.root();
+
+        NodePtr ground = newNode(sceneRoot);
+        ground->translateY(-10);
+        sceneRoot->addChild(ground);
+
+        NodePtr suzanne = newNode(sceneRoot);
+        sceneRoot->addChild(suzanne);
+
+        NodePtr star = newNode(suzanne);
+        star->translateX(-2.9f).rotateX(M_PI / 2);
+        suzanne->addChild(star);
+
+        items.push_back({ ground, entities["ground"] });
+        items.push_back({ suzanne, entities["suzanne"] });
+        items.push_back({ star, entities["star"] });
+    }
+
+private:
+    void createResources() {
         shaders["vertex"] = newVertexShader("resources/shader.vert");
         shaders["fragment"] = newFragmentShader("resources/shader.frag");
 
@@ -296,84 +283,51 @@ private:
             shaders["vertex"],
             shaders["fragment"]
         });
+
+        materials["dull"] = newMaterial(programs["program"]);
+
+        SimpleTerrainGenerator gen(100.0f, 8, 25.0f);
+        meshes["quad"] = gen.create();
+        meshes["suzanne"] = loadMesh("resources/suzanne.obj");
+        meshes["star"] = makeStar(7, 0.3f);
+
+        entities["ground"] = newEntity(materials["dull"], meshes["quad"]);
+        entities["suzanne"] = newEntity(materials["dull"], meshes["suzanne"]);
+        entities["star"] = newEntity(materials["dull"], meshes["star"]);
     }
 };
 
-typedef std::shared_ptr<SceneManager_> SceneManagerPtr;
-
-/*
-template <typename T, typename Fun>
-struct ValueChanger {
-
-    T& value;
-    Fun fun;
-
-    ValueChanger(T& value, Fun fun = { })
-    : value(value)
-    , fun(fun)
-    { }
-
-    bool operator () (double t, double dt) {
-        return fun(value, t, dt);
-    }
-
-};
-
-template <typename T, typename Fun>
-ValueChanger<T, Fun> changer(T& value, Fun fun = { }) {
-    return ValueChanger<T, Fun>(value, fun);
-}
-
-glm::mat4 rotate(float angle, const glm::vec3& axis) {
-    return glm::rotate(angle, axis);
-}
-
-struct MatrixRotator {
-    float radiansPerSecond;
-    glm::vec3 axis;
-
-    bool operator () (glm::mat4& value, double, double dt) const {
-        value *= rotate(dt * radiansPerSecond, axis);
-        return true;
-    }
-};
-
-struct MatrixTranslator {
-    glm::vec3 displacement;
-
-    bool operator () (glm::mat4& value, double, float dt) const {
-        value *= glm::translate(dt * displacement);
-        return true;
-    }
-};
-*/
 
 HackyRenderer::HackyRenderer(Root& root)
 : root(root)
+, camera {
+    Projection { FOV, 1, zNear, zFar },
+    glm::vec3 { 0.0f, 0.0f, 3.0f }
+}
 , clocks(root.clockManager())
 , clock(clocks.getMainClock())
-, scene(std::make_shared<SceneManager_>())
-, cameraController(scene->camera, clock)
-, counter(0)
+, builder(std::make_shared<SceneBuilder>())
+, cameraController(camera, clock)
+, sunIntensity { 1.5f }
+, ambient { 0.2f }
 {
     std::cout << "[Hacky] Initializing hacky renderer" << std::endl;
-    scene->root = scene->createScene();
 
     core::registerHandler(root.dispatcher(), input::msg::INPUT_SYSTEM,
             &cameraController, &CameraController::handle);
 
     Renderer& renderer = root.graphics().renderer();
     using std::placeholders::_1;
-    auto ratioUpdate = std::bind(&Camera::adjustRatio, &scene->camera, _1);
+    auto ratioUpdate = std::bind(&Camera::adjustRatio, &camera, _1);
     renderer.viewport().listener(ratioUpdate);
 
     UniformPtr sunDir { new uniform3f {
-        scene->sunDirection.x,
-        scene->sunDirection.y,
-        scene->sunDirection.z
+        sunDirection.x,
+        sunDirection.y,
+        sunDirection.z
     }};
-    UniformPtr sunInt { new uniform1f { scene->sunIntensity } };
-    UniformPtr ambientIntensity { new uniform1f { scene->ambient } };
+    UniformPtr sunInt { new uniform1f { sunIntensity } };
+    UniformPtr ambientIntensity { new uniform1f { ambient } };
 
     renderer.uniforms().uniform("sunDirection", sunDir);
     renderer.uniforms().uniform("sunIntensity", sunInt);
@@ -382,16 +336,17 @@ HackyRenderer::HackyRenderer(Root& root)
     std::size_t size = 2 * sizeof(glm::mat4);
     renderer.uniforms().createUniformBlock("CameraMatrices", size);
 
-//    MatrixRotator rotator { 30, glm::vec3 { 0, 1, 0 } };
-//    taskletScheduler.add(changer(scene->root->transform, rotator));
+    taskletScheduler.add([this](double t, double dt) {
+        this->builder->graph.root()->firstChild()->rotateX(M_PI * dt / 5);
+        return true;
+    });
 
-    using std::sin;
-    using std::cos;
 
     float maxAngle = 50.0f * M_PI / 180;
 
-
     taskletScheduler.add([=](double time, double){
+        using std::sin;
+        using std::cos;
         double t = time / 3;
         float angle = maxAngle * (cos(t) + 0.2);
         glm::vec3 sunPos {
@@ -399,69 +354,51 @@ HackyRenderer::HackyRenderer(Root& root)
             sin(angle),
             cos(angle) * sin(t)
         };
-        scene->sunDirection = glm::normalize(-sunPos);
+        sunDirection = glm::normalize(-sunPos);
         return true;
     });
-
-    /*time::Action action = repeatedly(actionScheduler, [this](){
-        double time = clock.time();
-        double fps = counter;
-        {
-            guard g(std::cout);
-            std::cout.precision(1);
-            std::cout.setf(std::ios::fixed);
-            std::cout << "FPS: " << fps << std::endl;
-        }
-        counter = 0;
-    }, 1.0);
-
-    actionScheduler.scheduleIn(action, 1.0);*/
 }
 
 
 void HackyRenderer::updateTime() {
-    ++counter;
     double time = clock.time();
     taskletScheduler.update(time, clock.dt());
     actionScheduler.update(time);
 }
 
 
-void drawScene(ObjectPtr obj, gfx::Renderer& renderer) {
-    if (obj->entity && obj->entity->mesh) {
-        renderer.submit(obj->renderable());
-    }
-    for (const auto& child : obj->children) {
-        drawScene(child, renderer);
-    }
-}
-
-
 void HackyRenderer::update() {
     updateTime();
+    builder->graph.update();
 
     cameraController.update();
-    scene->update();
 
     UniformPtr sunDir { new uniform3f {
-        scene->sunDirection.x,
-        scene->sunDirection.y,
-        scene->sunDirection.z
+        sunDirection.x,
+        sunDirection.y,
+        sunDirection.z
     }};
-    UniformPtr sunInt { new uniform1f { scene->sunIntensity } };
-    UniformPtr ambientIntensity { new uniform1f { scene->ambient } };
+    UniformPtr sunInt { new uniform1f { sunIntensity } };
+    UniformPtr ambientIntensity { new uniform1f { ambient } };
 
     Renderer& renderer = root.graphics().renderer();
     renderer.uniforms().uniform("sunDirection", sunDir);
     renderer.uniforms().uniform("sunIntensity", sunInt);
     renderer.uniforms().uniform("ambient", ambientIntensity);
 
-    glm::mat4 viewMatrix = scene->camera.viewMatrix();
-    glm::mat4 projMatrix = scene->camera.projectionMatrix();
+    glm::mat4 viewMatrix = camera.viewMatrix();
+    glm::mat4 projMatrix = camera.projectionMatrix();
     std::size_t size = sizeof(glm::mat4);
     renderer.uniforms().fillUniformBlock("CameraMatrices", glm::value_ptr(viewMatrix), 0, size);
     renderer.uniforms().fillUniformBlock("CameraMatrices", glm::value_ptr(projMatrix), size, size);
-    drawScene(scene->root, root.graphics().renderer());
+
+    auto submit = [&renderer](const SceneBuilder::Item& item) {
+        renderer.submit(Renderable {
+            item.entity,
+            item.node->globalTransform()
+        });
+    };
+    std::for_each(begin(builder->items), end(builder->items), submit);
 }
 
 

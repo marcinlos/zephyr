@@ -18,10 +18,13 @@ public:
     : root_ { std::make_shared<Node>() }
     { }
 
-    const NodePtr& root() const {
+    NodePtr& root() {
         return root_;
     }
 
+    void update() {
+        root_->update();
+    }
 
 private:
 

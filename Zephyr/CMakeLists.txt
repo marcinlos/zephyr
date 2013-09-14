@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 project(Zephyr CXX)
 
+set(CMAKE_C_COMPILER gcc-4.8)
+set(CMAKE_CXX_COMPILER g++-4.8)
+
 # We use C++11
 add_definitions(-std=c++11)
 
@@ -10,7 +13,7 @@ add_definitions(-std=c++11)
 # gprof
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g -Wno-long-long -pedantic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g -pedantic")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(SRC src/zephyr)

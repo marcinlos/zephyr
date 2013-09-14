@@ -29,13 +29,10 @@ public:
     }
 
     void update(double time, double dt) {
-        for (Tasklet& tasklet: tasklets) {
-            tasklet(time, dt);
-        }
         for (TaskletId it = begin(tasklets); it != end(tasklets); ) {
             TaskletId current = it++;
             if (! (*current)(time, dt)) {
-                tasklets.erase(current);
+                remove(current);
             }
         }
     }
