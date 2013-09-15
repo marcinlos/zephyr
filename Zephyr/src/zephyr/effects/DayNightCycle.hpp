@@ -15,12 +15,12 @@ namespace effects {
 class DayNightCycle {
 public:
 
-    static constexpr float dayLength = 5.0f;
+    static constexpr float dayLength = 60.0f;
 
     DayNightCycle(Root& root)
     : root(root)
     , renderer(root.graphics().renderer())
-    , sunIntensity { 2 }
+    , sunIntensity { 1 }
     , ambient { 0.1f, 0.1f, 0.1f }
     {
         root.vars().put("sunPos", glm::vec3 {});
@@ -30,19 +30,14 @@ public:
 
     glm::vec3 calculateSunPosition(float t) {
         glm::vec4 pos { 1, 0, 0, 1 };
-
         pos = glm::rotate<float>(360 * t, 0, 0, 1) * pos;
         pos = glm::rotate<float>(-50, 1, 0, 0) * pos;
-
-
-
         return glm::vec3 { pos };
     }
 
     void apply(double time) {
         using namespace gfx;
-        double t = std::fmod(time / dayLength, 1);
-
+        double t = time / dayLength;
         float theta = 2 * M_PI * t;
 
         glm::vec3 sunPos = calculateSunPosition(t);
@@ -50,9 +45,10 @@ public:
         sunDirection = glm::normalize(-sunPos);
         glm::vec3 sunCol { 1, 1, 1 };
 
-        float sinAbs = glm::clamp(std::sin(theta), 0.0f, 1.0f);
-        sunIntensity = 3.0f * sinAbs * sinAbs;
-        float hdr = 2.0f;//sunIntensity + 0.2f;//1.5f + 3.0f * sinAbs * sinAbs;
+        float sinAbs = glm::clamp(std::sin(theta) + 0.2f, 0.0f, 1.0f);
+        sunIntensity = 2.0f * sinAbs * sinAbs;
+        float ambientVal = sunIntensity + 0.4f;
+        float hdr = 0.7f * sunIntensity + 0.4f;//1.5f + 3.0f * sinAbs * sinAbs;
 
         UniformPtr sunDir { new uniform3f {
             sunDirection.x,
@@ -60,10 +56,10 @@ public:
             sunDirection.z
         }};
         UniformPtr sunInt { new uniform1f { sunIntensity } };
-        UniformPtr ambientIntensity { new uniform3f {
-            ambient.x,
-            ambient.y,
-            ambient.z
+        UniformPtr ambientUnif { new uniform3f {
+            ambientVal * ambient.x,
+            ambientVal * ambient.y,
+            ambientVal * ambient.z
         } };
 
         UniformPtr sunColor { new uniform3f {
@@ -76,7 +72,7 @@ public:
 
         renderer.uniforms().uniform("sunDirection", sunDir);
         renderer.uniforms().uniform("sunIntensity", sunInt);
-        renderer.uniforms().uniform("ambient", ambientIntensity);
+        renderer.uniforms().uniform("ambient", ambientUnif);
         renderer.uniforms().uniform("sunColor", sunColor);
         renderer.uniforms().uniform("hdrMax", hdrMax);
     }

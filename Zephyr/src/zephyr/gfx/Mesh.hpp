@@ -218,7 +218,7 @@ MeshData loadMeshData(const char* path, NormCalc strategy = NormCalc::AVG) {
         data.vertices = std::move(vertices);
         data.indices = std::move(indices);
     }
-    data.colors = /*std::vector<glm::vec4>(data.vertices.size(), glm::vec4 { 1, 0, 0, 0});//*/randomColors(data.vertices.size());
+    data.colors = std::vector<glm::vec4>(data.vertices.size(), glm::vec4 { 1, 1, 1, 0});//*/randomColors(data.vertices.size());
     return data;
 }
 

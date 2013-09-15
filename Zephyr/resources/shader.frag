@@ -2,8 +2,8 @@
 
 const float gammaCorrection = 2.2;
 
-flat in vec4 diffuseColor;
-flat in vec3 normal;
+in vec4 diffuseColor;
+in vec3 normal;
 
 in vec3 worldPos;
 
@@ -22,6 +22,11 @@ uniform vec3 ambient;
 
 uniform float hdrMax;
 
+vec4 gammaCorrect(in vec4 color) {
+    vec4 gamma = vec4(1 / gammaCorrection);
+    gamma.w = 1.0;
+    return pow(color, gamma);
+}
 
 void main()
 {
@@ -55,17 +60,16 @@ void main()
     float ss = s * 15;
     float cone = 1 * exp(- ss * ss);
     
-    float distanceFactor = 1 / (1 + 0.01 * dot(dist, dist));
+    float distanceFactor = 1 / (1 + 0.1 * dot(dist, dist));
     
     float power = angleFactor * distanceFactor * cone;
 
     // Full light output    
     vec3 total = ambient + clamp(power, 0, 1) * lightColor + sunComponent;
-    outputColor = diffuseColor * vec4(total, 1);
+    vec4 col = diffuseColor * vec4(total, 1);
+    col = col / hdrMax;
     
-    outputColor = outputColor / hdrMax;
-    //vec4 gamma = vec4(1.0 / gammaCorrection);
-    //gamma.w = 1.0;
-    //outputColor = pow(outputColor, gamma);
-    
+    //col = gammaCorrect(col);
+    outputColor = col; 
 }
+
