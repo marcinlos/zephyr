@@ -34,6 +34,7 @@ add_executable(game
     ${SRC}/input/MessageGenerator.cpp
     ${SRC}/input/InputSystem.cpp
     ${SRC}/time/ClockManager.cpp
+    ${SRC}/gfx/CameraComponent.cpp
     ${SRC}/gfx/HackyRenderer.cpp
     ${SRC}/gfx/Renderer.cpp
     ${SRC}/gfx/GraphicsSystem.cpp

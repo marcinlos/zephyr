@@ -13,8 +13,6 @@ namespace zephyr {
 namespace gfx {
 
 
-
-
 struct Projection {
     float fov;
     float aspectRatio;

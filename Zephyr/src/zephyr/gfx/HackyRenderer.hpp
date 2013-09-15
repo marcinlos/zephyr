@@ -21,7 +21,7 @@
 namespace zephyr {
 namespace gfx {
 
-
+/*
 class HackyRenderer: public core::Task {
 public:
 
@@ -49,13 +49,11 @@ private:
     time::TaskletScheduler taskletScheduler;
     time::ActionScheduler actionScheduler;
 
-    std::shared_ptr<struct SceneBuilder> builder;
-
     CameraController cameraController;
 
     effects::DayNightCycle dayNightCycle;
 
-};
+};*/
 
 } /* namespace gfx */
 } /* namespace zephyr */

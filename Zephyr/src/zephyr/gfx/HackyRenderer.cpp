@@ -18,7 +18,7 @@
 #include <zephyr/gfx/Program.hpp>
 #include <zephyr/gfx/Mesh.hpp>
 #include <zephyr/scene/SceneGraph.hpp>
-#include <zephyr/gfx/SceneBuilder.hpp>
+#include <zephyr/scene/SceneManager.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -32,7 +32,7 @@
 namespace zephyr {
 namespace gfx {
 
-
+/*
 HackyRenderer::HackyRenderer(Root& root)
 : root(root)
 , camera {
@@ -41,7 +41,7 @@ HackyRenderer::HackyRenderer(Root& root)
 }
 , clocks(root.clockManager())
 , clock(clocks.getMainClock())
-, builder(std::make_shared<SceneBuilder>())
+, builder(std::make_shared<LandscapeScene>())
 , cameraController(camera, clock)
 , dayNightCycle { root }
 {
@@ -99,7 +99,7 @@ void HackyRenderer::setCameraPosition() {
 }
 
 void HackyRenderer::submitGeometry() {
-    auto submit = [this](const SceneBuilder::Item& item) {
+    auto submit = [this](const scene::SceneManager::RenderItem& item) {
         Renderer& renderer = root.graphics().renderer();
         renderer.submit(Renderable {
             item.entity,
@@ -115,7 +115,7 @@ void HackyRenderer::update() {
     cameraController.update();
     setCameraPosition();
     submitGeometry();
-}
+}*/
 
 
 } /* namespace gfx */

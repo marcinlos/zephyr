@@ -12,24 +12,19 @@ namespace zephyr {
 namespace gfx {
 
 
-struct SceneBuilder {
+struct LandscapeScene {
 
     struct Item {
         scene::NodePtr node;
         EntityPtr entity;
     };
 
-    ShaderManager shaders;
-    ProgramManager programs;
-    MaterialManager materials;
-    VertexArrayManager meshes;
-    EntityManager entities;
-    ObjectManager objects;
+    resources::ResourceSystem& res;
 
     std::vector<Item> items;
-    zephyr::scene::SceneGraph graph;
+    scene::SceneGraph graph;
 
-    SceneBuilder() {
+    LandscapeScene() {
         createResources();
         build();
     }
@@ -61,37 +56,39 @@ struct SceneBuilder {
         sun->scale(0.7f, 0.7f, 0.7f);
         sceneRoot->addChild("sun", sun);
 
-        items.push_back({ ground, entities["ground"] });
-        items.push_back({ suzanne, entities["suzanne"] });
+        items.push_back({ ground, res.entities["ground"] });
+        items.push_back({ suzanne, res.entities["suzanne"] });
 //        items.push_back({ star, entities["star"] });
-        items.push_back({ container, entities["container"] });
+        items.push_back({ container, res.entities["container"] });
 
-        items.push_back({ ministar, entities["star"] });
-        items.push_back({ sun, entities["star"] });
+        items.push_back({ ministar, res.entities["star"] });
+        items.push_back({ sun, res.entities["star"] });
     }
 
 private:
     void createResources() {
-        shaders["vertex"] = newVertexShader("resources/shader.vert");
-        shaders["fragment"] = newFragmentShader("resources/shader.frag");
+        res.shaders["vertex"] = newVertexShader("resources/shader.vert");
+        res.shaders["fragment"] = newFragmentShader("resources/shader.frag");
 
-        programs["program"] = newProgram({
-            shaders["vertex"],
-            shaders["fragment"]
+        res.programs["program"] = newProgram({
+            res.shaders["vertex"],
+            res.shaders["fragment"]
         });
 
-        materials["dull"] = newMaterial(programs["program"]);
+        res.materials["dull"] = newMaterial(res.programs["program"]);
 
         effects::SimpleTerrainGenerator gen(100.0f, 8, 25.0f);
-        meshes["quad"] = gen.create();
-        meshes["suzanne"] = loadMesh("resources/suzanne.obj");
-        meshes["star"] = makeStar(7, 0.3f);
-        meshes["container"] = loadMesh("resources/container.obj", NormCalc::SPLIT);
+        res.meshes["quad"] = gen.create();
+        res.meshes["suzanne"] = loadMesh("resources/suzanne.obj");
+        res.meshes["star"] = makeStar(7, 0.3f);
+        res.meshes["container"] = loadMesh("resources/container.obj", NormCalc::SPLIT);
 
-        entities["ground"] = newEntity(materials["dull"], meshes["quad"]);
-        entities["suzanne"] = newEntity(materials["dull"], meshes["suzanne"]);
-        entities["star"] = newEntity(materials["dull"], meshes["star"]);
-        entities["container"] = newEntity(materials["dull"], meshes["container"]);
+
+        MaterialPtr def = res.materials["dull"];
+        res.entities["ground"] = newEntity(def, res.meshes["quad"]);
+        res.entities["suzanne"] = newEntity(def, res.meshes["suzanne"]);
+        res.entities["star"] = newEntity(def, res.meshes["star"]);
+        res.entities["container"] = newEntity(def, res.meshes["container"]);
     }
 };
 

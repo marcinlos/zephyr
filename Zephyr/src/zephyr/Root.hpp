@@ -14,6 +14,7 @@
 #include <zephyr/time/ClockManager.hpp>
 #include <zephyr/util/static_hash.hpp>
 #include <zephyr/gfx/GraphicsSystem.hpp>
+#include <zephyr/resources/ResourceSystem.hpp>
 #include <zephyr/core/Register.hpp>
 #include <memory>
 #include <string>
@@ -110,10 +111,9 @@ private:
     time::ClockManager clockManager_;
 
     std::unique_ptr<window::WindowSystem> window_;
-
     std::unique_ptr<input::InputSystem> input_;
-
     std::unique_ptr<gfx::GraphicsSystem> graphics_;
+    std::unique_ptr<resources::ResourceSystem> resources_;
 
     /**
      * Initializes all the immediately necessary subsystems.

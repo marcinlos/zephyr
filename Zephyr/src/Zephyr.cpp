@@ -1,10 +1,15 @@
 
 #include <zephyr/Root.hpp>
+#include <zephyr/demo/MainController.hpp>
 
 using namespace zephyr;
 
 int main(int argc, char* argv[]) try {
     Root root("resources/config.xml");
+
+
+    demo::MainController demo(root);
+
     root.run();
     return 0;
 } catch (const std::exception& e) {

@@ -57,8 +57,8 @@ void Root::initSubsystems() {
 
 //    scheduler.startTask("renderer", 500000, task);
 
-    TaskPtr task = std::make_shared<gfx::HackyRenderer>(*this);
-    scheduler_.startTask("hacky-renderer", 400000, task);
+//    TaskPtr task = std::make_shared<gfx::HackyRenderer>(*this);
+//    scheduler_.startTask("hacky-renderer", 400000, task);
 }
 
 void Root::runCoreTasks() {

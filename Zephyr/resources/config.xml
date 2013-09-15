@@ -4,12 +4,19 @@
     <height>768</height>
     <title>Zephyr</title>
     
-    <fullscreen>true</fullscreen>
+    <fullscreen>false</fullscreen>
     <capture-mouse>true</capture-mouse>
     
   </window>
   
   <gfx>
     <vsync>true</vsync>
+    
+    <camera>
+        <fov>60</fov>
+        <z-near>1</z-near>
+        <z-far>100</z-far>
+    </camera>
+    
   </gfx>
 </zephyr>
