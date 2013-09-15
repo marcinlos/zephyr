@@ -82,7 +82,7 @@ private:
 
         entities["ground"] = newEntity(materials["dull"], meshes["quad"]);
         entities["suzanne"] = newEntity(materials["dull"], meshes["suzanne"]);
-        entities["star"] = newEntity(materials["dull"], meshes["star"]);
+        entities["star"] = newEntity(materials["flat"], meshes["star"]);
     }
 };
 

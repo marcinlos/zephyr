@@ -11,90 +11,106 @@
 namespace zephyr {
 namespace effects {
 
-
 template <typename Iter>
 class Grid {
 public:
 
     typedef typename std::iterator_traits<Iter>::value_type value_type;
+    typedef Iter iter_type;
 
-    Grid(Iter begin, Iter end, std::size_t row)
+    Grid(Iter begin, std::size_t cols, std::size_t rows, std::ptrdiff_t offset = 0)
     : begin_(begin)
-    , end_(end)
-    , count_(std::distance(begin, end))
-    , rowSize_(row)
+    , cols_(cols)
+    , rows_(rows)
+    , offset_(offset)
     { }
+
 
     class ConstRowProxy {
     public:
 
-        ConstRowProxy(Grid& grid, int num)
-        : grid_(grid)
-        , num_(num)
+        ConstRowProxy(Iter begin)
+        : begin_(begin)
         { }
 
         const value_type& operator [] (int n) const {
-            return grid_.get(index(n));
+            return *(begin_ + n);
         }
 
     protected:
 
-        int index(int n) const {
-            return grid_.rowSize_ * num_ + n;
-        }
-
-        int num_;
-        Grid& grid_;
+        Iter begin_;
     };
 
     class RowProxy: private ConstRowProxy {
     public:
 
-        RowProxy(Grid& grid, int num)
-        : ConstRowProxy { grid, num }
+        RowProxy(Iter begin)
+        : ConstRowProxy { begin }
         { }
 
         value_type& operator [] (int n) {
-            return ConstRowProxy::grid_.get(ConstRowProxy::index(n));
+            return *(ConstRowProxy::begin_ + n);
         }
     };
 
-    bool contains(int i, int j) {
-        return i * rowSize_ + j < count_;
+    ConstRowProxy operator [] (int row) const {
+        return ConstRowProxy { begin_ + offset(row, 0) };
     }
 
-    RowProxy operator [] (int i) {
-        return RowProxy { *this, i };
+    RowProxy operator [] (int row) {
+        return RowProxy { begin_ + offset(row, 0) };
     }
 
-    ConstRowProxy operator [] (int i) const {
-        return ConstRowProxy { *this, i };
+    Grid subgrid(int i, int j) const {
+        return Grid { begin_, cols_, rows_, offset(i, j) };
     }
 
-    Grid subgrid(int i, int j) {
-        return Grid { begin_ + i * rowSize_ + j, end_, rowSize_ };
+    bool fullContains(int i, int j) const {
+        int firstRow = offset_ / cols_;
+        int firstCol = offset_ % cols_;
+        i += firstRow;
+        j += firstCol;
+        if (i< 0 || i >= cols_) {
+            return false;
+        } else if (j < 0|| j >= rows_) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
-    std::size_t rowSize() const {
-        return rowSize_;
+    std::size_t cols() const {
+        return cols_;
     }
+
+    std::size_t rows() const {
+        return rows_;
+    }
+
 
 private:
-
-    value_type& get(int i) {
-        return *(begin_ + i);
+    std::ptrdiff_t offset(int i, int j) const {
+        return offset_ + i * cols_ + j;
     }
-
-    const value_type& get(int i) const {
-        return *(begin_ + i);
-    }
-
 
     Iter begin_;
-    Iter end_;
-    std::size_t count_;
-    std::size_t rowSize_;
+    std::size_t cols_;
+    std::size_t rows_;
+    std::ptrdiff_t offset_;
 };
+
+
+template <typename Iter>
+Grid<Iter> make_grid(Iter begin, Iter end, std::size_t cols) {
+    std::size_t total = std::distance(begin, end);
+    return Grid<Iter> { begin, cols, total / cols };
+}
+
+template <typename Cont>
+auto make_grid(Cont& cont, std::size_t row) -> Grid<decltype(begin(cont))> {
+    return make_grid(begin(cont), end(cont), row);
+}
 
 
 } /* namespace effects */

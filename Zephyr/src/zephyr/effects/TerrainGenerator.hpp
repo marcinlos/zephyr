@@ -10,91 +10,13 @@
 #include <vector>
 
 #include <zephyr/gfx/Mesh.hpp>
+#include <zephyr/effects/Grid.hpp>
 
 
 namespace zephyr {
 namespace effects {
 
 using namespace gfx;
-
-
-struct PointProxy {
-    float& x;
-    float& y;
-    float& z;
-    float& w;
-
-    PointProxy(float* data)
-    : x(data[0])
-    , y(data[1])
-    , z(data[2])
-    , w(data[3])
-    { }
-};
-
-
-struct RowProxy {
-    float* vertices;
-    int offset;
-    int row;
-    int inRow;
-
-
-    RowProxy(float* vertices, int offset, int row, int inRow)
-    : vertices(vertices)
-    , offset(offset)
-    , row(row)
-    , inRow(inRow)
-    { }
-
-    PointProxy operator [] (int col) {
-        int idx = row * inRow + col;
-        return PointProxy { vertices + 4 * (idx + offset) };
-    }
-};
-
-struct Grid {
-    float* vertices;
-    int offset;
-    int inRow;
-
-    Grid(float* vertices, int offset, int inRow)
-    : vertices(vertices)
-    , offset(offset)
-    , inRow(inRow)
-    { }
-
-    RowProxy operator [] (int row) {
-        return RowProxy { vertices, offset, row, inRow };
-    }
-
-    Grid startAt(int i, int j) const {
-        return Grid { vertices, offset + i * inRow + j, inRow };
-    }
-
-    void printFull(int i, int j) const {
-        int firstRow = offset / inRow;
-        int firstCol = offset % inRow;
-        i += firstRow;
-        j += firstCol;
-        std::cout << "(" << i << ", " << j << ")";
-    }
-
-    bool insideFull(int i, int j) const {
-        int firstRow = offset / inRow;
-        int firstCol = offset % inRow;
-        i += firstRow;
-        j += firstCol;
-        int idx = i * inRow + j;
-        if (i< 0 || i >= inRow) {
-            return false;
-        } else if (j < 0|| j >= inRow) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-};
 
 
 
@@ -105,10 +27,9 @@ public:
     , onEdge(gridSize + 1)
     , vertexCount(onEdge * onEdge)
     , quadCount(gridSize * gridSize)
-    , data(8 * vertexCount)
     , indices(3 * 2 * quadCount)
-    , v(&data[0], 0, onEdge)
-    , colors(&data[0], vertexCount, onEdge)
+    , vertices(vertexCount)
+    , colors(vertexCount, glm::vec4 { 1, 1, 1, 1 })
     { }
 
     MeshPtr create() {
@@ -116,23 +37,12 @@ public:
         generateIndices();
 
         modify();
-
-        std::vector<glm::vec4> asVec4(vertexCount);
-        for (int i = 0; i < vertexCount; ++ i) {
-            std::size_t n = 4 * i;
-            asVec4[i] = glm::vec4 {
-                data[n + 0],
-                data[n + 1],
-                data[n + 2],
-                data[n + 3]
-            };
-        }
-        auto normals = generateNormals(asVec4, indices);
-
+        auto normals = generateNormals(vertices, indices);
         return MeshBuilder()
-                .setBuffer(data)
+                .setBuffer(vertices)
                     .attribute(0, 4, 0)
-                    .attribute(1, 4, 4 * 4 * vertexCount)
+                .setBuffer(colors)
+                    .attribute(1, 4, 0)
                 .setBuffer(normals)
                     .attribute(2, 3, 0)
                 .setIndices(indices)
@@ -141,14 +51,24 @@ public:
 
     virtual ~TerrainGenerator() = default;
 
-    const Grid& grid() const {
-        return v;
+    void fromHeights(const std::vector<float>& height) {
+        for (int i = 0; i < onEdge; ++ i) {
+            for (int j = 0; j < onEdge; ++ j) {
+                int n = i * onEdge + j;
+                vertices[n].y = height[n];
+            }
+        }
     }
 
 private:
 
     virtual void modify() {
         // empty
+    }
+
+    float lerp(int i) {
+        float a = i / float(onEdge - 1);
+        return -extent / 2 + extent * a;
     }
 
     void generateVertices() {
@@ -163,18 +83,12 @@ private:
         for (int i = 0; i < onEdge; ++ i) {
             for (int j = 0; j < onEdge; ++ j) {
                 int n = i * onEdge + j;
-                int k = 4 * n;
-                v[i][j].x = -extent / 2 + extent * (j / fGridSize);
-                v[i][j].y = 0;
-                v[i][j].z = -extent / 2 + extent * (i / fGridSize);
-                v[i][j].w = 1;
+
+                vertices[n] = glm::vec4 { lerp(j), 0, lerp(i), 1 };
 
                 int r = rand();
                 float* c = palette[r % std::extent<decltype(palette)>::value];
-                colors[i][j].x = c[0];
-                colors[i][j].y = c[1];
-                colors[i][j].z = c[2];
-                colors[i][j].w = c[3];
+                colors[i * onEdge + j] = glm::vec4 { c[0], c[1], c[2], c[3] };
             }
         }
     }
@@ -202,13 +116,11 @@ protected:
 
     int quadCount;
 
-    std::vector<float> data;
-
     std::vector<std::uint32_t> indices;
 
-    Grid v;
+    std::vector<glm::vec4> vertices;
 
-    Grid colors;
+    std::vector<glm::vec4> colors;
 };
 
 

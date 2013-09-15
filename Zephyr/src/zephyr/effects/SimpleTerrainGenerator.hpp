@@ -6,7 +6,8 @@
 #define ZEPHYR_EFFECTS_SIMPLETERRAINGENERATOR_HPP_
 
 #include <zephyr/effects/TerrainGenerator.hpp>
-
+#include <zephyr/effects/DiamondSquareNoise.hpp>
+#include <zephyr/effects/NoiseSmoother.hpp>
 #include <cstdlib>
 #include <queue>
 
@@ -16,168 +17,51 @@ namespace effects {
 class SimpleTerrainGenerator : public TerrainGenerator {
 public:
 
-    SimpleTerrainGenerator(float extent, int iterations, float h)
+    SimpleTerrainGenerator(float extent, int iterations, float power)
     : TerrainGenerator(extent, 1 << iterations)
     , iterations(iterations)
-    , h(h)
+    , power(power)
     { }
 
 private:
-
-    struct Job {
-        Grid grid;
-        int level;
-        float scale;
-
-        Job(Grid grid, int level, float scale)
-        : grid(grid), level(level), scale(scale)
-        { }
-    };
-
-    std::queue<Job> jobs;
-
     void modify() override {
-        std::srand(std::time(nullptr));
-        jobs.emplace(v, iterations, h);
-        while (! jobs.empty()) {
-            Job job = jobs.front();
-            jobs.pop();
-            step(job.grid, job.level, job.scale);
-        }
-        for (int i = 0; i < 4; ++ i) {
-            smooth(0.9f);
-        }
-        for (int i = 0; i < 7; ++ i) {
-            smoothColors(0.6f);
-        }
+        std::vector<float> height = diamond::noise({ iterations, power });
 
+        auto grid = make_grid(height, onEdge);
+        simpleSmooth(grid, onEdge, 0.9f, 4);
+
+        fromHeights(height);
+//        makeFlat();
+        auto colorGrid = make_grid(colors, onEdge);
+        simpleSmooth(colorGrid, onEdge, 0.7f, 3);
         colorFromHeight(0.3f);
     }
 
-    void step(Grid grid, int level, float scale) {
-        int n = 1 << level;
-
-        auto a = grid[0][0];
-        auto b = grid[0][n];
-        auto c = grid[n][0];
-        auto d = grid[n][n];
-
-        int k = n / 2;
-
-        auto center = grid[k][k];
-        center.y = (a.y + b.y + c.y + d.y) / 4 + random() * scale;
-
-        int bi = grid.offset / grid.inRow;
-        int bj = grid.offset % grid.inRow;
-
-        square(grid, 0, k, k, scale);
-        square(grid, k, 0, k, scale);
-        square(grid, k, n, k, scale);
-        square(grid, n, k, k, scale);
-
-        if (level > 1) {
-            jobs.emplace(grid.startAt(0, 0), level - 1, scale / 2);
-            jobs.emplace(grid.startAt(0, k), level - 1, scale / 2);
-            jobs.emplace(grid.startAt(k, 0), level - 1, scale / 2);
-            jobs.emplace(grid.startAt(k, k), level - 1, scale / 2);
-        }
-
-    }
-
-    void square(Grid grid, int i, int j, int n, float scale) {
-        int count = 0;
-        float sum = 0.0f;
-        if (grid.insideFull(i - n, j)) {
-            sum += grid[i - n][j].y;
-            ++ count;
-        }
-        if (grid.insideFull(i + n, j)) {
-            sum += grid[i + n][j].y;
-            ++ count;
-        }
-        if (grid.insideFull(i, j - n)) {
-            sum += grid[i][j - n].y;
-            ++ count;
-        }
-        if (grid.insideFull(i, j + n)) {
-            sum += grid[i][j + n].y;
-            ++ count;
-        }
-        grid[i][j].y = sum / count + random() * scale;
-    }
-
-    void smooth(float k) {
-        for (int i = 0; i < onEdge; ++ i) {
-            for (int j = 1; j < onEdge; ++ j) {
-                v[i][j].y = v[i][j - 1].y * (1 - k) + v[i][j].y * k;
-            }
-        }
-        for (int i = 0; i < onEdge; ++ i) {
-            for (int j = 1; j < onEdge; ++ j) {
-                v[j][i].y = v[j - 1][i].y * (1 - k) + v[j][i].y * k;
-            }
-        }
-        for (int i = 0; i < onEdge; ++ i) {
-            for (int j = 0; j < onEdge - 1; ++ j) {
-                v[i][j].y = v[i][j + 1].y * (1 - k) + v[i][j].y * k;
-            }
-        }
-        for (int i = 0; i < onEdge; ++ i) {
-            for (int j = 0; j < onEdge - 1; ++ j) {
-                v[j][i].y = v[j + 1][i].y * (1 - k) + v[j][i].y * k;
-            }
-        }
-    }
-
-
-    void smoothColors(float k) {
-        for (int i = 0; i < onEdge; ++ i) {
-            for (int j = 1; j < onEdge; ++ j) {
-                colors[i][j].y = colors[i][j - 1].y * (1 - k) + colors[i][j].y * k;
-            }
-        }
-        for (int i = 0; i < onEdge; ++ i) {
-            for (int j = 1; j < onEdge; ++ j) {
-                colors[j][i].y = colors[j - 1][i].y * (1 - k) + colors[j][i].y * k;
-            }
-        }
-        for (int i = 0; i < onEdge; ++ i) {
-            for (int j = 0; j < onEdge - 1; ++ j) {
-                colors[i][j].y = colors[i][j + 1].y * (1 - k) + colors[i][j].y * k;
-            }
-        }
-        for (int i = 0; i < onEdge; ++ i) {
-            for (int j = 0; j < onEdge - 1; ++ j) {
-                colors[j][i].y = colors[j + 1][i].y * (1 - k) + colors[j][i].y * k;
-            }
-        }
-    }
 
     void makeFlat() {
         for (int i = 0; i < onEdge; ++ i) {
             for (int j = 0; j < onEdge; ++ j) {
-                v[i][j].y = 0.0f;
+                vertices[i * onEdge + j].y = 0.0f;
             }
         }
     }
-
     void colorFromHeight(float power) {
         float min = 1000.0f, max = -1000.0f;
         for (int i = 0; i < onEdge; ++ i) {
             for (int j = 0; j < onEdge; ++ j) {
-                float x = v[i][j].y;
+                float x = vertices[i * onEdge + j].y;
                 min = std::min(min, x);
                 max = std::max(max, x);
             }
         }
+        std::cout << "[" << min << ", " << max << "]\n";
         for (int i = 0; i < onEdge; ++ i) {
             for (int j = 0; j < onEdge; ++ j) {
-                float x = v[i][j].y;
+                float x = vertices[i * onEdge + j].y;
                 float color = (x - min) / (max - min);
-                float mult = 1 + (1 - power)* color;
-                colors[i][j].x *= mult;
-                colors[i][j].y *= mult;
-                colors[i][j].z *= mult;
+                float mult = 1 - power + power * color;
+                colors[i * onEdge + j] *= mult;
+                colors[i * onEdge + j].w = 1.0f;
             }
         }
     }
@@ -188,7 +72,7 @@ private:
 
     int iterations;
 
-    float h;
+    float power;
 };
 
 

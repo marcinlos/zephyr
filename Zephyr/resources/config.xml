@@ -6,6 +6,7 @@
     
     <fullscreen>true</fullscreen>
     <capture-mouse>true</capture-mouse>
+    
   </window>
   
   <gfx>
