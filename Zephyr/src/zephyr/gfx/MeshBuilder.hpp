@@ -6,10 +6,10 @@
 #define ZEPHYR_GFX_MESHBUILDER_HPP_
 
 #include <zephyr/gfx/objects.h>
-#include <vector>
 #include <GL/glew.h>
 #include <GL/gl.h>
-
+#include <vector>
+#include <algorithm>
 
 
 namespace zephyr {
@@ -67,7 +67,8 @@ public:
 
     template <typename ItemType>
     MeshBuilder& setBuffer(const std::vector<ItemType>& data) {
-        buffer_ = bindNewBuffer(GL_ARRAY_BUFFER);
+        updateMinSize(data.size());
+        vertexBuffer_ = bindNewBuffer(GL_ARRAY_BUFFER);
 
         std::size_t size = data.size() * sizeof(ItemType);
         glBufferData(GL_ARRAY_BUFFER, size, &data[0], GL_STATIC_DRAW);
@@ -77,7 +78,7 @@ public:
 
     MeshBuilder& setBuffer(GLuint buffer) {
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
-        buffer_ = buffer;
+        vertexBuffer_ = buffer;
         return *this;
     }
 
@@ -119,11 +120,21 @@ public:
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             glDeleteBuffers(1, &indexBuffer_);
         }
-        return newMesh(vao_, indexCount_, indexed(), indexType_, mode);
+        std::cout << "Creating with " << vertexCount() << " items!" << std::endl;
+        return newMesh(vao_, vertexCount(), indexed(), indexType_, mode);
     }
 
     bool indexed() const {
-        return indexCount_ != -1;
+        return indexBuffer_ != static_cast<GLuint>(-1);
+    }
+
+    bool empty() const {
+        return vertexBuffer_ == static_cast<GLuint>(-1);
+    }
+
+    GLsizei vertexCount() const {
+        return indexed() ? indexCount_
+                : empty() ? 0 : vertexCount_;
     }
 
 private:
@@ -145,11 +156,18 @@ private:
         return reinterpret_cast<void*>(offset);
     }
 
-    GLuint vao_;
-    GLuint buffer_ = -1;
+    void updateMinSize(GLsizei size) {
+        if (empty() || vertexCount_ > size) {
+            vertexCount_ = size;
+        }
+    }
 
-    GLuint indexBuffer_;
-    GLsizei indexCount_ = -1;
+    GLuint vao_;
+    GLuint vertexBuffer_ = -1;
+    GLsizei vertexCount_;
+
+    GLuint indexBuffer_ = -1;
+    GLsizei indexCount_;
     GLenum indexType_;
 };
 

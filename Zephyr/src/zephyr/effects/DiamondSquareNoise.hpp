@@ -109,7 +109,6 @@ namespace diamond {
                     ++ count;
                 }
                 grid[i][j] = sum / count + nextRand() * scale;
-                std::cout << "Sum: " << sum << " ";
             }
 
             float nextRand() {

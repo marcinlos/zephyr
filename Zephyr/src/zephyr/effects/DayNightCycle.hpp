@@ -15,6 +15,7 @@ class DayNightCycle {
 public:
 
     static constexpr float maxAngle = 50.0f * M_PI / 180;
+    static constexpr float dayLength = 4.0f;
 
     DayNightCycle(gfx::Renderer& renderer)
     : renderer(renderer)
@@ -27,7 +28,7 @@ public:
         using std::sin;
         using std::cos;
         using namespace gfx;
-        double t = time / 3;
+        double t = time / dayLength * 2 * M_PI;
         float angle = maxAngle * (cos(t));
         glm::vec3 sunPos {
             cos(angle) * cos(t),
@@ -35,7 +36,6 @@ public:
             cos(angle) * sin(t)
         };
         sunDirection = glm::normalize(-sunPos);
-
 
         UniformPtr sunDir { new uniform3f {
             sunDirection.x,

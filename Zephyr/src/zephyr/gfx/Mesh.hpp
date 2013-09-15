@@ -22,35 +22,6 @@ namespace gfx {
 
 
 
-//class Buffer {
-//public:
-//
-//    explicit Buffer(GLuint bufferObject)
-//    :bufferObject_(bufferObject)
-//    { }
-//
-//
-//    GLuint id() const {
-//        return bufferObject_;
-//    }
-//
-//
-//    ~Buffer() {
-//        glDeleteBuffers(1, &bufferObject_);
-//    }
-//
-//
-//private:
-//    GLuint bufferObject_;
-//};
-//
-//typedef std::shared_ptr<Buffer> BufferPtr;
-//
-//
-//inline BufferPtr newBuffer(GLuint bufferObject) {
-//    return std::make_shared<Buffer>(bufferObject);
-//}
-
 
 struct MeshData {
     std::vector<glm::vec4> vertices;
@@ -62,42 +33,22 @@ struct MeshData {
 
 MeshPtr vertexArrayFrom(const MeshData& data) {
     MeshBuilder builder;
-    return builder
-            .setBuffer(data.vertices).attribute(0, 4, 0)
-            .setBuffer(data.colors).attribute(1, 4, 0)
-            .setBuffer(data.normals).attribute(2, 3, 0)
-            .setIndices(data.indices)
-            .create();
-}
-
-
-std::vector<glm::vec3> generateNormals(const std::vector<glm::vec4>& vertices,
-        const std::vector<GLuint> indices) {
-    std::size_t count = vertices.size();
-    std::vector<glm::vec3> normals(count);
-    std::vector<int> times(count);
-    for (std::size_t i = 0; i < indices.size(); i += 3) {
-        GLuint idx[] = {
-            indices[i],
-            indices[i + 1],
-            indices[i + 2]
-        };
-        glm::vec3 ab { vertices[idx[1]] - vertices[idx[0]] };
-        glm::vec3 ac { vertices[idx[2]] - vertices[idx[0]] };
-        glm::vec3 n = glm::cross(ab, ac);
-
-        for (int j = 0; j < 3; ++ j) {
-            int k = idx[j];
-            float c = 1.0f / ++ times[k];
-            normals[k] += n;
-        }
+    builder.setBuffer(data.vertices).attribute(0, 4, 0);
+    if (!data.colors.empty()) {
+        builder.setBuffer(data.colors).attribute(1, 4, 0);
+        std::cout << "Colors! ";
     }
-    for (auto& n : normals) {
-        n = glm::normalize(n);
+    if (!data.normals.empty()) {
+        builder.setBuffer(data.normals).attribute(2, 3, 0);
+        std::cout << "Normals! ";
     }
-    return normals;
+    if (!data.indices.empty()) {
+        builder.setIndices(data.indices);
+        std::cout << "Indices! ";
+    }
+    std::cout << std::endl;
+    return builder.create();
 }
-
 
 
 
@@ -137,15 +88,104 @@ enum class NormCalc {
 };
 
 
-MeshData loadMeshData(const char* filename) {
-    std::ifstream in(filename, std::ios::in);
+std::vector<glm::vec3> generateNormalsFirst(
+        const std::vector<glm::vec4>& vertices,
+        const std::vector<GLuint> indices) {
+    std::vector<glm::vec3> normals(vertices.size());
+    for (std::size_t i = 0; i < indices.size(); i += 3) {
+        auto ia = indices[i];
+        auto ib = indices[i + 1];
+        auto ic = indices[i + 2];
+        glm::vec3 ab { vertices[ib] - vertices[ia] };
+        glm::vec3 ac { vertices[ic] - vertices[ia] };
+        glm::vec3 n = glm::normalize(glm::cross(ab, ac));
+        normals[ia] = normals[ib] = normals[ic] = n;
+    }
+    return normals;
+}
+
+
+std::vector<glm::vec3> generateNormalsAvg(
+        const std::vector<glm::vec4>& vertices,
+        const std::vector<GLuint>& indices) {
+    std::size_t count = vertices.size();
+    std::vector<glm::vec3> normals(count);
+    std::vector<int> times(count);
+    for (std::size_t i = 0; i < indices.size(); i += 3) {
+        GLuint idx[] = {
+            indices[i],
+            indices[i + 1],
+            indices[i + 2]
+        };
+        glm::vec3 ab { vertices[idx[1]] - vertices[idx[0]] };
+        glm::vec3 ac { vertices[idx[2]] - vertices[idx[0]] };
+        glm::vec3 n = glm::cross(ab, ac);
+
+        for (int j = 0; j < 3; ++ j) {
+            int k = idx[j];
+            float c = 1.0f / ++ times[k];
+            normals[k] += n;
+        }
+    }
+    for (auto& n : normals) {
+        n = glm::normalize(n);
+    }
+    return normals;
+}
+
+std::pair<
+    std::vector<glm::vec4>,
+    std::vector<glm::vec3>
+>
+generateNormalsSplit(
+        const std::vector<glm::vec4>& vertices,
+        const std::vector<GLuint>& indices) {
+    std::size_t count = indices.size();
+    std::vector<glm::vec3> normals;
+    std::vector<glm::vec4> newVertices;
+
+    normals.reserve(count);
+    newVertices.reserve(count);
+
+    for (std::size_t i = 0; i < count; ++ i) {
+        newVertices.push_back(vertices[indices[i]]);
+        if ((i % 3) == 2) {
+            auto ia = indices[i - 2];
+            auto ib = indices[i - 1];
+            auto ic = indices[i];
+            glm::vec3 ab { vertices[ib] - vertices[ia] };
+            glm::vec3 ac { vertices[ic] - vertices[ia] };
+            glm::vec3 n = glm::normalize(glm::cross(ab, ac));
+            for (int j = 0; j < 3; ++ j) {
+                normals.push_back(n);
+            }
+        }
+    }
+
+    return std::make_pair(std::move(newVertices), std::move(normals));
+}
+
+
+std::vector<glm::vec3> generateNormals(
+        const std::vector<glm::vec4>& vertices,
+        const std::vector<GLuint>& indices) {
+    return generateNormalsAvg(vertices, indices);
+}
+
+namespace detail {
+
+}
+
+MeshData loadMeshData(const char* path, NormCalc strategy = NormCalc::AVG) {
+    std::ifstream in(path);
     if (!in) {
         std::ostringstream ss("Cannot open file: ");
-        ss << filename;
+        ss << path;
         throw new std::runtime_error(ss.str());
     }
 
-    MeshData data;
+    std::vector<glm::vec4> vertices;
+    std::vector<GLuint> indices;
 
     std::string line;
     while (std::getline(in, line)) {
@@ -154,31 +194,40 @@ MeshData loadMeshData(const char* filename) {
             glm::vec4 v;
             s >> v.x; s >> v.y; s >> v.z;
             v.w = 1.0f;
-            data.vertices.push_back(v);
+            vertices.push_back(v);
         } else if (line.substr(0, 2) == "f ") {
             std::istringstream s(line.substr(2));
-            GLushort a, b, c;
-            s >> a; s >> b; s >> c;
+            std::istream_iterator<GLushort> it(s);
+            GLushort a = *it++, b = *it++, c = *it++;
             // inversion!
-            data.indices.push_back(a - 1);
-            data.indices.push_back(c - 1);
-            data.indices.push_back(b - 1);
-        } else {
-            // sth else, ignore
+            indices.push_back(a - 1);
+            indices.push_back(c - 1);
+            indices.push_back(b - 1);
         }
     }
-
-    data.normals = generateNormals(data.vertices, data.indices);
-    data.colors = std::vector<glm::vec4>(data.vertices.size(), glm::vec4 { 1, 0, 0, 0});//randomColors(data.vertices.size());
+    MeshData data;
+    if (strategy == NormCalc::SPLIT) {
+        auto pair = std::tie(data.vertices, data.normals);
+        pair = generateNormalsSplit(vertices, indices);
+    } else {
+        if (strategy == NormCalc::FIRST) {
+            data.normals = generateNormalsFirst(vertices, indices);
+        } else {
+            data.normals = generateNormalsAvg(vertices, indices);
+        }
+        data.vertices = std::move(vertices);
+        data.indices = std::move(indices);
+    }
+    data.colors = /*std::vector<glm::vec4>(data.vertices.size(), glm::vec4 { 1, 0, 0, 0});//*/randomColors(data.vertices.size());
     return data;
 }
 
-MeshPtr loadMesh(const char* filename) {
-    MeshData data = loadMeshData(filename);
+
+
+MeshPtr loadMesh(const char* path, NormCalc strategy = NormCalc::AVG) {
+    MeshData data = loadMeshData(path, strategy);
     return vertexArrayFrom(data);
 }
-
-
 
 
 

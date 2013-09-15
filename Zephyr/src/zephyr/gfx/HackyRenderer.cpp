@@ -58,10 +58,10 @@ HackyRenderer::HackyRenderer(Root& root)
     std::size_t size = 2 * sizeof(glm::mat4);
     renderer.uniforms().createUniformBlock("CameraMatrices", size);
 
-    taskletScheduler.add([this](double t, double dt) {
-        this->builder->graph.root()->firstChild()->rotateX(M_PI * dt / 5);
-        return true;
-    });
+//    taskletScheduler.add([this](double t, double dt) {
+//        this->builder->graph.root()->firstChild()->rotateX(M_PI * dt / 5);
+//        return true;
+//    });
 
     taskletScheduler.add([this](double time, double){
         dayNightCycle.apply(time);

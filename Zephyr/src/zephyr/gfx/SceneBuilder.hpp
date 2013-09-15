@@ -50,9 +50,13 @@ struct SceneBuilder {
         star->translateX(-2.9f).rotateX(M_PI / 2);
         suzanne->addChild(star);
 
+        NodePtr container = newNode(sceneRoot);
+        sceneRoot->addChild(container);
+
         items.push_back({ ground, entities["ground"] });
         items.push_back({ suzanne, entities["suzanne"] });
         items.push_back({ star, entities["star"] });
+        items.push_back({ container, entities["container"] });
     }
 
 private:
@@ -79,10 +83,12 @@ private:
         meshes["quad"] = gen.create();
         meshes["suzanne"] = loadMesh("resources/suzanne.obj");
         meshes["star"] = makeStar(7, 0.3f);
+        meshes["container"] = loadMesh("resources/container.obj", NormCalc::SPLIT);
 
         entities["ground"] = newEntity(materials["dull"], meshes["quad"]);
         entities["suzanne"] = newEntity(materials["dull"], meshes["suzanne"]);
         entities["star"] = newEntity(materials["flat"], meshes["star"]);
+        entities["container"] = newEntity(materials["flat"], meshes["container"]);
     }
 };
 
