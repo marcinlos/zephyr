@@ -12,20 +12,18 @@ layout (std140) uniform CameraMatrices
 
 uniform mat4 modelMatrix;
 
-out vec4 diffuseColor;
-out vec3 normal; 
+flat out vec4 diffuseColor;
+flat out vec3 normal; 
+
+out vec3 worldPos;
 
 
 void main() 
 {
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * position;
-    vec3 p = vec3(gl_Position);
-    p.z = log(1 + p.z / 30);
-    float s = 3 / (0.2 + dot(p, p));
-    
-    vec4 light = vec4(1, 1, 1, 1);
-    
-    //diffuseColor = 0.9f * color + (light * color + 0.1 * light) * s;
+
     diffuseColor = color;
     normal = vertexNormal;
+    
+    worldPos = vec3(modelMatrix * position);
 }

@@ -43,7 +43,7 @@ HackyRenderer::HackyRenderer(Root& root)
 , clock(clocks.getMainClock())
 , builder(std::make_shared<SceneBuilder>())
 , cameraController(camera, clock)
-, dayNightCycle { root.graphics().renderer() }
+, dayNightCycle { root }
 {
     std::cout << "[Hacky] Initializing hacky renderer" << std::endl;
 
@@ -65,6 +65,13 @@ HackyRenderer::HackyRenderer(Root& root)
 
     taskletScheduler.add([this](double time, double){
         dayNightCycle.apply(time);
+        return true;
+    });
+
+    taskletScheduler.add([this](double, double) {
+        glm::vec3 pos = this->root.vars().get<glm::vec3>("sunPos");
+        scene::NodePtr sun = builder->graph.root()->child("sun");
+        sun->translateTo(5.0f * pos).translateY(4.0f);
         return true;
     });
 }

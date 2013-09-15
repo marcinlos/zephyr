@@ -14,6 +14,7 @@
 #include <zephyr/time/ClockManager.hpp>
 #include <zephyr/util/static_hash.hpp>
 #include <zephyr/gfx/GraphicsSystem.hpp>
+#include <zephyr/core/Register.hpp>
 #include <memory>
 #include <string>
 
@@ -69,6 +70,10 @@ public:
         return config_;
     }
 
+    core::Register& vars() {
+        return register_;
+    }
+
     core::MessageQueue& messageQueue() {
         return messageQueue_;
     }
@@ -96,6 +101,8 @@ public:
 private:
     core::Scheduler scheduler_;
     core::Config config_;
+
+    core::Register register_;
 
     core::MessageQueue messageQueue_;
     core::MessageDispatcher dispatcher_;

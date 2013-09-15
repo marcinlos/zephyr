@@ -80,7 +80,10 @@ public:
     }
 
     glm::mat4 localTransform() const {
-        return glm::translate(position_) * glm::mat4_cast(orientation_);
+        glm::mat4 translate = glm::translate(position_);
+        glm::mat4 rotate = glm::mat4_cast(orientation_);
+        glm::mat4 scale = glm::scale(scale_);
+        return translate * rotate * scale;
     }
 
     glm::mat4 globalTransform() const {
@@ -93,6 +96,50 @@ public:
         rotate(rot);
         translate(trans);
         return *this;
+    }
+
+    Node& translateTo(const glm::vec3& position) {
+        this->position_ = position;
+        return *this;
+    }
+
+    Node& translateTo(float x, float y, float z) {
+        return translateTo(glm::vec3 { x, y, z });
+    }
+
+    Node& translate(const glm::vec3& trans) {
+        position_ += trans;
+        return *this;
+    }
+
+    Node& translate(float dx, float dy, float dz) {
+        return translate(glm::vec3 { dx, dy, dz });
+    }
+
+    Node& translateX(float d) {
+        glm::vec3 movement { d, 0, 0 };
+        return translate(movement);
+    }
+
+    Node& translateY(float d) {
+        glm::vec3 movement { 0, d, 0 };
+        return translate(movement);
+    }
+
+    Node& translateZ(float d) {
+        glm::vec3 movement { 0, 0, d };
+        return translate(movement);
+    }
+
+    Node& rotateTo(const glm::quat& orientation) {
+        this->orientation_ = orientation;
+        return *this;
+    }
+
+    Node& rotateTo(float pitch, float yaw, float roll) {
+        glm::vec3 euler { pitch, yaw, roll };
+        glm::quat rot { euler };
+        return rotateTo(rot);
     }
 
     Node& rotate(const glm::quat& rot) {
@@ -118,33 +165,48 @@ public:
         return rotate(0, 0, radians);
     }
 
-    Node& translate(const glm::vec3& trans) {
-        position_ += trans;
+    Node& scale(const glm::vec3& s) {
+        scale_ *= s;
         return *this;
     }
 
-    Node& translateX(float d) {
-        glm::vec3 movement { d, 0, 0 };
-        return translate(movement);
+    Node& scale(float sx, float sy, float sz) {
+        return scale(glm::vec3 { sx, sy, sz });
     }
 
-    Node& translateY(float d) {
-        glm::vec3 movement { 0, d, 0 };
-        return translate(movement);
+    Node& scale(float s) {
+        return scale(s, s, s);
     }
 
-    Node& translateZ(float d) {
-        glm::vec3 movement { 0, 0, d };
-        return translate(movement);
+    Node& scaleX(float s) {
+        return scale(s, 1, 1);
     }
 
+    Node& scaleY(float s) {
+        return scale(1, s, 1);
+    }
+
+    Node& scaleZ(float s) {
+        return scale(1, 1, s);
+    }
+
+    Node& scaleTo(const glm::vec3& scale) {
+        this->scale_ = scale;
+        return *this;
+    }
+
+    Node& scaleTo(float sx, float sy, float sz) {
+        return scaleTo(glm::vec3 { sx, sy, sz });
+    }
 
 private:
     WeakNodePtr parent_;
 
-    glm::vec3 position_;
+    glm::vec3 scale_ { 1, 1, 1};
 
     glm::quat orientation_;
+
+    glm::vec3 position_;
 
     glm::mat4 transform_;
 

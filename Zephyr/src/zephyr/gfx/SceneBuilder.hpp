@@ -47,16 +47,27 @@ struct SceneBuilder {
         sceneRoot->addChild(suzanne);
 
         NodePtr star = newNode(suzanne);
-        star->translateX(-2.9f).rotateX(M_PI / 2);
+        star->translateX(-2.9f);//.rotateX(M_PI / 2);
         suzanne->addChild(star);
+
+        NodePtr ministar = newNode(sceneRoot);
+        sceneRoot->addChild(ministar);
+        ministar->translate(1, 2, 3).scale(0.2f);
 
         NodePtr container = newNode(sceneRoot);
         sceneRoot->addChild(container);
+
+        NodePtr sun = newNode(sceneRoot);
+        sun->scale(0.7f, 0.7f, 0.7f);
+        sceneRoot->addChild("sun", sun);
 
         items.push_back({ ground, entities["ground"] });
         items.push_back({ suzanne, entities["suzanne"] });
         items.push_back({ star, entities["star"] });
         items.push_back({ container, entities["container"] });
+
+        items.push_back({ ministar, entities["star"] });
+        items.push_back({ sun, entities["star"] });
     }
 
 private:
@@ -85,8 +96,8 @@ private:
         meshes["star"] = makeStar(7, 0.3f);
         meshes["container"] = loadMesh("resources/container.obj", NormCalc::SPLIT);
 
-        entities["ground"] = newEntity(materials["dull"], meshes["quad"]);
-        entities["suzanne"] = newEntity(materials["dull"], meshes["suzanne"]);
+        entities["ground"] = newEntity(materials["flat"], meshes["quad"]);
+        entities["suzanne"] = newEntity(materials["flat"], meshes["suzanne"]);
         entities["star"] = newEntity(materials["flat"], meshes["star"]);
         entities["container"] = newEntity(materials["flat"], meshes["container"]);
     }

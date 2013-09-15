@@ -75,9 +75,9 @@ private:
         float fGridSize = onEdge - 1;
 
         float palette[][4] = {
-            { 0.2f, 0.1f, 0.07f, 1 },
-            { 0.2f, 0.2f, 0.1f, 1 },
-            { 0.25f, 0.15f, 0.05f, 1 },
+            { 0.2f, 0.8f, 0.27f, 1 },
+            { 0.2f, 0.7f, 0.15f, 1 },
+            { 0.15f, 0.95f, 0.15f, 1 },
         };
 
         for (int i = 0; i < onEdge; ++ i) {

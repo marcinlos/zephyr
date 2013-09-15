@@ -52,11 +52,16 @@ inline MeshPtr makeStar(int n, float w) {
     auto vertices = makeStarVertices(n, w);
     auto indices = makeStarIndices<GLuint>(n);
 
+    std::vector<glm::vec4> v2;
+    std::vector<glm::vec3> i2;
+
+    std::tie(v2, i2) = generateNormalsSplit(vertices, indices);
+
     return MeshBuilder()
-            .setBuffer(vertices).attribute(0, 4)
-            .setBuffer(randomColors(2 * n + 2)).attribute(1, 4)
-            .setBuffer(generateNormals(vertices, indices)).attribute(2, 3)
-            .setIndices(indices)
+            .setBuffer(v2).attribute(0, 4)
+            .setBuffer(randomColors(12 * n)).attribute(1, 4)
+            .setBuffer(i2).attribute(2, 3)
+//            .setIndices(indices)
             .create();
 }
 
