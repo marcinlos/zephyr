@@ -17,7 +17,10 @@ namespace gfx {
 class UniformManager {
 public:
 
-    void set(std::string name, UniformPtr uniform);
+    void set(std::string name, UniformPtr uniform) {
+        using std::move;
+        uniforms_[move(name)] = move(uniform);
+    }
 
     Uniform* get(const std::string& name) {
         auto it = uniforms_.find(name);
@@ -194,10 +197,6 @@ private:
 
 };
 
-inline void UniformManager::set(std::string name, UniformPtr uniform) {
-    using std::move;
-    uniforms_.insert(std::make_pair(move(name), move(uniform)));
-}
 
 } /* namespace gfx */
 } /* namespace zephyr */

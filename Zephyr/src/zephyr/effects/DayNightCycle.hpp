@@ -50,6 +50,8 @@ public:
         float ambientVal = sunIntensity + 0.2f;
         float hdr = 0.7f * sunIntensity + 0.4f;//1.5f + 3.0f * sinAbs * sinAbs;
 
+        std::cout << "sunIntensity = " << sunIntensity << std::endl;
+
         UniformManager& uniforms = renderer.uniforms();
         uniforms.set3f("sunDirection", sunDirection);
         uniforms.set1f("sunIntensity", sunIntensity);

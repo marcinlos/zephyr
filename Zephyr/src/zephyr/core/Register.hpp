@@ -47,7 +47,7 @@ public:
 
     template <typename T>
     void put(std::string var, T value) {
-        vars_.insert({{ std::move(var), util::Any(std::move(value)) }});
+        vars_[std::move(var)] = util::Any { std::move(value) };
     }
 
 private:
