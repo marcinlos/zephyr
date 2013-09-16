@@ -8,6 +8,7 @@
 #include <zephyr/input/KeyEvent.hpp>
 #include <zephyr/input/ButtonEvent.hpp>
 #include <zephyr/input/Position.hpp>
+#include <array>
 
 
 namespace zephyr {
@@ -15,6 +16,14 @@ namespace input {
 
 class InputState {
 public:
+
+    InputState() {
+        using std::begin;
+        using std::end;
+
+        std::fill(begin(keyState), end(keyState), false);
+        std::fill(begin(buttonState), end(buttonState), false);
+    }
 
     bool& operator [] (Key key) {
         return keyState[asInt(key)];
@@ -53,8 +62,8 @@ private:
     const static int KEY_NUMBER = static_cast<int>(Key::LAST);
     const static int BUTTON_NUMBER = static_cast<int>(Button::LAST);
 
-    bool keyState[KEY_NUMBER];
-    bool buttonState[BUTTON_NUMBER];
+    std::array<bool, KEY_NUMBER> keyState;
+    std::array<bool, BUTTON_NUMBER> buttonState;
 
     Position cursorPos;
 };

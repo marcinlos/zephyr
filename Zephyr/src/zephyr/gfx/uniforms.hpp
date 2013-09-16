@@ -261,7 +261,7 @@ typedef SingleUniform<GLuint, 4> uniform4ui;
 
 
 template <typename T, typename F, F Setter>
-struct UniformArray {
+struct UniformArray: Uniform {
     GLsizei count;
     const T* data;
 
@@ -310,14 +310,20 @@ namespace detail {
 }
 
 template <std::size_t N, std::size_t M, typename F, F Setter>
-struct UniformMatrix {
+struct UniformMatrix: Uniform {
     typedef typename detail::MatrixChooser<N, M>::type MatrixType;
-    const MatrixType matrix;
+    MatrixType matrix;
     GLsizei count;
     GLboolean transponse;
 
+    UniformMatrix(const MatrixType& matrix, GLsizei count, GLboolean transpose)
+    : matrix(matrix)
+    , count(count)
+    , transponse(transpose)
+    { }
+
     void set(GLint location) const override {
-        Setter(location, count, transponse, glm::value_ptr(matrix));
+        (*Setter)(location, count, transponse, nullptr);//glm::value_ptr(matrix));
     }
 };
 

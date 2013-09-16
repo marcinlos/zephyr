@@ -72,14 +72,14 @@ void Renderer::setMaterial(const MaterialPtr& material) {
             for (const auto& blocks : currentProgram_->uniformBlocks()) {
                 const std::string& name = blocks.first;
                 GLuint index = blocks.second;
-                GLuint bindingIndex = uniforms_.uniformBlockBindingIndex(name);
+                GLuint bindingIndex = uniforms_.blockBindingIndex(name);
                 currentProgram_->bindBlock(index, bindingIndex);
             }
         }
     }
     for (const auto& needed : currentProgram_->uniforms()) {
         const std::string& name = needed.first;
-        if (Uniform* value = uniforms_.uniform(name)) {
+        if (Uniform* value = uniforms_.get(name)) {
             value->set(needed.second);
         }
     }

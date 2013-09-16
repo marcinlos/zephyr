@@ -17,6 +17,12 @@
 namespace zephyr {
 
 using namespace core;
+using resources::ResourceSystem;
+using window::WindowSystem;
+using input::InputSystem;
+using gfx::GraphicsSystem;
+
+using time::ClockUpdateTask;
 
 
 Root::Root(const std::string& configPath) {
@@ -51,21 +57,17 @@ void Root::initSubsystems() {
         scheduler_,
         clockManager_
     };
-    window_ = util::make_unique<window::WindowSystem>(ctx);
-    input_ = util::make_unique<input::InputSystem>(ctx);
-    graphics_ = util::make_unique<gfx::GraphicsSystem>(ctx);
-
-//    scheduler.startTask("renderer", 500000, task);
-
-//    TaskPtr task = std::make_shared<gfx::HackyRenderer>(*this);
-//    scheduler_.startTask("hacky-renderer", 400000, task);
+    resources_ = util::make_unique<ResourceSystem>();
+    window_ = util::make_unique<WindowSystem>(ctx);
+    input_ = util::make_unique<InputSystem>(ctx);
+    graphics_ = util::make_unique<GraphicsSystem>(ctx);
 }
 
 void Root::runCoreTasks() {
     TaskPtr task = std::make_shared<DispatcherTask>(messageQueue_, dispatcher_);
     scheduler_.startTask(DISPATCHER_NAME, DISPATCHER_PRIORITY, task);
 
-    TaskPtr clockTask = std::make_shared<time::ClockUpdateTask>(clockManager_);
+    TaskPtr clockTask = std::make_shared<ClockUpdateTask>(clockManager_);
     scheduler_.startTask(CLOCK_UPDATER_NAME, CLOCK_UPDATER_PRIORITY, clockTask);
 }
 

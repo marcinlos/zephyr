@@ -12,6 +12,8 @@
 #include <zephyr/input/KeyEvent.hpp>
 
 
+using zephyr::core::Message;
+
 namespace zephyr {
 namespace gfx {
 
@@ -21,92 +23,93 @@ namespace events = zephyr::input::msg;
 class CameraController {
 public:
 
-    CameraController(Camera& camera, const time::Clock& clock)
-    : camera(camera)
+    float linearVelocity = 4.0f;
+    float horizontalAngularVelocity = 60;
+    float verticalAngularVelocity = 60;
+
+
+    CameraController(std::shared_ptr<Camera> camera, const time::Clock& clock)
+    : camera { std::move(camera) }
     , clock(clock)
+    , handlers {
+        { events::KEYBOARD_EVENT, &CameraController::onKey },
+        { events::BUTTON_EVENT, &CameraController::onButton },
+        { events::CURSOR_EVENT, &CameraController::onMouseMove },
+        { events::SCROLL_EVENT, &CameraController::onScroll }
+    }
     { }
 
-    void handle(const core::Message& message) {
-        using namespace zephyr::input;
-        namespace events = zephyr::input::msg;
-
-        if (message.type == events::KEYBOARD_EVENT) {
-            onKey(message);
-        } else if (message.type == events::BUTTON_EVENT) {
-            onButton(message);
-        } else if (message.type == events::CURSOR_EVENT) {
-            onMouseMove(message);
-        } else if (message.type == events::SCROLL_EVENT) {
-            onScroll(message);
+    void handle(const Message& message) {
+        auto it = handlers.find(message.type);
+        if (it != end(handlers)) {
+            std::cout << "Processing " << message.type << std::endl;
+            (this->*(it->second))(message);
         }
     }
 
 
     void update() {
         using zephyr::input::Key;
+        const float ds = linearVelocity * clock.dt();
 
-        const float v = 4.0f;
-        const float ds = v * clock.dt();
-
-        const float hRotV = 60;
-        const float hRotH = 60;
+        const float hRotV = verticalAngularVelocity;
+        const float hRotH = horizontalAngularVelocity;
 
         if (input[Key::W]) {
-            camera.pos += ds * camera.dirFromView(FWD);
+            moveCamera(ds, FWD);
         }
         if (input[Key::S]) {
-            camera.pos += ds * camera.dirFromView(BACK);
+            moveCamera(ds, BACK);
         }
         if (input[Key::A]) {
-            camera.pos += ds * camera.dirFromView(LEFT);
+            moveCamera(ds, LEFT);
         }
         if (input[Key::D]) {
-            camera.pos += ds * camera.dirFromView(RIGHT);
+            moveCamera(ds, RIGHT);
         }
         if (input[Key::E]) {
-            camera.pos += ds * camera.dirFromView(UP);
+            moveCamera(ds, UP);
         }
         if (input[Key::Q]) {
-            camera.pos += ds * camera.dirFromView(DOWN);
+            moveCamera(ds, DOWN);
         }
 
         if (input[Key::LEFT]) {
-            camera.rotate(clock.dt() * -hRotH, 0, UP);
+            camera->rotate(clock.dt() * -hRotH, 0, UP);
         }
         if (input[Key::RIGHT]) {
-            camera.rotate(clock.dt() * hRotH, 0, UP);
+            camera->rotate(clock.dt() * hRotH, 0, UP);
         }
         if (input[Key::UP]) {
-            camera.rotate(0, clock.dt() * hRotV, UP);
+            camera->rotate(0, clock.dt() * hRotV, UP);
         }
         if (input[Key::DOWN]) {
-            camera.rotate(0, clock.dt() * -hRotV, UP);
+            camera->rotate(0, clock.dt() * -hRotV, UP);
         }
     }
 
 
 private:
 
-    Camera& camera;
+    void moveCamera(float distance, const glm::vec3& cameraSpaceDir) {
+        glm::vec3 worldSpaceDir = camera->dirFromView(cameraSpaceDir);
+        camera->pos += distance * worldSpaceDir;
+    }
 
-    const time::Clock& clock;
-
-    input::InputState input;
-
-    void onScroll(const core::Message& message) {
+    void onScroll(const Message& message) {
         float scroll = util::any_cast<double>(message.data);
         if (input[Key::LEFT_SHIFT]) {
-            Projection proj = camera.projection();
+            Projection proj = camera->projection();
             proj.fov -= scroll;
             proj.fov = glm::clamp(proj.fov, 10.0f, 140.0f);
-            camera.projection(proj);
+            camera->projection(proj);
             std::cout << "FOV: " << proj.fov << std::endl;
         } else {
-            camera.pos += scroll * camera.forward();
+            camera->pos += scroll * camera->forward();
         }
     }
 
-    void onMouseMove(const core::Message& message) {
+    void onMouseMove(const Message& message) {
         const float sensitivity = 0.5f;
         const float moveScale = 0.3f;
         const float rotScale = 1.0f;
@@ -114,39 +117,50 @@ private:
         float dx = sensitivity * (pos.x - input.mouse().x);
         float dy = -sensitivity * (pos.y - input.mouse().y);
         if (input[Button::RIGHT]) {
-            auto viewLeft = camera.dirFromView(RIGHT);
-            auto viewUp = camera.dirFromView(UP);
-            camera.pos += moveScale * (dx * viewLeft + dy * viewUp);
+            auto viewLeft = camera->dirFromView(RIGHT);
+            auto viewUp = camera->dirFromView(UP);
+            camera->pos += moveScale * (dx * viewLeft + dy * viewUp);
         } else {
             float z = -100.0f;
             dx *= rotScale;
             dy *= rotScale;
             if (dx * dx + dy * dy < 500) {
-                camera.rotate(dx, dy, UP);
+                camera->rotate(dx, dy, UP);
             }
         }
         input.mouse(pos);
     }
 
-    void onButton(const core::Message& message) {
+    void onButton(const Message& message) {
         ButtonEvent e = util::any_cast<ButtonEvent>(message.data);
         input[e.button] = (e.type == ButtonEvent::Type::DOWN);
     }
 
-    void onKey(const core::Message& message) {
+    void onKey(const Message& message) {
         KeyEvent e = util::any_cast<KeyEvent>(message.data);
         if (e.type == KeyEvent::Type::DOWN) {
             input[e.key] = true;
 
             if (e.key == Key::SPACE) {
-                std::cout << "dir: " << camera.dirFromView(FWD) << std::endl;
-                std::cout << "pos: " << camera.pos << std::endl;
+                std::cout << "dir: " << camera->dirFromView(FWD) << std::endl;
+                std::cout << "pos: " << camera->pos << std::endl;
             }
 
         } else if (e.type == KeyEvent::Type::UP) {
             input[e.key] = false;
         }
     }
+
+    std::shared_ptr<Camera> camera;
+
+    const time::Clock& clock;
+
+    input::InputState input;
+
+    typedef void (CameraController::*Handler)(const Message&);
+
+    std::unordered_map<std::uint32_t, Handler> handlers;
+
 };
 
 

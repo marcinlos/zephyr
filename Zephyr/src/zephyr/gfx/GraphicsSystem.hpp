@@ -22,9 +22,7 @@ public:
     GraphicsSystem(Context ctx)
     : renderer_ { util::make_unique<Renderer>() }
     {
-        zephyr::core::TaskPtr invoker = core::wrapAsTask([this]() {
-            renderer_->render();
-        });
+        auto invoker = core::wrapAsTask([this]() { renderer_->render(); });
         ctx.scheduler.startTask("renderer-invoker", 500000, invoker);
     }
 

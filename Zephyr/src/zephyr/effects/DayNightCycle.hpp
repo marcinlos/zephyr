@@ -47,34 +47,15 @@ public:
 
         float sinAbs = glm::clamp(std::sin(theta) + 0.2f, 0.0f, 1.0f);
         sunIntensity = 2.0f * sinAbs * sinAbs;
-        float ambientVal = sunIntensity + 0.4f;
+        float ambientVal = sunIntensity + 0.2f;
         float hdr = 0.7f * sunIntensity + 0.4f;//1.5f + 3.0f * sinAbs * sinAbs;
 
-        UniformPtr sunDir { new uniform3f {
-            sunDirection.x,
-            sunDirection.y,
-            sunDirection.z
-        }};
-        UniformPtr sunInt { new uniform1f { sunIntensity } };
-        UniformPtr ambientUnif { new uniform3f {
-            ambientVal * ambient.x,
-            ambientVal * ambient.y,
-            ambientVal * ambient.z
-        } };
-
-        UniformPtr sunColor { new uniform3f {
-            sunCol.x,
-            sunCol.y,
-            sunCol.z
-        } };
-
-        UniformPtr hdrMax { new uniform1f { hdr } };
-
-        renderer.uniforms().uniform("sunDirection", sunDir);
-        renderer.uniforms().uniform("sunIntensity", sunInt);
-        renderer.uniforms().uniform("ambient", ambientUnif);
-        renderer.uniforms().uniform("sunColor", sunColor);
-        renderer.uniforms().uniform("hdrMax", hdrMax);
+        UniformManager& uniforms = renderer.uniforms();
+        uniforms.set3f("sunDirection", sunDirection);
+        uniforms.set1f("sunIntensity", sunIntensity);
+        uniforms.set3f("ambient", ambientVal * ambient);
+        uniforms.set3f("sunColor", sunCol);
+        uniforms.set1f("hdrMax", hdr);
     }
 
 private:

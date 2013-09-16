@@ -31,7 +31,9 @@ public:
     , renderer_(renderer)
     , uniforms_(renderer.uniforms())
     , viewport_(renderer.viewport())
-    { }
+    {
+        setupCamera();
+    }
 
 
     void update() override {
@@ -48,7 +50,7 @@ private:
         viewport_.listener(ratioUpdate);
 
         std::size_t blockSize = 2 * sizeof(glm::mat4);
-        uniforms_.createUniformBlock(BLOCK_NAME, blockSize);
+        uniforms_.createBlock(BLOCK_NAME, blockSize);
     }
 
 
@@ -60,8 +62,8 @@ private:
         void* projData = glm::value_ptr(projMatrix);
 
         std::size_t size = sizeof(glm::mat4);
-        uniforms_.fillUniformBlock(BLOCK_NAME, viewData, 0, size);
-        uniforms_.fillUniformBlock(BLOCK_NAME, projData, size, size);
+        uniforms_.fillBlock(BLOCK_NAME, viewData, 0, size);
+        uniforms_.fillBlock(BLOCK_NAME, projData, size, size);
     }
 
     std::shared_ptr<Camera> camera_;

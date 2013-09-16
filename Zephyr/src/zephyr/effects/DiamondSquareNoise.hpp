@@ -120,7 +120,7 @@ namespace diamond {
 
     }
 
-    void noise(std::vector<float>& data, const Params& params) {
+    inline void noise(std::vector<float>& data, const Params& params) {
         int n = 1 << params.iterations;
         std::size_t size = (n + 1) * (n + 1);
         auto grid = make_grid(data, n + 1);
@@ -130,7 +130,7 @@ namespace diamond {
         generator.compute(grid, params);
     }
 
-    std::vector<float> noise(const Params& params) {
+    inline std::vector<float> noise(const Params& params) {
         int n = 1 << params.iterations;
         std::size_t size = (n + 1) * (n + 1);
         std::vector<float> data(size, 0);

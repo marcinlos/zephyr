@@ -31,28 +31,24 @@ struct MeshData {
 };
 
 
-MeshPtr vertexArrayFrom(const MeshData& data) {
+inline MeshPtr vertexArrayFrom(const MeshData& data) {
     MeshBuilder builder;
     builder.setBuffer(data.vertices).attribute(0, 4, 0);
     if (!data.colors.empty()) {
         builder.setBuffer(data.colors).attribute(1, 4, 0);
-        std::cout << "Colors! ";
     }
     if (!data.normals.empty()) {
         builder.setBuffer(data.normals).attribute(2, 3, 0);
-        std::cout << "Normals! ";
     }
     if (!data.indices.empty()) {
         builder.setIndices(data.indices);
-        std::cout << "Indices! ";
     }
-    std::cout << std::endl;
     return builder.create();
 }
 
 
 
-std::vector<glm::vec4> randomColors(std::size_t count) {
+inline std::vector<glm::vec4> randomColors(std::size_t count) {
     std::default_random_engine generator(std::time(nullptr));
     std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
 
@@ -88,7 +84,7 @@ enum class NormCalc {
 };
 
 
-std::vector<glm::vec3> generateNormalsFirst(
+inline std::vector<glm::vec3> generateNormalsFirst(
         const std::vector<glm::vec4>& vertices,
         const std::vector<GLuint> indices) {
     std::vector<glm::vec3> normals(vertices.size());
@@ -105,7 +101,7 @@ std::vector<glm::vec3> generateNormalsFirst(
 }
 
 
-std::vector<glm::vec3> generateNormalsAvg(
+inline std::vector<glm::vec3> generateNormalsAvg(
         const std::vector<glm::vec4>& vertices,
         const std::vector<GLuint>& indices) {
     std::size_t count = vertices.size();
@@ -133,7 +129,7 @@ std::vector<glm::vec3> generateNormalsAvg(
     return normals;
 }
 
-std::pair<
+inline std::pair<
     std::vector<glm::vec4>,
     std::vector<glm::vec3>
 >
@@ -166,7 +162,7 @@ generateNormalsSplit(
 }
 
 
-std::vector<glm::vec3> generateNormals(
+inline std::vector<glm::vec3> generateNormals(
         const std::vector<glm::vec4>& vertices,
         const std::vector<GLuint>& indices) {
     return generateNormalsAvg(vertices, indices);
@@ -176,7 +172,7 @@ namespace detail {
 
 }
 
-MeshData loadMeshData(const char* path, NormCalc strategy = NormCalc::AVG) {
+inline MeshData loadMeshData(const char* path, NormCalc strategy = NormCalc::AVG) {
     std::ifstream in(path);
     if (!in) {
         std::ostringstream ss("Cannot open file: ");
@@ -224,7 +220,7 @@ MeshData loadMeshData(const char* path, NormCalc strategy = NormCalc::AVG) {
 
 
 
-MeshPtr loadMesh(const char* path, NormCalc strategy = NormCalc::AVG) {
+inline MeshPtr loadMesh(const char* path, NormCalc strategy = NormCalc::AVG) {
     MeshData data = loadMeshData(path, strategy);
     return vertexArrayFrom(data);
 }

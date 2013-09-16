@@ -11,18 +11,27 @@
 #include <zephyr/time/TaskletScheduler.hpp>
 #include <zephyr/time/ActionScheduler.hpp>
 #include <zephyr/gfx/CameraComponent.hpp>
+#include <zephyr/effects/DayNightCycle.hpp>
 
 using zephyr::core::Config;
+using zephyr::gfx::Renderer;
 using zephyr::gfx::CameraComponent;
 using zephyr::time::Clock;
 using zephyr::time::ClockManager;
+using zephyr::time::TaskletScheduler;
+using zephyr::effects::DayNightCycle;
 
+// temporary
+#include <zephyr/demo/LandscapeScene.hpp>
+#include <zephyr/gfx/CameraController.hpp>
 
 namespace zephyr {
 namespace demo {
 
 
-class MainController: public core::Task {
+class MainController
+        : public core::Task
+        , public std::enable_shared_from_this<MainController> {
 public:
 
     MainController(Root& root);
@@ -32,20 +41,27 @@ public:
 private:
 
     void initCamera();
+    void initScene();
+    void initMainTask();
     void setCameraPosition();
     void submitGeometry();
 
     Root& root;
-    Config& config;
 
+    Config& config;
     ClockManager& clocks;
     const Clock& clock;
+    Renderer& renderer;
+    TaskletScheduler taskletScheduler;
 
-    std::unique_ptr<CameraComponent> cameraComp;
+    std::shared_ptr<CameraComponent> cameraComp;
 
-//    gfx::CameraController cameraController;
+    // temporary
+    std::unique_ptr<LandscapeScene> landscape;
 
-//    effects::DayNightCycle dayNightCycle;
+    std::unique_ptr<gfx::CameraController> cameraController;
+
+    std::unique_ptr<DayNightCycle> dayNightCycle;
 
 };
 

@@ -6,32 +6,40 @@
 #define ZEPHYR_GFX_SCENEBUILDER_HPP_
 
 #include <zephyr/effects/SimpleTerrainGenerator.hpp>
+#include <zephyr/scene/SceneGraph.hpp>
+#include <zephyr/gfx/star.hpp>
 
+
+using zephyr::scene::NodePtr;
+using zephyr::scene::SceneGraph;
+using zephyr::gfx::EntityPtr;
+using zephyr::resources::ResourceSystem;
+using zephyr::effects::SimpleTerrainGenerator;
 
 namespace zephyr {
-namespace gfx {
-
+namespace demo {
 
 struct LandscapeScene {
 
     struct Item {
-        scene::NodePtr node;
+        NodePtr node;
         EntityPtr entity;
     };
 
-    resources::ResourceSystem& res;
+    ResourceSystem& res;
 
     std::vector<Item> items;
-    scene::SceneGraph graph;
+    SceneGraph graph;
 
-    LandscapeScene() {
+    LandscapeScene(ResourceSystem& res)
+    : res(res)
+    {
         createResources();
         build();
     }
 
 
     void build() {
-        using namespace zephyr::scene;
         auto& sceneRoot = graph.root();
 
         NodePtr ground = newNode(sceneRoot);
@@ -67,6 +75,7 @@ struct LandscapeScene {
 
 private:
     void createResources() {
+        using namespace gfx;
         res.shaders["vertex"] = newVertexShader("resources/shader.vert");
         res.shaders["fragment"] = newFragmentShader("resources/shader.frag");
 
@@ -80,7 +89,7 @@ private:
         effects::SimpleTerrainGenerator gen(100.0f, 8, 25.0f);
         res.meshes["quad"] = gen.create();
         res.meshes["suzanne"] = loadMesh("resources/suzanne.obj");
-        res.meshes["star"] = makeStar(7, 0.3f);
+        res.meshes["star"] = gfx::makeStar(7, 0.3f);
         res.meshes["container"] = loadMesh("resources/container.obj", NormCalc::SPLIT);
 
 
@@ -93,7 +102,7 @@ private:
 };
 
 
-} /* namespace gfx */
+} /* namespace demo */
 } /* namespace zephyr */
 
 

@@ -99,6 +99,10 @@ public:
         return *graphics_;
     }
 
+    resources::ResourceSystem& resources() {
+        return *resources_;
+    }
+
 private:
     core::Scheduler scheduler_;
     core::Config config_;

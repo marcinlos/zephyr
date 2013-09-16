@@ -223,5 +223,4 @@ NodePtr newNode(Args&&... args) {
 } /* namespace zephyr */
 
 
-
 #endif /* ZEPHYR_SCENE_OBJECT_HPP_ */
