@@ -323,7 +323,7 @@ struct UniformMatrix: Uniform {
     { }
 
     void set(GLint location) const override {
-        (*Setter)(location, count, transponse, nullptr);//glm::value_ptr(matrix));
+        (*Setter)(location, count, transponse, glm::value_ptr(matrix));
     }
 };
 
@@ -345,6 +345,127 @@ MAKE_TYPE(3, 4, glUniformMatrix3x4fv, uniformMatrix3x4f)
 typedef Uniform uniform;
 
 typedef std::shared_ptr<uniform> UniformPtr;
+
+
+
+
+
+inline UniformPtr unif1f(float v) {
+    return std::make_shared<uniform1f>(v);
+}
+
+inline UniformPtr unif1f(glm::vec1 v) {
+    return unif1f(v.x);
+}
+
+inline UniformPtr unif2f(float v1, float v2) {
+    return std::make_shared<uniform2f>(v1, v2);
+}
+
+inline UniformPtr unif2f(const glm::vec2& v) {
+    return unif2f(v.x, v.y);
+}
+
+inline UniformPtr unif3f(float v1, float v2, float v3) {
+    return std::make_shared<uniform3f>(v1, v2, v3);
+}
+
+inline UniformPtr unif3f(const glm::vec3& v) {
+    return unif3f(v.x, v.y, v.z);
+}
+
+inline UniformPtr unif4f(float v1, float v2, float v3, float v4) {
+    return std::make_shared<uniform4f>(v1, v2, v3, v4);
+}
+
+inline UniformPtr unif4f(const glm::vec4& v) {
+    return unif4f(v.x, v.y, v.z, v.w);
+}
+
+inline UniformPtr unif1i(GLint v) {
+    return std::make_shared<uniform1i>(v);
+}
+
+inline UniformPtr unif1i(GLint v1, GLint v2) {
+    return std::make_shared<uniform2i>(v1, v2);
+}
+
+inline UniformPtr unif1i(GLint v1, GLint v2, GLint v3) {
+    return std::make_shared<uniform3i>(v1, v2, v3);
+}
+
+inline UniformPtr unif1i(GLint v1, GLint v2, GLint v3, GLint v4) {
+    return std::make_shared<uniform4i>(v1, v2, v3, v4);
+}
+
+inline UniformPtr unif1ui(GLuint v) {
+    return std::make_shared<uniform1i>(v);
+}
+
+inline UniformPtr unif1ui(GLuint v1, GLuint v2) {
+    return std::make_shared<uniform2i>(v1, v2);
+}
+
+inline UniformPtr unif1ui(GLuint v1, GLuint v2, GLuint v3) {
+    return std::make_shared<uniform3i>(v1, v2, v3);
+}
+
+inline UniformPtr unif1ui(GLuint v1, GLuint v2, GLuint v3, GLuint v4) {
+    return std::make_shared<uniform4i>(v1, v2, v3, v4);
+}
+
+inline UniformPtr
+unifMat2(const glm::mat2& mat, bool transpose = false, int count = 1) {
+    return std::make_shared<uniformMatrix2f>(mat, count, transpose);
+}
+
+inline UniformPtr
+unifMat3(const glm::mat3& mat, bool transpose = false, int count = 1) {
+    return std::make_shared<uniformMatrix3f>(mat, count, transpose);
+}
+
+inline UniformPtr
+unifMat4(const glm::mat4& mat, bool transpose = false, int count = 1) {
+    return std::make_shared<uniformMatrix4f>(mat, count, transpose);
+}
+
+inline UniformPtr
+unifMat2x3(const glm::mat2x3& mat, bool transpose = false, int count = 1) {
+    return std::make_shared<uniformMatrix2x3f>(mat, count, transpose);
+}
+
+inline UniformPtr
+unifMat3x2(const glm::mat3x2& mat, bool transpose = false, int count = 1) {
+    return std::make_shared<uniformMatrix3x2f>(mat, count, transpose);
+}
+
+inline UniformPtr
+unifMat2x4(const glm::mat2x4& mat, bool transpose = false, int count = 1) {
+    return std::make_shared<uniformMatrix2x4f>(mat, count, transpose);
+}
+
+inline UniformPtr
+unifMat4x2(const glm::mat4x2& mat, bool transpose = false, int count = 1) {
+    return std::make_shared<uniformMatrix4x2f>(mat, count, transpose);
+}
+
+inline UniformPtr
+unifMat4x3(const glm::mat4x3& mat, bool transpose = false, int count = 1) {
+    return std::make_shared<uniformMatrix4x3f>(mat, count, transpose);
+}
+
+inline UniformPtr
+unifMat3x4(const glm::mat3x4& mat, bool transpose = false, int count = 1) {
+    return std::make_shared<uniformMatrix3x4f>(mat, count, transpose);
+}
+
+
+
+
+
+
+
+
 
 } /* namespace gfx */
 } /* namespace zephyr */

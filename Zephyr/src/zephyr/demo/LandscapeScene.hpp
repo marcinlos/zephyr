@@ -8,6 +8,7 @@
 #include <zephyr/effects/SimpleTerrainGenerator.hpp>
 #include <zephyr/scene/SceneGraph.hpp>
 #include <zephyr/gfx/star.hpp>
+#include <zephyr/gfx/Texture.hpp>
 
 
 using zephyr::scene::NodePtr;
@@ -47,7 +48,7 @@ struct LandscapeScene {
         sceneRoot->addChild(ground);
 
         NodePtr suzanne = newNode(sceneRoot);
-        sceneRoot->addChild(suzanne);
+        sceneRoot->addChild("suzanne", suzanne);
 
 //        NodePtr star = newNode(suzanne);
 //        star->translateX(-2.9f);//.rotateX(M_PI / 2);
@@ -79,25 +80,38 @@ private:
         res.shaders["vertex"] = newVertexShader("resources/shader.vert");
         res.shaders["fragment"] = newFragmentShader("resources/shader.frag");
 
-        res.programs["program"] = newProgram({
+        ProgramPtr prog = res.programs["program"] = newProgram({
             res.shaders["vertex"],
             res.shaders["fragment"]
         });
 
-        res.materials["dull"] = newMaterial(res.programs["program"]);
+        MaterialPtr mat = newMaterial(res.programs["program"]);
+        mat->uniforms = {
+            { "diffuseColor", unif4f(1, 0.4, 0.2, 1.0f) },
+            { "spec", unif1f(0.9f) }
+        };
+        TexturePtr texture = makeTexture();
+        mat->textures.push_back({ prog->uniformLocation("example"), texture });
+
+
+        MaterialPtr terrain = newMaterial(res.programs["program"]);
+        terrain->uniforms = {
+            { "diffuseColor", unif4f(0.2f, 0.9f, 0.4f, 1.0f) },
+            { "spec", unif1f(0.1f) }
+        };
+
 
         effects::SimpleTerrainGenerator gen(100.0f, 8, 25.0f);
         res.meshes["quad"] = gen.create();
-        res.meshes["suzanne"] = loadMesh("resources/suzanne.obj");
+        res.meshes["suzanne"] = loadObjMesh("resources/suzanne.obj");
         res.meshes["star"] = gfx::makeStar(7, 0.3f);
-        res.meshes["container"] = loadMesh("resources/container.obj", NormCalc::SPLIT);
+        res.meshes["container"] = loadObjMesh("resources/container.obj", NormCalc::SPLIT);
 
 
-        MaterialPtr def = res.materials["dull"];
-        res.entities["ground"] = newEntity(def, res.meshes["quad"]);
-        res.entities["suzanne"] = newEntity(def, res.meshes["suzanne"]);
-        res.entities["star"] = newEntity(def, res.meshes["star"]);
-        res.entities["container"] = newEntity(def, res.meshes["container"]);
+        res.entities["ground"] = newEntity(terrain, res.meshes["quad"]);
+        res.entities["suzanne"] = newEntity(mat, res.meshes["suzanne"]);
+        res.entities["star"] = newEntity(mat, res.meshes["star"]);
+        res.entities["container"] = newEntity(mat, res.meshes["container"]);
     }
 };
 

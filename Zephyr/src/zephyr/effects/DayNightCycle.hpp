@@ -8,6 +8,9 @@
 #include <zephyr/Root.hpp>
 #include <zephyr/gfx/Renderer.hpp>
 
+using zephyr::core::Register;
+using zephyr::gfx::Renderer;
+using zephyr::gfx::UniformManager;
 
 namespace zephyr {
 namespace effects {
@@ -19,11 +22,13 @@ public:
 
     DayNightCycle(Root& root)
     : root(root)
+    , vars(root.vars())
     , renderer(root.graphics().renderer())
+    , uniforms(renderer.uniforms())
     , sunIntensity { 1 }
     , ambient { 0.1f, 0.1f, 0.1f }
     {
-        root.vars().put("sunPos", glm::vec3 {});
+        vars.put("sunPos", glm::vec3 {});
     }
 
 public:
@@ -36,12 +41,11 @@ public:
     }
 
     void apply(double time) {
-        using namespace gfx;
         double t = time / dayLength;
         float theta = 2 * M_PI * t;
 
         glm::vec3 sunPos = calculateSunPosition(t);
-        root.vars()["sunPos"] = util::Any(sunPos);
+        vars["sunPos"] = util::Any(sunPos);
         sunDirection = glm::normalize(-sunPos);
         glm::vec3 sunCol { 1, 1, 1 };
 
@@ -50,9 +54,6 @@ public:
         float ambientVal = sunIntensity + 0.2f;
         float hdr = 0.7f * sunIntensity + 0.4f;//1.5f + 3.0f * sinAbs * sinAbs;
 
-        std::cout << "sunIntensity = " << sunIntensity << std::endl;
-
-        UniformManager& uniforms = renderer.uniforms();
         uniforms.set3f("sunDirection", sunDirection);
         uniforms.set1f("sunIntensity", sunIntensity);
         uniforms.set3f("ambient", ambientVal * ambient);
@@ -62,7 +63,9 @@ public:
 
 private:
     Root& root;
-    gfx::Renderer& renderer;
+    Register& vars;
+    Renderer& renderer;
+    UniformManager& uniforms;
 
     glm::vec3 sunDirection;
     float sunIntensity;

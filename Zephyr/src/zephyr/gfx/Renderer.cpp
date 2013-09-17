@@ -83,6 +83,31 @@ void Renderer::setMaterial(const MaterialPtr& material) {
             value->set(needed.second);
         }
     }
+    for (const auto& local : material->uniforms) {
+        const std::string& name = local.first;
+        GLint slot = currentProgram_->uniformLocation(name);
+        if (slot >= 0) {
+            local.second->set(slot);
+        }
+    }
+    int texUnit = 0;
+    for (const auto& texPair : material->textures) {
+        GLuint samplerUniform = texPair.first;
+        const TexturePtr& texture = texPair.second;
+
+        glUniform1i(samplerUniform, texUnit);
+
+        glActiveTexture(GL_TEXTURE0 + texUnit);
+        glBindTexture(GL_TEXTURE_1D, texture->ref());
+
+        GLuint sampler;
+        glGenSamplers(1, &sampler);
+        glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+
+        glBindSampler(texUnit, sampler);
+    }
 }
 
 void Renderer::setModelTransform(const glm::mat4& transform) {

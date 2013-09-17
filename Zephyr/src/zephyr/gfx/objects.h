@@ -39,6 +39,7 @@ inline GLenum primitiveToGL(Primitive primitive) {
     return static_cast<GLenum>(primitive);
 }
 
+
 struct Mesh: public std::enable_shared_from_this<Mesh> {
     GLuint id;
     std::size_t count;
@@ -69,6 +70,18 @@ MeshPtr newMesh(Args&&... args) {
 
 struct Texture: public std::enable_shared_from_this<Texture> {
     GLuint id;
+
+    Texture(GLuint id)
+    : id(id)
+    { }
+
+    GLuint ref() const {
+        return id;
+    }
+
+    ~Texture() {
+        glDeleteTextures(1, &id);
+    }
 };
 
 template <typename... Args>
@@ -78,15 +91,20 @@ TexturePtr newTexture(Args&&... args) {
 
 struct Material: public std::enable_shared_from_this<Material> {
 
-    typedef std::unordered_map<std::string, UniformPtr> UniformMap;
+    typedef std::vector<std::pair<std::string, UniformPtr>> UniformMap;
+    typedef std::vector<std::pair<GLuint, TexturePtr>> TextureMap;
 
     ProgramPtr program;
     UniformMap uniforms;
+    TextureMap textures;
 
 
-    explicit Material(ProgramPtr program, UniformMap uniforms = UniformMap { })
+    explicit Material(ProgramPtr program,
+            UniformMap uniforms = UniformMap { },
+            TextureMap textures = TextureMap { })
     : program { std::move(program) }
     , uniforms { std::move(uniforms) }
+    , textures { std::move(textures) }
     { }
 
 };

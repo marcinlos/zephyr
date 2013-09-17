@@ -172,7 +172,7 @@ namespace detail {
 
 }
 
-inline MeshData loadMeshData(const char* path, NormCalc strategy = NormCalc::AVG) {
+inline MeshData loadObjData(const char* path, NormCalc strategy = NormCalc::AVG) {
     std::ifstream in(path);
     if (!in) {
         std::ostringstream ss("Cannot open file: ");
@@ -214,21 +214,20 @@ inline MeshData loadMeshData(const char* path, NormCalc strategy = NormCalc::AVG
         data.vertices = std::move(vertices);
         data.indices = std::move(indices);
     }
-    data.colors = std::vector<glm::vec4>(data.vertices.size(), glm::vec4 { 1, 1, 1, 0});//*/randomColors(data.vertices.size());
     return data;
 }
 
 
 
-inline MeshPtr loadMesh(const char* path, NormCalc strategy = NormCalc::AVG) {
-    MeshData data = loadMeshData(path, strategy);
+inline MeshPtr loadObjMesh(const char* path, NormCalc strategy = NormCalc::AVG) {
+    MeshData data = loadObjData(path, strategy);
     return vertexArrayFrom(data);
 }
 
 
 
-}
-}
+} /* namespace gfx */
+} /* namespace zephyr */
 
 
 #endif /* ZEPHYR_GFX_MESH_HPP_ */

@@ -20,7 +20,6 @@ MainController::MainController(Root& root)
 , clock(clocks.getMainClock())
 , renderer(root.graphics().renderer())
 {
-    std::cout << "Size: " << sizeof(gfx::uuniform) << std::endl;
     initCamera();
     initScene();
     initMainTask();
@@ -35,6 +34,12 @@ MainController::MainController(Root& root)
         glm::vec3 pos = this->root.vars().get<glm::vec3>("sunPos");
         scene::NodePtr sun = landscape->graph.root()->child("sun");
         sun->translateTo(5.0f * pos).translateY(4.0f);
+        return true;
+    });
+
+    taskletScheduler.add([this](double t, double dt) {
+        scene::NodePtr suzanne = landscape->graph.root()->child("suzanne");
+        suzanne->rotateX(M_PI * dt / 5);
         return true;
     });
 }
