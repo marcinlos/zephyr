@@ -455,7 +455,7 @@
 	</linkedResources>
 	<filteredResources>
 		<filter>
-			<id>1377800051087</id>
+			<id>1379706970944</id>
 			<name></name>
 			<type>10</type>
 			<matcher>
@@ -464,7 +464,7 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1377800051091</id>
+			<id>1379706970952</id>
 			<name></name>
 			<type>14</type>
 			<matcher>
@@ -473,7 +473,7 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1377800051094</id>
+			<id>1379706970958</id>
 			<name></name>
 			<type>10</type>
 			<matcher>
@@ -482,7 +482,7 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1377800051097</id>
+			<id>1379706970969</id>
 			<name></name>
 			<type>6</type>
 			<matcher>
@@ -491,12 +491,34 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1377800051101</id>
+			<id>1379706970991</id>
 			<name></name>
 			<type>6</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
 				<arguments>1.0-name-matches-false-false-*.kdev4</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1379707065373</id>
+			<name>resources</name>
+			<type>13</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.orFilterMatcher</id>
+				<arguments>
+					<matcher>
+						<id>org.eclipse.ui.ide.multiFilter</id>
+						<arguments>1.0-name-matches-false-false-*.xml</arguments>
+					</matcher>
+					<matcher>
+						<id>org.eclipse.ui.ide.multiFilter</id>
+						<arguments>1.0-name-matches-false-false-*.vert</arguments>
+					</matcher>
+					<matcher>
+						<id>org.eclipse.ui.ide.multiFilter</id>
+						<arguments>1.0-name-matches-false-false-*.frag</arguments>
+					</matcher>
+				</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>

@@ -5,6 +5,10 @@
 #ifndef ZEPHYR_RESOURCES_RESOURCESYSTEM_HPP_
 #define ZEPHYR_RESOURCES_RESOURCESYSTEM_HPP_
 
+#include <zephyr/resources/ResourceManager.hpp>
+#include <zephyr/gfx/objects.h>
+
+
 namespace zephyr {
 namespace resources{
 

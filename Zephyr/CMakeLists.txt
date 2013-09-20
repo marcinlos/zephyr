@@ -44,6 +44,7 @@ add_executable(game
     ${SRC}/Root.cpp
     
     ${SRC}/demo/MainController.cpp
+    ${SRC}/demo/LandscapeScene.cpp
     src/Zephyr.cpp)
 
     
