@@ -28,6 +28,17 @@ public:
         return viewport_;
     }
 
+    typedef std::function<void ()> PreRenderHook;
+    typedef std::function<void ()> PostRenderHook;
+
+    void addPreRenderHook(PreRenderHook hook) {
+        preRenderHooks_.push_back(std::move(hook));
+    }
+
+    void addPostRenderHook(PostRenderHook hook) {
+        postRenderHooks_.push_back(std::move(hook));
+    }
+
     void submit(Renderable renderable) {
         renderables_.push_back(std::move(renderable));
     }
@@ -67,6 +78,9 @@ private:
     bool vsync_ = true;
 
     std::vector<Renderable> renderables_;
+
+    std::vector<PreRenderHook> preRenderHooks_;
+    std::vector<PostRenderHook> postRenderHooks_;
 
     UniformManager uniforms_;
 

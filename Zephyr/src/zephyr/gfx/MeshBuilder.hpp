@@ -6,6 +6,7 @@
 #define ZEPHYR_GFX_MESHBUILDER_HPP_
 
 #include <zephyr/gfx/objects.h>
+
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <vector>

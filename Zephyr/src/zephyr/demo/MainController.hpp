@@ -15,6 +15,7 @@
 
 using zephyr::core::Config;
 using zephyr::gfx::Renderer;
+using zephyr::gfx::Camera;
 using zephyr::gfx::CameraComponent;
 using zephyr::time::Clock;
 using zephyr::time::ClockManager;
@@ -54,6 +55,7 @@ private:
     Renderer& renderer;
     TaskletScheduler taskletScheduler;
 
+    std::shared_ptr<Camera> camera;
     std::shared_ptr<CameraComponent> cameraComp;
 
     // temporary

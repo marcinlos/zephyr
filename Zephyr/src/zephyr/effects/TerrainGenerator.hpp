@@ -30,6 +30,7 @@ public:
     , indices(3 * 2 * quadCount)
     , vertices(vertexCount)
     , colors(vertexCount, glm::vec4 { 1, 1, 1, 1 })
+    , texture(vertexCount)
     { }
 
     MeshPtr create() {
@@ -45,6 +46,8 @@ public:
                     .attribute(1, 4, 0)
                 .setBuffer(normals)
                     .attribute(2, 3, 0)
+                .setBuffer(texture)
+                    .attribute(3, 2, 0)
                 .setIndices(indices)
                 .create();
     }
@@ -66,9 +69,13 @@ private:
         // empty
     }
 
-    float lerp(int i) {
+    float lerp(int i, float min, float max) {
         float a = i / float(onEdge - 1);
-        return -extent / 2 + extent * a;
+        return min + a * (max - min);
+    }
+
+    float lerp(int i) {
+        return lerp(i, -extent/2, extent/2);
     }
 
     void generateVertices() {
@@ -85,6 +92,7 @@ private:
                 int n = i * onEdge + j;
 
                 vertices[n] = glm::vec4 { lerp(j), 0, lerp(i), 1 };
+                texture[n] = glm::vec2 { lerp(j, 0, 1), lerp(i, 0, 1) };
 
                 int r = rand();
                 float* c = palette[r % std::extent<decltype(palette)>::value];
@@ -121,6 +129,8 @@ protected:
     std::vector<glm::vec4> vertices;
 
     std::vector<glm::vec4> colors;
+
+    std::vector<glm::vec2> texture;
 };
 
 

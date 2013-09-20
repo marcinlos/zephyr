@@ -67,12 +67,26 @@ MeshPtr newMesh(Args&&... args) {
     return std::make_shared<Mesh>(std::forward<Args>(args)...);
 }
 
+enum struct TexDim {
+    _1D = 1,
+    _2D = 2,
+    _3D = 3,
+};
 
 struct Texture: public std::enable_shared_from_this<Texture> {
     GLuint id;
 
-    Texture(GLuint id)
+    TexDim dim;
+    int width;
+    int height;
+    int depth;
+
+    Texture(GLuint id, TexDim dim, int width, int height = 1, int depth = 1)
     : id(id)
+    , dim(dim)
+    , width(width)
+    , height(height)
+    , depth(depth)
     { }
 
     GLuint ref() const {
@@ -181,7 +195,8 @@ ObjectPtr newObject(Args&&... args) {
 typedef ResourceManager<ShaderPtr> ShaderManager;
 typedef ResourceManager<ProgramPtr> ProgramManager;
 typedef ResourceManager<MaterialPtr> MaterialManager;
-typedef ResourceManager<MeshPtr> VertexArrayManager;
+typedef ResourceManager<MeshPtr> MeshManager;
+typedef ResourceManager<TexturePtr> TextureManager;
 typedef ResourceManager<EntityPtr>EntityManager;
 typedef ResourceManager<ObjectPtr> ObjectManager;
 

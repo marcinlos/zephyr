@@ -8,3 +8,7 @@ Zephyr.kdev4
 CTestTestfile.cmake
 gmock
 /doc
+/resources
+!/resources/*.xml
+!/resources/*.vert
+!/resources/*.frag

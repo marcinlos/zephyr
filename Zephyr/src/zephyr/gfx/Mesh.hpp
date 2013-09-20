@@ -14,6 +14,7 @@
 #include <zephyr/gfx/objects.h>
 #include <zephyr/gfx/MeshBuilder.hpp>
 
+#include <iterator>
 #include <random>
 
 
@@ -83,10 +84,10 @@ enum class NormCalc {
     SPLIT
 };
 
-
+template <typename IndexType>
 inline std::vector<glm::vec3> generateNormalsFirst(
         const std::vector<glm::vec4>& vertices,
-        const std::vector<GLuint> indices) {
+        const std::vector<IndexType> indices) {
     std::vector<glm::vec3> normals(vertices.size());
     for (std::size_t i = 0; i < indices.size(); i += 3) {
         auto ia = indices[i];
@@ -100,10 +101,10 @@ inline std::vector<glm::vec3> generateNormalsFirst(
     return normals;
 }
 
-
+template <typename IndexType>
 inline std::vector<glm::vec3> generateNormalsAvg(
         const std::vector<glm::vec4>& vertices,
-        const std::vector<GLuint>& indices) {
+        const std::vector<IndexType>& indices) {
     std::size_t count = vertices.size();
     std::vector<glm::vec3> normals(count);
     std::vector<int> times(count);
@@ -129,13 +130,14 @@ inline std::vector<glm::vec3> generateNormalsAvg(
     return normals;
 }
 
+template <typename IndexType>
 inline std::pair<
     std::vector<glm::vec4>,
     std::vector<glm::vec3>
 >
 generateNormalsSplit(
         const std::vector<glm::vec4>& vertices,
-        const std::vector<GLuint>& indices) {
+        const std::vector<IndexType>& indices) {
     std::size_t count = indices.size();
     std::vector<glm::vec3> normals;
     std::vector<glm::vec4> newVertices;
@@ -161,10 +163,10 @@ generateNormalsSplit(
     return std::make_pair(std::move(newVertices), std::move(normals));
 }
 
-
+template <typename IndexType>
 inline std::vector<glm::vec3> generateNormals(
         const std::vector<glm::vec4>& vertices,
-        const std::vector<GLuint>& indices) {
+        const std::vector<IndexType>& indices) {
     return generateNormalsAvg(vertices, indices);
 }
 

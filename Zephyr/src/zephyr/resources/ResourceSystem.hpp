@@ -16,7 +16,8 @@ public:
     ShaderManager shaders;
     ProgramManager programs;
     MaterialManager materials;
-    VertexArrayManager meshes;
+    MeshManager meshes;
+    TextureManager textures;
     EntityManager entities;
     ObjectManager objects;
 

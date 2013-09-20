@@ -38,6 +38,7 @@ add_executable(game
     ${SRC}/gfx/HackyRenderer.cpp
     ${SRC}/gfx/Renderer.cpp
     ${SRC}/gfx/GraphicsSystem.cpp
+    ${SRC}/gfx/Texture.cpp
     ${SRC}/scene/SceneGraph.cpp
     ${SRC}/scene/SceneManager.cpp
     ${SRC}/Root.cpp
@@ -49,7 +50,7 @@ add_executable(game
 include_directories("${PROJECT_BINARY_DIR}/src")
 
 # Required libraries. Order matters!
-target_link_libraries(game GLEW GLU glfw3 GL X11 Xxf86vm Xrandr pthread Xi)
+target_link_libraries(game glimg glload GLEW GLU glfw3 GL X11 Xxf86vm Xrandr pthread Xi)
 
 add_executable(demo
     example/example.cpp)

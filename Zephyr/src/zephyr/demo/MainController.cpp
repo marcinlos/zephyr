@@ -54,7 +54,7 @@ void MainController::initCamera() {
     Projection proj { FOV, 1, zNear, zFar };
     glm::vec3 pos { 0, 0, 3.0f };
 
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>(proj, pos);
+    camera = std::make_shared<Camera>(proj, pos);
     cameraComp = std::make_shared<CameraComponent>(renderer, camera);
     root.scheduler().startTask("camera-component", 1105, cameraComp);
 
@@ -93,6 +93,10 @@ void MainController::update() {
     double time = clock.time();
     taskletScheduler.update(time, clock.dt());
     cameraController->update();
+
+    glm::vec3 p = 10.0f * camera->forward() + camera->pos;
+    root.graphics().debug().addBox(glm::translate(p));
+
     landscape->graph.update();
     submitGeometry();
 }

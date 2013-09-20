@@ -44,7 +44,7 @@ struct LandscapeScene {
         auto& sceneRoot = graph.root();
 
         NodePtr ground = newNode(sceneRoot);
-        ground->translateY(-10);
+        ground->translateY(-20);
         sceneRoot->addChild(ground);
 
         NodePtr suzanne = newNode(sceneRoot);
@@ -78,11 +78,18 @@ private:
     void createResources() {
         using namespace gfx;
         res.shaders["vertex"] = newVertexShader("resources/shader.vert");
-        res.shaders["fragment"] = newFragmentShader("resources/shader.frag");
+        res.shaders["fragment"] = ShaderBuilder(GL_FRAGMENT_SHADER)
+                .version(330)
+                .define("GAMMA")
+                .file("resources/shader.frag")
+                .create();
 
         ProgramPtr prog = res.programs["program"] = newProgram({
             res.shaders["vertex"],
-            res.shaders["fragment"]
+            newFragmentShader("resources/phong.frag"),
+            newFragmentShader("resources/sun.frag"),
+            newFragmentShader("resources/gamma.frag"),
+            res.shaders["fragment"],
         });
 
         MaterialPtr mat = newMaterial(res.programs["program"]);
@@ -90,16 +97,21 @@ private:
             { "diffuseColor", unif4f(1, 0.4, 0.2, 1.0f) },
             { "spec", unif1f(0.9f) }
         };
-        TexturePtr texture = makeTexture();
-        mat->textures.push_back({ prog->uniformLocation("example"), texture });
 
+        TexturePtr texture = makeTexture();
+        TexturePtr noise = makeNoise(10);
+        TexturePtr terr = loadTexture("resources/terr.png");
+
+        mat->textures = {
+            { prog->uniformLocation("example"), texture },
+            { prog->uniformLocation("noise"), terr }
+        };
 
         MaterialPtr terrain = newMaterial(res.programs["program"]);
         terrain->uniforms = {
-            { "diffuseColor", unif4f(0.2f, 0.9f, 0.4f, 1.0f) },
+            { "diffuseColor", unif4f(0.1f, 1.0f, 0.2f, 1.0f) },
             { "spec", unif1f(0.1f) }
         };
-
 
         effects::SimpleTerrainGenerator gen(100.0f, 8, 25.0f);
         res.meshes["quad"] = gen.create();
