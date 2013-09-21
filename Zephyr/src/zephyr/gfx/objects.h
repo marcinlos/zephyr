@@ -106,7 +106,7 @@ TexturePtr newTexture(Args&&... args) {
 struct Material: public std::enable_shared_from_this<Material> {
 
     typedef std::vector<std::pair<std::string, UniformPtr>> UniformMap;
-    typedef std::vector<std::pair<GLuint, TexturePtr>> TextureMap;
+    typedef std::vector<std::pair<GLint, TexturePtr>> TextureMap;
 
     ProgramPtr program;
     UniformMap uniforms;

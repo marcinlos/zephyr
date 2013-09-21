@@ -42,7 +42,6 @@ ast::Shader parseShader(const ptree& tree, int type) {
 
     auto range = tree.equal_range("define");
     for (auto it = range.first; it != range.second; ++ it) {
-        std::clog << "DUUUUUUUUUUPPPPPPPAAAAAAAAAAAAAAAAA" << it->first << std::endl;
         auto attrs = it->second.get_child("<xmlattr>");
         const std::string& name = attrs.get<std::string>("name");
         std::string val;
@@ -51,13 +50,6 @@ ast::Shader parseShader(const ptree& tree, int type) {
         }
         shader.defines.push_back({ name, val });
     }
-    std::clog << "CIIIIIIIIIIIIIIIIPPPPPPPAAAAAAAAA" << std::endl;
-//    if (const auto& defines = tree.get_child_optional("defines")) {
-//        for (const auto& entry : *defines) {
-//            const std::string& val = entry.second.data();
-//            shader.defines.push_back(val);
-//        }
-//    }
 
     return shader;
 }

@@ -101,7 +101,9 @@ void Renderer::setMaterial(const MaterialPtr& material) {
     }
     int texUnit = 0;
     for (const auto& texPair : material->textures) {
-        GLuint samplerUniform = texPair.first;
+        GLint samplerUniform = texPair.first;
+        if (samplerUniform < 0) continue;
+
         const TexturePtr& texture = texPair.second;
 
         glUniform1i(samplerUniform, texUnit);

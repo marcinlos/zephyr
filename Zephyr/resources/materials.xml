@@ -36,6 +36,9 @@
       <file>resources/gamma.frag</file>
   </frag-shader>
   
+  <frag-shader name="debug-frag">
+    <file>resources/debug_wire.frag</file>
+  </frag-shader>
 
   <program name="main-prog-texture">
     <shader>main-vertex</shader>
@@ -46,13 +49,18 @@
   </program>
   
   
-   <program name="main-prog-diffuse">
+  <program name="main-prog-diffuse">
     <shader>main-vertex</shader>
     <shader>main-frag-diffuse</shader>
     <shader>phong</shader>
     <shader>sun</shader>
     <shader>gamma</shader>
   </program>
+  
+  <program name="debug-wire">
+    <shader>main-vertex</shader>
+    <shader>debug-frag</shader>
+  </program> 
   
 
   <texture name="terrain">
@@ -63,22 +71,35 @@
     <file>resources/normal.jpg</file>
   </texture>
   
+  <material name="debug">
+    <program>debug-wire</program>
+  </material>
 
   <material name="default">
     <program>main-prog-diffuse</program>
     <uniforms>
-      <vec4 name="diffuseColor" value="0.1 1 0.2 1.0" />
+      <vec4 name="diffuseColor" value="0.7 0.2 0.2 1.0" />
       <float name="spec" value="0.9" />
       <float name="specHardness" value="4" />
+    </uniforms>
+  </material>
+  
+  <material name="suzanne">
+    <program>main-prog-diffuse</program>
+    <uniforms>
+      <vec4 name="diffuseColor" value="0.2 0.6 0.2 1.0" />
+      <float name="spec" value="1" />
+      <float name="specHardness" value="50" />
     </uniforms>
   </material>
   
   
   <material name="terrain">
     <program>main-prog-texture</program>
-    <texture slot="diffuse" ref="terrain" />
+    <texture slot="dupa" ref="normal" />
+    <texture slot="diffuseTexture" ref="terrain" />
     <uniforms>
-      <float name="spec" value="4.9" />
+      <float name="spec" value="0.1" />
       <float name="specHardness" value="2" />
     </uniforms>
   </material>

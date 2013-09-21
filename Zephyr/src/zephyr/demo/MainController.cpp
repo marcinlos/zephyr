@@ -33,7 +33,7 @@ MainController::MainController(Root& root)
     taskletScheduler.add([this](double, double) {
         glm::vec3 pos = this->root.vars().get<glm::vec3>("sunPos");
         scene::NodePtr sun = landscape->graph.root()->child("sun");
-        sun->translateTo(5.0f * pos).translateY(4.0f);
+        sun->translateTo(5.0f * pos).translateY(10.0f);
         return true;
     });
 

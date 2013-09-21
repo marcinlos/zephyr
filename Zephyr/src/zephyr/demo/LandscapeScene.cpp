@@ -50,23 +50,9 @@ void LandscapeScene::createResources() {
     using namespace gfx;
     res.loadDefinitions("resources/materials.xml");
 
-    MaterialPtr mat = res.material("default");//newMaterial(res.program("main-prog"));
-//    mat->uniforms = {
-//        { "diffuseColor", unif4f(1, 0.4, 0.2, 1.0f) },
-//        { "spec", unif1f(0.9f) }
-//    };
-//
-//    TexturePtr texture = makeTexture();
-//    TexturePtr noise = makeNoise(10);
-//
-//    ProgramPtr prog = res.program("main-prog");
-//    mat->textures = {
-//        { prog->uniformLocation("example"), texture },
-//        { prog->uniformLocation("noise"), res.texture("terrain") }
-//    };
-
+    MaterialPtr mat = res.material("default");
     MaterialPtr terrain = res.material("terrain");
-
+    MaterialPtr suzanne = res.material("suzanne");
 
     effects::SimpleTerrainGenerator gen(100.0f, 8, 25.0f);
     res.meshes["quad"] = gen.create();
@@ -76,7 +62,7 @@ void LandscapeScene::createResources() {
 
 
     res.entities["ground"] = newEntity(terrain, res.meshes["quad"]);
-    res.entities["suzanne"] = newEntity(mat, res.meshes["suzanne"]);
+    res.entities["suzanne"] = newEntity(suzanne, res.meshes["suzanne"]);
     res.entities["star"] = newEntity(mat, res.meshes["star"]);
     res.entities["container"] = newEntity(mat, res.meshes["container"]);
 

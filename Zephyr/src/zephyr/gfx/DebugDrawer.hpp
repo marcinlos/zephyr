@@ -31,7 +31,7 @@ public:
 
 
     void init() {
-        mat = resources.material("default");
+        mat = resources.material("debug");
         cube = makeCube();
     }
 
@@ -63,7 +63,7 @@ private:
         return MeshBuilder()
                 .setBuffer(v2).attribute(0, 4)
                 .setBuffer(i2).attribute(2, 3)
-                .create();
+                .create(Primitive::LINES);
     }
 
 

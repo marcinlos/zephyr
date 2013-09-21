@@ -14,12 +14,14 @@ layout (std140) uniform CameraMatrices
 
 uniform vec3 ambient;
 uniform float hdrMax;
-uniform sampler2D example;
+uniform sampler2D diffuseTexture;
+
+uniform vec4 specColor;
 
 #ifdef DIFFUSE_UNIFORM
     uniform vec4 diffuseColor;
 #elif defined DIFFUSE_TEXTURE
-    vec4 diffuseColor = texture(example, texCoord);
+    vec4 diffuseColor = texture(diffuseTexture, texCoord);
 #endif    
 
 out vec4 outputColor;

@@ -172,7 +172,8 @@ MaterialPtr ResourceSystem::loadMaterial(const std::string& name) {
         MaterialPtr material = newMaterial(program(materialDef.program));
 
         for (const auto& entry : materialDef.textures) {
-            GLuint index = material->program->uniformLocation(entry.first);
+            GLint index = material->program->uniformLocation(entry.first);
+            std::clog << "Index of " << entry.first << " is " << index << std::endl;
             material->textures.push_back({ index, texture(entry.second) });
         }
 

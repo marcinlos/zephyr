@@ -4,8 +4,8 @@
     <height>768</height>
     <title>Zephyr</title>
     
-    <fullscreen>true</fullscreen>
-    <capture-mouse>true</capture-mouse>
+    <fullscreen>false</fullscreen>
+    <capture-mouse>false</capture-mouse>
     
   </window>
   
