@@ -57,10 +57,10 @@ void Root::initSubsystems() {
         scheduler_,
         clockManager_
     };
-    resources_ = util::make_unique<ResourceSystem>();
+    resources_ = util::make_unique<ResourceSystem>(config_);
     window_ = util::make_unique<WindowSystem>(ctx);
     input_ = util::make_unique<InputSystem>(ctx);
-    graphics_ = util::make_unique<GraphicsSystem>(ctx);
+    graphics_ = util::make_unique<GraphicsSystem>(scheduler_, *resources_);
 }
 
 void Root::runCoreTasks() {

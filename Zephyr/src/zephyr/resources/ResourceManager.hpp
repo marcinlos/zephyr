@@ -9,11 +9,23 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <boost/optional.hpp>
 
 
 
 namespace zephyr {
 namespace resources {
+
+template <typename T>
+using Maybe = boost::optional<T>;
+
+template <typename T>
+Maybe<T> indeed(const T& val) {
+    return boost::make_optional(val);
+}
+
+constexpr boost::none_t nothing = boost::none;
+
 
 /**
  * Default loading strategy - when an unknown resource is encountered,
@@ -60,8 +72,8 @@ public:
     : loader(loader)
     { }
 
-    T& put(const std::string& name, const T& value) {
-        return resources[name] = value;
+    T& put(std::string name, const T& value) {
+        return resources[std::move(name)] = value;
     }
 
     const T& get(const std::string& name) const {
@@ -74,6 +86,20 @@ public:
 
     Proxy operator [](std::string name) {
         return Proxy(*this, std::move(name));
+    }
+
+    bool exists(const std::string& name) {
+        auto it = resources.find(name);
+        return it != end(resources);
+    }
+
+    Maybe<T> tryGet(const std::string& name) {
+        auto it = resources.find(name);
+        if (it != end(resources)) {
+            return indeed(it->second);
+        } else {
+            return nothing;
+        }
     }
 
 private:

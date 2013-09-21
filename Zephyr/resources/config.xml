@@ -13,10 +13,15 @@
     <vsync>true</vsync>
     
     <camera>
-        <fov>60</fov>
-        <z-near>1</z-near>
-        <z-far>100</z-far>
+      <fov>60</fov>
+      <z-near>1</z-near>
+      <z-far>100</z-far>
     </camera>
     
   </gfx>
+  
+  <resources>
+    <file>resources/materials.xml</file>
+  </resources>
+  
 </zephyr>

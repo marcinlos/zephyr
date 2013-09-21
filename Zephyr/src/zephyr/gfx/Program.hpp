@@ -189,6 +189,11 @@ inline bool operator != (const Program& a, const Program& b) {
 
 typedef std::shared_ptr<Program> ProgramPtr;
 
+template <typename... Args>
+inline ProgramPtr newProgram(Args&&... args) {
+    return std::make_shared<Program>(std::forward<Args>(args)...);
+}
+
 inline ProgramPtr newProgram(std::initializer_list<ShaderPtr> shaders) {
     return std::make_shared<Program>(shaders);
 }

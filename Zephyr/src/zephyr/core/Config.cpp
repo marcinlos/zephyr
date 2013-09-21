@@ -14,5 +14,9 @@ void Config::loadXML(std::istream& stream) {
     read_xml(stream, properties);
 }
 
+const Config::node& Config::getNode(const std::string& path) const {
+    return properties.get_child(path);
+}
+
 } /* namespace core */
 } /* namespace zephyr */

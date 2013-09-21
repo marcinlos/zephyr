@@ -7,6 +7,8 @@
 #include <zephyr/gfx/star.hpp>
 #include <zephyr/gfx/Texture.hpp>
 
+#include <zephyr/resources/Parser.hpp>
+
 
 using zephyr::effects::SimpleTerrainGenerator;
 
@@ -51,22 +53,23 @@ void LandscapeScene::build() {
 
 void LandscapeScene::createResources() {
     using namespace gfx;
-    res.shaders["vertex"] = newVertexShader("resources/shader.vert");
-    res.shaders["fragment"] = ShaderBuilder(GL_FRAGMENT_SHADER)
-            .version(330)
-            .define("GAMMA")
-            .file("resources/shader.frag")
-            .create();
+//    res.shaders["vertex"] = newVertexShader("resources/shader.vert");
+//    res.shaders["fragment"] = ShaderBuilder(GL_FRAGMENT_SHADER)
+//            .version(330)
+//            .define("GAMMA")
+//            .file("resources/shader.frag")
+//            .create();
+//
+//    ProgramPtr prog = res.programs["program"] = newProgram({
+//        res.shaders["vertex"],
+//        newFragmentShader("resources/phong.frag"),
+//        newFragmentShader("resources/sun.frag"),
+//        newFragmentShader("resources/gamma.frag"),
+//        res.shaders["fragment"],
+//    });
+    res.loadDefinitions("resources/materials.xml");
 
-    ProgramPtr prog = res.programs["program"] = newProgram({
-        res.shaders["vertex"],
-        newFragmentShader("resources/phong.frag"),
-        newFragmentShader("resources/sun.frag"),
-        newFragmentShader("resources/gamma.frag"),
-        res.shaders["fragment"],
-    });
-
-    MaterialPtr mat = newMaterial(res.programs["program"]);
+    MaterialPtr mat = newMaterial(res.program("main-prog"));
     mat->uniforms = {
         { "diffuseColor", unif4f(1, 0.4, 0.2, 1.0f) },
         { "spec", unif1f(0.9f) }
@@ -76,12 +79,13 @@ void LandscapeScene::createResources() {
     TexturePtr noise = makeNoise(10);
     TexturePtr terr = loadTexture("resources/terr.png");
 
+    ProgramPtr prog = res.program("main-prog");
     mat->textures = {
         { prog->uniformLocation("example"), texture },
         { prog->uniformLocation("noise"), terr }
     };
 
-    MaterialPtr terrain = newMaterial(res.programs["program"]);
+    MaterialPtr terrain = newMaterial(res.program("main-prog"));
     terrain->uniforms = {
         { "diffuseColor", unif4f(0.1f, 1.0f, 0.2f, 1.0f) },
         { "spec", unif1f(0.1f) }
@@ -98,6 +102,7 @@ void LandscapeScene::createResources() {
     res.entities["suzanne"] = newEntity(mat, res.meshes["suzanne"]);
     res.entities["star"] = newEntity(mat, res.meshes["star"]);
     res.entities["container"] = newEntity(mat, res.meshes["container"]);
+
 }
 
 

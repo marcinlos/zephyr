@@ -107,6 +107,7 @@ public:
     }
 
     ShaderPtr create() {
+        std::clog << "********************\n" << ss.str() << std::endl;
         GLuint id = createShader(type, ss.str());
         return std::make_shared<Shader>(id);
     }

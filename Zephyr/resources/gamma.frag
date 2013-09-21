@@ -1,4 +1,4 @@
-#version 330
+//#version 330
 
 const float gammaCorrection = 2.2;
 

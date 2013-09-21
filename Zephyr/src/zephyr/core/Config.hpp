@@ -19,6 +19,8 @@ namespace core {
 class Config {
 public:
 
+    typedef boost::property_tree::ptree node;
+
     /**
      * Loads XML-encoded configuration from file.
      *
@@ -45,6 +47,8 @@ public:
      */
     template<typename T>
     T get(const std::string& path, const T& def) const;
+
+    const node& getNode(const std::string& path) const;
 
 private:
     /** Tree storing configuration data */

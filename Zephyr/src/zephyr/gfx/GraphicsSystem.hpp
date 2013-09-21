@@ -5,13 +5,19 @@
 #ifndef ZEPHYR_GFX_GRAPHICSSYSTEM_HPP_
 #define ZEPHYR_GFX_GRAPHICSSYSTEM_HPP_
 
+#include <zephyr/core/Scheduler.hpp>
+#include <zephyr/resources/ResourceSystem.hpp>
 #include <zephyr/gfx/Renderer.hpp>
 #include <zephyr/gfx/DebugDrawer.hpp>
 #include <zephyr/util/make_unique.hpp>
 #include <zephyr/core/WrapperTask.hpp>
 #include <zephyr/Context.hpp>
+#include <zephyr/core/Config.hpp>
 #include <memory>
 
+using zephyr::core::Scheduler;
+using zephyr::core::Config;
+using zephyr::resources::ResourceSystem;
 
 namespace zephyr {
 namespace gfx {
@@ -20,15 +26,18 @@ class GraphicsSystem {
 public:
 
 
-    GraphicsSystem(Context ctx)
+    GraphicsSystem(
+        Scheduler& scheduler,
+        ResourceSystem& resources
+    )
     : renderer_ { util::make_unique<Renderer>() }
-    , debug_ { util::make_unique<DebugDrawer>(*renderer_) }
+    , debug_ { util::make_unique<DebugDrawer>(*renderer_, resources) }
     {
         auto invoker = core::wrapAsTask([this]() {
             debug_->update();
             renderer_->render();
         });
-        ctx.scheduler.startTask("renderer-invoker", 500000, invoker);
+        scheduler.startTask("renderer-invoker", 500000, invoker);
 
     }
 

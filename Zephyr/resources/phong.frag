@@ -1,4 +1,3 @@
-#version 330
 #define GAMMA
 
 in vec3 camNorm;

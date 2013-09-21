@@ -12,6 +12,7 @@
 #include <zephyr/gfx/star.hpp>
 #include <zephyr/gfx/Mesh.hpp>
 #include <zephyr/gfx/solids.hpp>
+#include <zephyr/resources/ResourceSystem.hpp>
 #include <vector>
 
 using zephyr::core::Task;
@@ -23,27 +24,28 @@ namespace gfx {
 class DebugDrawer: public Task {
 public:
 
-    DebugDrawer(Renderer& renderer)
+    DebugDrawer(Renderer& renderer, ResourceSystem& resources)
     : renderer(renderer)
+    , resources(resources)
     { init(); }
 
 
     void init() {
-        ShaderPtr vsh = newVertexShader("resources/shader.vert");
-        ShaderPtr ssh =  ShaderBuilder(GL_FRAGMENT_SHADER)
-                .version(330)
-                .file("resources/shader.frag")
-                .create();
+//        ShaderPtr vsh = newVertexShader("resources/shader.vert");
+//        ShaderPtr ssh =  ShaderBuilder(GL_FRAGMENT_SHADER)
+//                .version(330)
+//                .file("resources/shader.frag")
+//                .create();
 
-        ProgramPtr prog = newProgram({
-            vsh,
-            ssh,
-            newFragmentShader("resources/phong.frag"),
-            newFragmentShader("resources/sun.frag"),
-            newFragmentShader("resources/gamma.frag"),
-        });
+//        ProgramPtr prog = newProgram({
+//            vsh,
+//            ssh,
+//            newFragmentShader("resources/phong.frag"),
+//            newFragmentShader("resources/sun.frag"),
+//            newFragmentShader("resources/gamma.frag"),
+//        });
 
-        mat = newMaterial(prog);
+        mat = newMaterial(resources.program("main-prog"));
         mat->uniforms = {
             { "diffuseColor", unif4f(0.2, 0.4, 0.9, 1.0f) },
             { "spec", unif1f(0.9f) }
@@ -85,6 +87,7 @@ private:
 
 
     Renderer& renderer;
+    ResourceSystem& resources;
 
     std::vector<Renderable> items;
     MeshPtr cube;
