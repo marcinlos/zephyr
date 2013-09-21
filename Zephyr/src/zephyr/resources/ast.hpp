@@ -26,7 +26,7 @@ struct Shader {
     int type;
     std::string file;
     int version;
-    std::vector<std::string> defines;
+    std::vector<std::pair<std::string, std::string>> defines;
 
     Shader(std::string name, int type, std::string file, int version = -1)
     : name { std::move(name) }
@@ -44,7 +44,10 @@ inline std::ostream& operator << (std::ostream& os, const Shader& shader) {
             ", defines: [";
     bool first = true;
     for (const auto& name : shader.defines) {
-        os << (first ? first = false, "" : ", ") << name;
+        os << (first ? first = false, "" : ", ") << name.first;
+        if (!name.second.empty()) {
+            os << " : " << name.second;
+        }
     }
     os << "]}";
     return os;
@@ -78,12 +81,14 @@ inline std::ostream& operator << (std::ostream& os, const Texture& texture) {
 
 struct Material {
     std::string name;
+    std::string program;
     string_map<std::string> textures;
     string_map<gfx::UniformPtr> uniforms;
 };
 
 inline std::ostream& operator << (std::ostream& os, const Material& material) {
-    os << "material{name=" << material.name << ", textures=[";
+    os << "material{name=" << material.name << ", program=" <<
+            material.program << ", textures=[";
     {
         bool first = true;
         for (const auto& texPair : material.textures) {
@@ -96,7 +101,10 @@ inline std::ostream& operator << (std::ostream& os, const Material& material) {
         bool first = true;
         for (const auto& uniformPair : material.uniforms) {
             os << (first ? first = false, "" : ", ") << uniformPair.first <<
-                    " : " << "{...}";
+                    " : " << uniformPair.second.get();
+            if (uniformPair.second) {
+                os << "(" << typeid(*uniformPair.second).name();
+            }
         }
     }
     os << "]}";

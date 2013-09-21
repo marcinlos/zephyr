@@ -27,10 +27,6 @@ void LandscapeScene::build() {
     NodePtr suzanne = newNode(sceneRoot);
     sceneRoot->addChild("suzanne", suzanne);
 
-//        NodePtr star = newNode(suzanne);
-//        star->translateX(-2.9f);//.rotateX(M_PI / 2);
-//        suzanne->addChild(star);
-
     NodePtr ministar = newNode(sceneRoot);
     sceneRoot->addChild(ministar);
     ministar->translate(1, 2, 3).scale(0.2f);
@@ -44,7 +40,6 @@ void LandscapeScene::build() {
 
     items.push_back({ ground, res.entities["ground"] });
     items.push_back({ suzanne, res.entities["suzanne"] });
-//        items.push_back({ star, entities["star"] });
     items.push_back({ container, res.entities["container"] });
 
     items.push_back({ ministar, res.entities["star"] });
@@ -55,26 +50,23 @@ void LandscapeScene::createResources() {
     using namespace gfx;
     res.loadDefinitions("resources/materials.xml");
 
-    MaterialPtr mat = newMaterial(res.program("main-prog"));
-    mat->uniforms = {
-        { "diffuseColor", unif4f(1, 0.4, 0.2, 1.0f) },
-        { "spec", unif1f(0.9f) }
-    };
+    MaterialPtr mat = res.material("default");//newMaterial(res.program("main-prog"));
+//    mat->uniforms = {
+//        { "diffuseColor", unif4f(1, 0.4, 0.2, 1.0f) },
+//        { "spec", unif1f(0.9f) }
+//    };
+//
+//    TexturePtr texture = makeTexture();
+//    TexturePtr noise = makeNoise(10);
+//
+//    ProgramPtr prog = res.program("main-prog");
+//    mat->textures = {
+//        { prog->uniformLocation("example"), texture },
+//        { prog->uniformLocation("noise"), res.texture("terrain") }
+//    };
 
-    TexturePtr texture = makeTexture();
-    TexturePtr noise = makeNoise(10);
+    MaterialPtr terrain = res.material("terrain");
 
-    ProgramPtr prog = res.program("main-prog");
-    mat->textures = {
-        { prog->uniformLocation("example"), texture },
-        { prog->uniformLocation("noise"), res.texture("terrain") }
-    };
-
-    MaterialPtr terrain = newMaterial(res.program("main-prog"));
-    terrain->uniforms = {
-        { "diffuseColor", unif4f(0.1f, 1.0f, 0.2f, 1.0f) },
-        { "spec", unif1f(0.1f) }
-    };
 
     effects::SimpleTerrainGenerator gen(100.0f, 8, 25.0f);
     res.meshes["quad"] = gen.create();

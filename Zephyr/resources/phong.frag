@@ -3,6 +3,7 @@
 in vec3 camNorm;
 in vec3 camPos;
 uniform float spec;
+uniform float specHardness;
 
 
 float computeCutoff(in vec3 dist, in vec3 lightDir) {
@@ -31,5 +32,5 @@ float phong(in vec3 dist, in vec3 lightDir, float d) {
     vec3 ref = 2 * dot(dist, n) * n - dist;
 
     float intensity = clamp(dot(ref, toCam), 0, 1);
-    return spec * pow(intensity, 125) * attenuation(dist, lightDir, d);
+    return spec * pow(intensity, specHardness) * attenuation(dist, lightDir, d);
 }

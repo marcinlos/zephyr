@@ -30,6 +30,10 @@ void ResourceSystem::loadDefinitions(const std::string& path) {
     defs.merge(read);
 }
 
+void notFound(const std::string& what, const std::string& name) {
+    throw std::runtime_error(util::format("Cannot find {} '{}'", what, name));
+}
+
 ShaderPtr ResourceSystem::shader(const std::string& name) {
     auto val = shaders.tryGet(name);
     if (val) {
@@ -38,6 +42,7 @@ ShaderPtr ResourceSystem::shader(const std::string& name) {
         shaders.put(name, shader);
         return shader;
     } else {
+        notFound("shader", name);
         return nullptr;
     }
 }
@@ -50,6 +55,7 @@ ProgramPtr ResourceSystem::program(const std::string& name) {
         programs.put(name, program);
         return program;
     } else {
+        notFound("program", name);
         return nullptr;
     }
 }
@@ -62,6 +68,7 @@ TexturePtr ResourceSystem::texture(const std::string& name) {
         textures.put(name, texture);
         return texture;
     } else {
+        notFound("texture", name);
         return nullptr;
     }
 }
@@ -74,6 +81,7 @@ MaterialPtr ResourceSystem::material(const std::string& name) {
         materials.put(name, material);
         return material;
     } else {
+        notFound("material", name);
         return nullptr;
     }
 }
@@ -91,8 +99,8 @@ ShaderPtr ResourceSystem::loadShader(const std::string& name) {
         ShaderBuilder sb { static_cast<GLenum>(shaderDef.type) };
         sb.version(shaderDef.version);
 
-        for (const std::string& symbol : shaderDef.defines) {
-            sb.define(symbol);
+        for (const auto& symbol : shaderDef.defines) {
+            sb.define(symbol.first, symbol.second);
         }
         sb.file(shaderDef.file);
         ShaderPtr shader = sb.create();
@@ -155,7 +163,29 @@ TexturePtr ResourceSystem::loadTexture(const std::string& name) {
 }
 
 MaterialPtr ResourceSystem::loadMaterial(const std::string& name) {
+    std::clog << "Loading material " << name << std::endl;
+    auto it = defs.materials.find(name);
+    if (it != end(defs.materials)) {
+        std::clog << "Found material definition" << std::endl;
+        const ast::Material& materialDef = it->second;
+
+        MaterialPtr material = newMaterial(program(materialDef.program));
+
+        for (const auto& entry : materialDef.textures) {
+            GLuint index = material->program->uniformLocation(entry.first);
+            material->textures.push_back({ index, texture(entry.second) });
+        }
+
+        for (const auto& entry : materialDef.uniforms) {
+            material->uniforms.emplace_back(entry);
+        }
+        materials.put(name, material);
+        return material;
+    } else {
+        std::clog << "No material definition for '" << name << "' found" <<
+                std::endl;
     return nullptr;
+    }
 }
 
 } /* namespace resources */

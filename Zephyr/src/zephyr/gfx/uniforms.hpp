@@ -462,7 +462,7 @@ unifMat3x4(const glm::mat3x4& mat, bool transpose = false, int count = 1) {
 
 
 
-
+UniformPtr parse(const std::string& string);
 
 
 

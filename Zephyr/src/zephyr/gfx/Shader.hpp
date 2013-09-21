@@ -97,14 +97,11 @@ public:
         return file(path.c_str());
     }
 
-    ShaderBuilder& define(const std::string& text) {
-        return define(text.c_str());
-    }
-
-    ShaderBuilder& define(const char* text) {
-        ss << "#define " << text << std::endl;
+    ShaderBuilder& define(const std::string& text, const std::string& v = "") {
+        ss << "#define " << text << " " << v << std::endl;
         return *this;
     }
+
 
     ShaderPtr create() {
         std::clog << "********************\n" << ss.str() << std::endl;

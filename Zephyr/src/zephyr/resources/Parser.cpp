@@ -40,12 +40,24 @@ ast::Shader parseShader(const ptree& tree, int type) {
 
     ast::Shader shader { name, type, file, version };
 
-    if (const auto& defines = tree.get_child_optional("defines")) {
-        for (const auto& entry : *defines) {
-            const std::string& val = entry.second.data();
-            shader.defines.push_back(val);
+    auto range = tree.equal_range("define");
+    for (auto it = range.first; it != range.second; ++ it) {
+        std::clog << "DUUUUUUUUUUPPPPPPPAAAAAAAAAAAAAAAAA" << it->first << std::endl;
+        auto attrs = it->second.get_child("<xmlattr>");
+        const std::string& name = attrs.get<std::string>("name");
+        std::string val;
+        if (auto maybeVal = attrs.get_optional<std::string>("value")) {
+            val = *maybeVal;
         }
+        shader.defines.push_back({ name, val });
     }
+    std::clog << "CIIIIIIIIIIIIIIIIPPPPPPPAAAAAAAAA" << std::endl;
+//    if (const auto& defines = tree.get_child_optional("defines")) {
+//        for (const auto& entry : *defines) {
+//            const std::string& val = entry.second.data();
+//            shader.defines.push_back(val);
+//        }
+//    }
 
     return shader;
 }
@@ -79,18 +91,64 @@ std::pair<std::string, std::string> parseTexturePair(const ptree& tree) {
     return { slot, tex };
 }
 
+
+gfx::UniformPtr parseUniformValue(const std::string& type,
+        const std::string& value) {
+    using namespace gfx;
+
+    std::istringstream ss(value);
+    if (type == "float" || type == "vec1") {
+        float v;
+        ss >> v;
+        return unif1f(v);
+    } else if (type == "vec2") {
+        glm::vec2 v;
+        ss >> v.x >> v.y;
+        return unif2f(v);
+    } else if (type == "vec3") {
+        glm::vec3 v;
+        ss >> v.x >> v.y >> v.z;
+        return unif3f(v);
+    } else if (type == "vec4") {
+        glm::vec4 v;
+        ss >> v.x >> v.y >> v.z >> v.w;
+        return unif4f(v);
+    } else {
+        std::clog << "Unsupported value type: " << type << "... Sorry :(\n";
+        return nullptr;
+    }
+
+}
+
+std::pair<std::string, gfx::UniformPtr> parseUniform(const std::string& type,
+        const ptree& tree) {
+    const auto& attrs = tree.get_child("<xmlattr>");
+    const std::string& name = attrs.get<std::string>("name");
+    const std::string& value = attrs.get<std::string>("value");
+
+    return { name, gfx::parseUniformValue(type, value) };
+}
+
 ast::Material parseMaterial(const ptree& tree) {
     const auto& attrs = tree.get_child("<xmlattr>");
     const std::string& name = attrs.get<std::string>("name");
 
-    ast::Material material { name };
+    const std::string& program = tree.get<std::string>("program");
+
+    ast::Material material { name, program };
 
     auto texRange = tree.equal_range("texture");
     for (auto it = texRange.first; it != texRange.second; ++ it) {
         material.textures.insert(parseTexturePair(it->second));
     }
 
-
+    if (auto maybeUniforms = tree.get_child_optional("uniforms")) {
+        const auto& uniforms = *maybeUniforms;
+        for (const auto& entry : uniforms) {
+            auto value = parseUniform(entry.first, entry.second);
+            material.uniforms.emplace(std::move(value));
+        }
+    }
 
     return material;
 }

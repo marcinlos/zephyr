@@ -2,51 +2,84 @@
 <materials>
   
   <vertex-shader name="main-vertex">
-      <file>resources/shader.vert</file>
+    <file>resources/shader.vert</file>
   </vertex-shader>
   
-  <frag-shader name="main-frag">
-      <file>resources/shader.frag</file>
-      <version>330</version>
-      
-      <defines>
-          <!-- <def>GAMMA</def> -->
-      </defines>
+  
+  <frag-shader name="main-frag-texture">
+    <file>resources/shader.frag</file>
+    <version>330</version>
+    <!-- <define name="GAMMA" /> -->
+    <define name="DIFFUSE_TEXTURE" />
   </frag-shader>
+  
+    
+  <frag-shader name="main-frag-diffuse">
+    <file>resources/shader.frag</file>
+    <version>330</version>
+    <!-- <define name="GAMMA" /> -->
+    <define name="DIFFUSE_UNIFORM" />
+  </frag-shader>
+
 
   <frag-shader name="phong">
       <file>resources/phong.frag</file>
   </frag-shader>
 
+
   <frag-shader name="sun">
       <file>resources/sun.frag</file>
   </frag-shader>
   
+  
   <frag-shader name="gamma">
       <file>resources/gamma.frag</file>
   </frag-shader>
+  
 
-  <program name="main-prog">
+  <program name="main-prog-texture">
     <shader>main-vertex</shader>
-    <shader>main-frag</shader>
+    <shader>main-frag-texture</shader>
     <shader>phong</shader>
     <shader>sun</shader>
     <shader>gamma</shader>
   </program>
+  
+  
+   <program name="main-prog-diffuse">
+    <shader>main-vertex</shader>
+    <shader>main-frag-diffuse</shader>
+    <shader>phong</shader>
+    <shader>sun</shader>
+    <shader>gamma</shader>
+  </program>
+  
 
   <texture name="terrain">
      <file>resources/terr.png</file>
   </texture>
+  
+  <texture name="normal">
+    <file>resources/normal.jpg</file>
+  </texture>
+  
 
   <material name="default">
-    <program>main-prog</program>
-    
-    <texture slot="diffuse" ref="terrain" />
-    <texture slot="bump" ref="dupa" />
-    
+    <program>main-prog-diffuse</program>
     <uniforms>
-        <vec4 name="diffuseColor">1 0.4 0.2 1.0</vec4>
-        <float name="spec">0.2</float>
+      <vec4 name="diffuseColor" value="0.1 1 0.2 1.0" />
+      <float name="spec" value="0.9" />
+      <float name="specHardness" value="4" />
+    </uniforms>
+  </material>
+  
+  
+  <material name="terrain">
+    <program>main-prog-texture</program>
+    <texture slot="diffuse" ref="terrain" />
+    <uniforms>
+      <float name="spec" value="4.9" />
+      <float name="specHardness" value="2" />
     </uniforms>
   </material>
 

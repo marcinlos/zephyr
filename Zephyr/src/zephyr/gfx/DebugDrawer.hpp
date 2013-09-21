@@ -31,26 +31,7 @@ public:
 
 
     void init() {
-//        ShaderPtr vsh = newVertexShader("resources/shader.vert");
-//        ShaderPtr ssh =  ShaderBuilder(GL_FRAGMENT_SHADER)
-//                .version(330)
-//                .file("resources/shader.frag")
-//                .create();
-
-//        ProgramPtr prog = newProgram({
-//            vsh,
-//            ssh,
-//            newFragmentShader("resources/phong.frag"),
-//            newFragmentShader("resources/sun.frag"),
-//            newFragmentShader("resources/gamma.frag"),
-//        });
-
-        mat = newMaterial(resources.program("main-prog"));
-        mat->uniforms = {
-            { "diffuseColor", unif4f(0.2, 0.4, 0.9, 1.0f) },
-            { "spec", unif1f(0.9f) }
-        };
-
+        mat = resources.material("default");
         cube = makeCube();
     }
 
