@@ -39,6 +39,10 @@ public:
         });
         scheduler.startTask("renderer-invoker", 500000, invoker);
 
+
+        void glimgLoad();
+        glimgLoad();
+
     }
 
     Renderer& renderer() {

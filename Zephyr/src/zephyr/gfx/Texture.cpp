@@ -73,22 +73,25 @@ TexturePtr makeNoise(int size) {
 }
 
 
+unsigned int glimgCreateTexture(glimg::ImageSet* img);
+
+
 TexturePtr loadTexture(const std::string& path) {
     using namespace glimg;
     std::unique_ptr<ImageSet> image { loaders::stb::LoadFromFile(path) };
     auto dim = image->GetDimensions();
     TexDim dimensions = static_cast<TexDim>(dim.numDimensions);
 
-    GLuint tex;
+    GLuint tex = glimgCreateTexture(image.get());
 
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dim.width, dim.height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, image->GetImage(0, 0, 0).GetImageData());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
+//    glGenTextures(1, &tex);
+//    glBindTexture(GL_TEXTURE_2D, tex);
+//
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dim.width, dim.height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, image->GetImage(0, 0, 0).GetImageData());
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+//
+//    glBindTexture(GL_TEXTURE_2D, 0);
 
 
     return newTexture(tex, dimensions, dim.width, dim.height, dim.depth);

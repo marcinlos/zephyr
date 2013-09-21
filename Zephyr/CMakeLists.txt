@@ -25,6 +25,7 @@ add_executable(game
     ${SRC}/core/MessageDispatcher.cpp
     ${SRC}/core/DispatcherTask.cpp
     ${SRC}/core/Config.cpp
+    ${SRC}/gfx/glimg.cpp
     ${SRC}/glfw/init.cpp
     ${SRC}/glfw/input_adapter.cpp
     ${SRC}/window/Window.cpp
@@ -58,7 +59,7 @@ target_link_libraries(game glimg glload GLEW GLU glfw3 GL X11 Xxf86vm Xrandr pth
 add_executable(demo
     example/example.cpp)
 
-target_link_libraries(demo GL GLEW glfw)
+target_link_libraries(demo glimg glload GL)
 
 
 # Unit testing
