@@ -28,6 +28,8 @@ void Renderer::updateViewport() {
     glfwGetFramebufferSize(window, &w, &h);
     viewport_.set(0, 0, w, h);
     glViewport(0, 0, w, h);
+
+    uniforms_.set4ui("viewport", 0, 0, w, h);
 }
 
 void Renderer::setCulling() {

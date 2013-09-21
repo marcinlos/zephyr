@@ -102,15 +102,15 @@ public:
         set(std::move(name), std::make_shared<uniform1i>(v));
     }
 
-    void set1i(std::string name, GLint v1, GLint v2) {
+    void set2i(std::string name, GLint v1, GLint v2) {
         set(std::move(name), std::make_shared<uniform2i>(v1, v2));
     }
 
-    void set1i(std::string name, GLint v1, GLint v2, GLint v3) {
+    void set3i(std::string name, GLint v1, GLint v2, GLint v3) {
         set(std::move(name), std::make_shared<uniform3i>(v1, v2, v3));
     }
 
-    void set1i(std::string name, GLint v1, GLint v2, GLint v3, GLint v4) {
+    void set4i(std::string name, GLint v1, GLint v2, GLint v3, GLint v4) {
         set(std::move(name), std::make_shared<uniform4i>(v1, v2, v3, v4));
     }
 
@@ -118,15 +118,15 @@ public:
         set(std::move(name), std::make_shared<uniform1i>(v));
     }
 
-    void set1ui(std::string name, GLuint v1, GLuint v2) {
+    void set2ui(std::string name, GLuint v1, GLuint v2) {
         set(std::move(name), std::make_shared<uniform2i>(v1, v2));
     }
 
-    void set1ui(std::string name, GLuint v1, GLuint v2, GLuint v3) {
+    void set3ui(std::string name, GLuint v1, GLuint v2, GLuint v3) {
         set(std::move(name), std::make_shared<uniform3i>(v1, v2, v3));
     }
 
-    void set1ui(std::string name, GLuint v1, GLuint v2, GLuint v3, GLuint v4) {
+    void set4ui(std::string name, GLuint v1, GLuint v2, GLuint v3, GLuint v4) {
         set(std::move(name), std::make_shared<uniform4i>(v1, v2, v3, v4));
     }
 

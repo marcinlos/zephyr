@@ -30,9 +30,13 @@ typedef std::shared_ptr<struct Object> ObjectPtr;
 typedef std::weak_ptr<struct Object> WeakObjectPtr;
 
 enum class Primitive {
-    POINTS    = GL_POINTS,
-    LINES     = GL_LINES,
-    TRIANGLES = GL_TRIANGLES
+    POINTS         = GL_POINTS,
+    LINES          = GL_LINES,
+    LINE_STRIP     = GL_LINE_STRIP,
+    LINE_LOOP      = GL_LINE_LOOP,
+    TRIANGLES      = GL_TRIANGLES,
+    TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
+    TRIANGLE_FAN   = GL_TRIANGLE_FAN
 };
 
 inline GLenum primitiveToGL(Primitive primitive) {

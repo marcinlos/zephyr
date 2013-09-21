@@ -51,18 +51,18 @@ public:
 private:
 
     MeshPtr makeCube() const {
-        std::vector<glm::vec4> vertices;
-        std::vector<std::uint16_t> indices;
-        std::tie(vertices, indices) = makeBox<std::uint16_t>(1);
-
-        std::vector<glm::vec4> v2;
-        std::vector<glm::vec3> i2;
-
-        std::tie(v2, i2) = generateNormalsSplit(vertices, indices);
+        std::vector<glm::vec4> vertices = makeBoxVertices(1);
+        std::vector<std::uint16_t> indices = makeBoxLinesIndices<std::uint16_t>();
+//        std::tie(vertices, indices) = makeBox<std::uint16_t>(1);
+//
+//        std::vector<glm::vec4> v2;
+//        std::vector<glm::vec3> i2;
+//
+//        std::tie(v2, i2) = generateNormalsSplit(vertices, indices);
 
         return MeshBuilder()
-                .setBuffer(v2).attribute(0, 4)
-                .setBuffer(i2).attribute(2, 3)
+                .setBuffer(vertices).attribute(0, 4)
+                .setIndices(indices)
                 .create(Primitive::LINES);
     }
 

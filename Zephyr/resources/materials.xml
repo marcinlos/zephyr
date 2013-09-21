@@ -93,6 +93,15 @@
     </uniforms>
   </material>
   
+  <material name="white-solid">
+    <program>main-prog-diffuse</program>
+    <uniforms>
+      <vec4 name="diffuseColor" value="1 1 1 1.0" />
+      <float name="spec" value="1" />
+      <float name="specHardness" value="80" />
+    </uniforms>
+  </material>
+  
   
   <material name="terrain">
     <program>main-prog-texture</program>

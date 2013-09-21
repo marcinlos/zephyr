@@ -63,7 +63,7 @@ void LandscapeScene::createResources() {
 
     res.entities["ground"] = newEntity(terrain, res.meshes["quad"]);
     res.entities["suzanne"] = newEntity(suzanne, res.meshes["suzanne"]);
-    res.entities["star"] = newEntity(mat, res.meshes["star"]);
+    res.entities["star"] = newEntity(res.material("white-solid"), res.meshes["star"]);
     res.entities["container"] = newEntity(mat, res.meshes["container"]);
 
 }

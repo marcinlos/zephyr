@@ -13,13 +13,8 @@ namespace zephyr {
 namespace gfx {
 
 
-template <typename IndexType>
-std::pair<
-    std::vector<glm::vec4>,
-    std::vector<IndexType>
->
-makeBox(float a) {
-    std::vector<glm::vec4> vertices {
+inline std::vector<glm::vec4> makeBoxVertices(float a) {
+    return {
         a * glm::vec4 { -1, -1,  1, 1 },
         a * glm::vec4 {  1, -1,  1, 1 },
         a * glm::vec4 {  1,  1,  1, 1 },
@@ -29,7 +24,11 @@ makeBox(float a) {
         a * glm::vec4 {  1,  1, -1, 1 },
         a * glm::vec4 { -1,  1, -1, 1 },
     };
-    std::vector<IndexType> indices {
+}
+
+template <typename IndexType>
+inline std::vector<IndexType> makeBoxTrianglesIndices() {
+    return {
         0, 2, 1, 2, 0, 3,
         1, 6, 5, 6, 1, 2,
         5, 7, 4, 7, 5, 6,
@@ -37,7 +36,29 @@ makeBox(float a) {
         3, 7, 6, 6, 2, 3,
         0, 1, 5, 5, 4, 0
     };
-    return { move(vertices), move(indices) };
+}
+
+
+template <typename IndexType>
+inline std::vector<IndexType> makeBoxLinesIndices() {
+    return {
+        0, 1, 1, 2, 2, 3, 3, 0,
+        4, 5, 5, 6, 6, 7, 7, 4,
+        0, 4, 1, 5, 2, 6, 3, 7
+    };
+}
+
+
+template <typename IndexType>
+std::pair<
+    std::vector<glm::vec4>,
+    std::vector<IndexType>
+>
+makeBox(float a) {
+    return {
+        makeBoxVertices(a),
+        makeBoxTrianglesIndices<IndexType>()
+    };
 }
 
 
