@@ -1,46 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materials>
+  
+  <vertex-shader name="main-vertex">
+      <file>resources/shader.vert</file>
+  </vertex-shader>
+  
+  <frag-shader name="main-frag">
+      <file>resources/shader.frag</file>
+      <version>330</version>
+      
+      <defines>
+          <!-- <def>GAMMA</def> -->
+      </defines>
+  </frag-shader>
 
-	<vertex-shader name="main-vertex">
-	    <file>resources/shader.vert</file>
-	</vertex-shader>
-	
-	<frag-shader name="main-frag">
-	    <file>resources/shader.frag</file>
-	    <version>330</version>
-	    
-	    <defines>
-	        <!-- <def>GAMMA</def> -->
-	    </defines>
-	</frag-shader>
-	
-	<frag-shader name="phong">
-	    <file>resources/phong.frag</file>
-	</frag-shader>
-	
-	<frag-shader name="sun">
-	    <file>resources/sun.frag</file>
-	</frag-shader>
-	
-	<frag-shader name="gamma">
-	    <file>resources/gamma.frag</file>
-	</frag-shader>
-	
-	<program name="main-prog">
-	    <shader>main-vertex</shader>
-	    <shader>main-frag</shader>
-	    <shader>phong</shader>
-	    <shader>sun</shader>
-	    <shader>gamma</shader>
-	</program>
-	
-	
-	<material name="default">
-	    <program>main-prog</program>
-	    <uniforms>
-	        <vec4 name="diffuseColor" value="(1, 0.4, 0.2, 1.0)" />
-	        <float name="spec" value="0.1f" />
-	    </uniforms>
-	</material>
+  <frag-shader name="phong">
+      <file>resources/phong.frag</file>
+  </frag-shader>
+
+  <frag-shader name="sun">
+      <file>resources/sun.frag</file>
+  </frag-shader>
+  
+  <frag-shader name="gamma">
+      <file>resources/gamma.frag</file>
+  </frag-shader>
+
+  <program name="main-prog">
+    <shader>main-vertex</shader>
+    <shader>main-frag</shader>
+    <shader>phong</shader>
+    <shader>sun</shader>
+    <shader>gamma</shader>
+  </program>
+
+  <texture name="terrain">
+     <file>resources/terr.png</file>
+  </texture>
+
+  <material name="default">
+    <program>main-prog</program>
+    
+    <texture slot="diffuse" ref="terrain" />
+    <texture slot="bump" ref="dupa" />
+    
+    <uniforms>
+        <vec4 name="diffuseColor">1 0.4 0.2 1.0</vec4>
+        <float name="spec">0.2</float>
+    </uniforms>
+  </material>
 
 </materials>

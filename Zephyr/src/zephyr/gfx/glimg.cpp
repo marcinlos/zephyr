@@ -13,18 +13,6 @@ using namespace glimg;
 namespace zephyr {
 namespace gfx {
 
-// initializer
-//namespace {
-//    struct glimg_init {
-//        glimg_init() {
-//            std::clog << "[glload] Loading functions..." << std::endl;
-//            if (!glload::LoadFunctions()) {
-//                std::terminate();
-//            }
-//        }
-//    } initializer_;
-//}
-
 void glimgLoad() {
     std::clog << "[glload] Loading functions..." << std::endl;
     if (!glload::LoadFunctions()) {

@@ -6,6 +6,7 @@
 #define ZEPHYR_RESOURCES_AST_HPP_
 
 #include <zephyr/gfx/objects.h>
+#include <zephyr/gfx/uniforms.hpp>
 #include <zephyr/gfx/Shader.hpp>
 #include <iostream>
 #include <vector>
@@ -16,6 +17,9 @@ namespace zephyr {
 namespace resources {
 namespace ast {
 
+
+template <typename T>
+using string_map = std::unordered_map<std::string, T>;
 
 struct Shader {
     std::string name;
@@ -61,15 +65,58 @@ inline std::ostream& operator << (std::ostream& os, const Program& program) {
     return os;
 }
 
+struct Texture {
+    std::string name;
+    std::string file;
+};
+
+inline std::ostream& operator << (std::ostream& os, const Texture& texture) {
+    return os << "texture{name=" << texture.name << ", file=" <<
+            texture.file << "}";
+}
+
+
+struct Material {
+    std::string name;
+    string_map<std::string> textures;
+    string_map<gfx::UniformPtr> uniforms;
+};
+
+inline std::ostream& operator << (std::ostream& os, const Material& material) {
+    os << "material{name=" << material.name << ", textures=[";
+    {
+        bool first = true;
+        for (const auto& texPair : material.textures) {
+            os << (first ? first = false, "" : ", ") << texPair.first <<
+                    " : " << texPair.second;
+        }
+    }
+    os << "], uniforms=[";
+    {
+        bool first = true;
+        for (const auto& uniformPair : material.uniforms) {
+            os << (first ? first = false, "" : ", ") << uniformPair.first <<
+                    " : " << "{...}";
+        }
+    }
+    os << "]}";
+    return os;
+}
 
 struct Root {
-    std::unordered_map<std::string, Shader> shaders;
-    std::unordered_map<std::string, Program> programs;
+
+    string_map<Shader> shaders;
+    string_map<Program> programs;
+    string_map<Texture> textures;
+    string_map<Material> materials;
 
     void merge(const Root& o) {
         shaders.insert(begin(o.shaders), end(o.shaders));
         programs.insert(begin(o.programs), end(o.programs));
+        textures.insert(begin(o.textures), end(o.textures));
+        materials.insert(begin(o.materials), end(o.materials));
     }
+
 };
 
 inline std::ostream& operator << (std::ostream& os, const Root& root) {
@@ -80,6 +127,14 @@ inline std::ostream& operator << (std::ostream& os, const Root& root) {
     os << "  }\n  programs {\n";
     for (const auto& program : root.programs) {
         os << "    " << program.second << std::endl;
+    }
+    os << "  }\n  textures {\n";
+    for (const auto& texture : root.textures) {
+        os << "    " << texture.second << std::endl;
+    }
+    os << "  }\n  materials {\n";
+    for (const auto& material : root.materials) {
+        os << "    " << material.second << std::endl;
     }
     os << "  }\n";
     os << "}";

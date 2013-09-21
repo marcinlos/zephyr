@@ -64,6 +64,37 @@ ast::Program parseProgram(const ptree& tree) {
     return program;
 }
 
+ast::Texture parseTexture(const ptree& tree) {
+    const auto& attrs = tree.get_child("<xmlattr>");
+    const std::string& name = attrs.get<std::string>("name");
+    const std::string& file = tree.get<std::string>("file");
+
+    return ast::Texture { name, file };
+}
+
+std::pair<std::string, std::string> parseTexturePair(const ptree& tree) {
+    const auto& attrs = tree.get_child("<xmlattr>");
+    const std::string& slot = attrs.get<std::string>("slot");
+    const std::string& tex = attrs.get<std::string>("ref");
+    return { slot, tex };
+}
+
+ast::Material parseMaterial(const ptree& tree) {
+    const auto& attrs = tree.get_child("<xmlattr>");
+    const std::string& name = attrs.get<std::string>("name");
+
+    ast::Material material { name };
+
+    auto texRange = tree.equal_range("texture");
+    for (auto it = texRange.first; it != texRange.second; ++ it) {
+        material.textures.insert(parseTexturePair(it->second));
+    }
+
+
+
+    return material;
+}
+
 
 void Parser::updateWith(const ptree& tree) {
     for (auto& item : tree.get_child("materials")) {
@@ -77,6 +108,12 @@ void Parser::updateWith(const ptree& tree) {
         } else if (name == "program") {
             ast::Program program = parseProgram(item.second);
             defs.programs.emplace(program.name, std::move(program));
+        } else if (name == "texture") {
+            ast::Texture texture = parseTexture(item.second);
+            defs.textures.emplace(texture.name, std::move(texture));
+        } else if (name == "material") {
+            ast::Material material = parseMaterial(item.second);
+            defs.materials.emplace(material.name, std::move(material));
         } else {
             std::clog << "[Resources] Warning: unknown entry '" << name <<
                     "'" << std::endl;

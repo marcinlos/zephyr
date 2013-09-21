@@ -36,6 +36,10 @@ public:
 
     ProgramPtr program(const std::string& name);
 
+    TexturePtr texture(const std::string& name);
+
+    MaterialPtr material(const std::string& name);
+
     const unsigned int DEFAULT_SHADER_VERSION = 330;
 
 private:
@@ -44,6 +48,9 @@ private:
 
     ProgramPtr loadProgram(const std::string& name);
 
+    TexturePtr loadTexture(const std::string& name);
+
+    MaterialPtr loadMaterial(const std::string& name);
 
     ast::Root defs;
 

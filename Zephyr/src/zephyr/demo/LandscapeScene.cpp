@@ -53,20 +53,6 @@ void LandscapeScene::build() {
 
 void LandscapeScene::createResources() {
     using namespace gfx;
-//    res.shaders["vertex"] = newVertexShader("resources/shader.vert");
-//    res.shaders["fragment"] = ShaderBuilder(GL_FRAGMENT_SHADER)
-//            .version(330)
-//            .define("GAMMA")
-//            .file("resources/shader.frag")
-//            .create();
-//
-//    ProgramPtr prog = res.programs["program"] = newProgram({
-//        res.shaders["vertex"],
-//        newFragmentShader("resources/phong.frag"),
-//        newFragmentShader("resources/sun.frag"),
-//        newFragmentShader("resources/gamma.frag"),
-//        res.shaders["fragment"],
-//    });
     res.loadDefinitions("resources/materials.xml");
 
     MaterialPtr mat = newMaterial(res.program("main-prog"));
@@ -77,12 +63,11 @@ void LandscapeScene::createResources() {
 
     TexturePtr texture = makeTexture();
     TexturePtr noise = makeNoise(10);
-    TexturePtr terr = loadTexture("resources/terr.png");
 
     ProgramPtr prog = res.program("main-prog");
     mat->textures = {
         { prog->uniformLocation("example"), texture },
-        { prog->uniformLocation("noise"), terr }
+        { prog->uniformLocation("noise"), res.texture("terrain") }
     };
 
     MaterialPtr terrain = newMaterial(res.program("main-prog"));

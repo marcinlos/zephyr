@@ -5,6 +5,9 @@
 #include <zephyr/resources/ResourceSystem.hpp>
 #include <zephyr/resources/Parser.hpp>
 #include <zephyr/gfx/Shader.hpp>
+#include <zephyr/gfx/Program.hpp>
+#include <zephyr/gfx/Texture.hpp>
+#include <zephyr/gfx/objects.h>
 
 namespace zephyr {
 namespace resources {
@@ -51,23 +54,50 @@ ProgramPtr ResourceSystem::program(const std::string& name) {
     }
 }
 
+TexturePtr ResourceSystem::texture(const std::string& name) {
+    auto val = textures.tryGet(name);
+    if (val) {
+        return *val;
+    } else if (TexturePtr texture = loadTexture(name)) {
+        textures.put(name, texture);
+        return texture;
+    } else {
+        return nullptr;
+    }
+}
+
+MaterialPtr ResourceSystem::material(const std::string& name) {
+    auto val = materials.tryGet(name);
+    if (val) {
+        return *val;
+    } else if (MaterialPtr material = loadMaterial(name)) {
+        materials.put(name, material);
+        return material;
+    } else {
+        return nullptr;
+    }
+}
+
+
 ShaderPtr ResourceSystem::loadShader(const std::string& name) {
     std::clog << "Loading shader " << name << std::endl;
     auto it = defs.shaders.find(name);
     if (it != end(defs.shaders)) {
         std::clog << "Found description" << std::endl;
-        ast::Shader& shader = it->second;
-        if (shader.version < 0) {
-            shader.version = DEFAULT_SHADER_VERSION;
+        ast::Shader& shaderDef = it->second;
+        if (shaderDef.version < 0) {
+            shaderDef.version = DEFAULT_SHADER_VERSION;
         }
-        ShaderBuilder sb { static_cast<GLenum>(shader.type) };
-        sb.version(shader.version);
+        ShaderBuilder sb { static_cast<GLenum>(shaderDef.type) };
+        sb.version(shaderDef.version);
 
-        for (const std::string& symbol : shader.defines) {
+        for (const std::string& symbol : shaderDef.defines) {
             sb.define(symbol);
         }
-        sb.file(shader.file);
-        return sb.create();
+        sb.file(shaderDef.file);
+        ShaderPtr shader = sb.create();
+        shaders.put(name, shader);
+        return shader;
     } else {
         std::clog << "No description found for shader " << name << std::endl;
         return nullptr;
@@ -78,12 +108,12 @@ ProgramPtr ResourceSystem::loadProgram(const std::string& name) {
     std::clog << "Loading program " << name << std::endl;
     auto it = defs.programs.find(name);
     if (it != end(defs.programs)) {
-        std::clog << "Found program definition" << std::endl;
-        const ast::Program& program = it->second;
+        std::clog << "Found programDef definition" << std::endl;
+        const ast::Program& programDef = it->second;
         std::vector<ShaderPtr> shaders;
-        shaders.reserve(program.shaders.size());
+        shaders.reserve(programDef.shaders.size());
         bool missing = false;
-        for (const std::string& shaderName : program.shaders) {
+        for (const std::string& shaderName : programDef.shaders) {
             std::clog << "Linking shader " << shaderName << "..." << std::endl;
             if (const auto& shaderPtr = shader(shaderName)) {
                 shaders.push_back(shaderPtr);
@@ -94,11 +124,38 @@ ProgramPtr ResourceSystem::loadProgram(const std::string& name) {
                         " during linking program " << name << std::endl;
             }
         }
-        return missing ? nullptr : newProgram(shaders);
+        if (!missing) {
+            ProgramPtr program = newProgram(shaders);
+            programs.put(name, program);
+            return program;
+        } else {
+            return nullptr;
+        }
     } else {
-        std::clog << "No program definition found" << std::endl;
+        std::clog << "No program definition for '" << name << "' found" <<
+                std::endl;
         return nullptr;
     }
+}
+
+TexturePtr ResourceSystem::loadTexture(const std::string& name) {
+    std::clog << "Loading texture " << name << std::endl;
+    auto it = defs.textures.find(name);
+    if (it != end(defs.textures)) {
+        std::clog << "Found texture definition" << std::endl;
+        const ast::Texture& textureDef = it->second;
+        TexturePtr texture = gfx::loadTexture(textureDef.file);
+        textures.put(name, texture);
+        return texture;
+    } else {
+        std::clog << "No texture definitnion for '" << name << "' found" <<
+                std::endl;
+        return nullptr;
+    }
+}
+
+MaterialPtr ResourceSystem::loadMaterial(const std::string& name) {
+    return nullptr;
 }
 
 } /* namespace resources */
