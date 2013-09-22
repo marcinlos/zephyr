@@ -24,8 +24,6 @@ static const GLfloat screenQuadVertices[] = {
 };
 
 
-
-
 Renderer::Renderer(ResourceSystem& res) {
     glewInit();
     glfwSwapInterval(vsync_);
@@ -35,27 +33,26 @@ Renderer::Renderer(ResourceSystem& res) {
 
     updateViewport();
 
-    int width = viewport_.width();
-    int height = viewport_.height();
-
-    gbuffer_ = util::make_unique<FrameBuffer>(3, width, height);
     screenQuad_ = MeshBuilder()
             .setBuffer(screenQuadVertices).attribute(0, 3)
             .create();
 
-    // Create and compile our GLSL program from the shaders
     postProcess_ = res.program("post");
-    //
 }
 
 void Renderer::updateViewport() {
     int w, h;
     GLFWwindow* window = glfwGetCurrentContext();
     glfwGetFramebufferSize(window, &w, &h);
+    bool changed = w != viewport_.width() || h != viewport_.height();
     viewport_.set(0, 0, w, h);
     glViewport(0, 0, w, h);
 
-    uniforms_.set4ui("viewport", 0, 0, w, h);
+    if (changed) {
+        gbuffer_ = util::make_unique<FrameBuffer>(4, w, h);
+        uniforms_.set4ui("viewport", 0, 0, w, h);
+    }
+
 }
 
 void Renderer::setCulling() {
@@ -101,10 +98,58 @@ inline GLenum textureType(TexDim dim) {
     }
 }
 
-void Renderer::setMaterial(const MaterialPtr& material) {
-    if (currentProgram_ != material->program) {
-        glUseProgram(material->program->ref());
-        currentProgram_ = material->program;
+struct TextureBinder {
+public:
+
+    TextureBinder(ProgramPtr program)
+    : nextFreeUnit_ { 0 }
+    , program_ { std::move(program) }
+    { }
+
+    TextureBinder& bind(GLint index, GLuint texture) {
+        glActiveTexture(GL_TEXTURE0 + nextFreeUnit_);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glUniform1i(index, nextFreeUnit_);
+
+        GLuint sampler;
+        glGenSamplers(1, &sampler);
+        glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glBindSampler(nextFreeUnit_, sampler);
+
+        glActiveTexture(GL_TEXTURE0);
+        ++ nextFreeUnit_;
+        return *this;
+    }
+
+    TextureBinder& bind(const std::string& name, GLint texture) {
+        GLint uniform = program_->uniformLocation(name);
+        if (uniform >= 0) {
+            bind(uniform, texture);
+        }
+        return *this;
+    }
+
+private:
+    GLint nextFreeUnit_;
+    ProgramPtr program_;
+};
+
+void Renderer::setUniformsForCurrentProgram() {
+    for (const auto& needed : currentProgram_->uniforms()) {
+        const std::string& name = needed.first;
+        if (Uniform* value = uniforms_.get(name)) {
+            value->set(needed.second);
+        }
+    }
+}
+
+void Renderer::setProgram(const ProgramPtr& program) {
+    if (currentProgram_ != program) {
+        glUseProgram(program->ref());
+        currentProgram_ = program;
         if (!markAsLoaded(currentProgram_)) {
             for (const auto& blocks : currentProgram_->uniformBlocks()) {
                 const std::string& name = blocks.first;
@@ -114,12 +159,11 @@ void Renderer::setMaterial(const MaterialPtr& material) {
             }
         }
     }
-    for (const auto& needed : currentProgram_->uniforms()) {
-        const std::string& name = needed.first;
-        if (Uniform* value = uniforms_.get(name)) {
-            value->set(needed.second);
-        }
-    }
+}
+
+void Renderer::setMaterial(const MaterialPtr& material) {
+    setProgram(material->program);
+    setUniformsForCurrentProgram();
     for (const auto& local : material->uniforms) {
         const std::string& name = local.first;
         GLint slot = currentProgram_->uniformLocation(name);
@@ -127,26 +171,29 @@ void Renderer::setMaterial(const MaterialPtr& material) {
             local.second->set(slot);
         }
     }
-    int texUnit = 0;
+    TextureBinder binder { currentProgram_ };
+//    int texUnit = 0;
     for (const auto& texPair : material->textures) {
         GLint samplerUniform = texPair.first;
         if (samplerUniform < 0) continue;
 
-        const TexturePtr& texture = texPair.second;
-
-        glUniform1i(samplerUniform, texUnit);
-
-        glActiveTexture(GL_TEXTURE0 + texUnit);
-        glBindTexture(textureType(texture->dim), texture->ref());
-
-        GLuint sampler;
-        glGenSamplers(1, &sampler);
-        glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-        glBindSampler(texUnit, sampler);
+        binder.bind(samplerUniform, texPair.second->ref());
+//
+//        const TexturePtr& texture = texPair.second;
+//
+//        glUniform1i(samplerUniform, texUnit);
+//
+//        glActiveTexture(GL_TEXTURE0 + texUnit);
+//        glBindTexture(textureType(texture->dim), texture->ref());
+//
+//        GLuint sampler;
+//        glGenSamplers(1, &sampler);
+//        glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//        glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//        glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//        glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//
+//        glBindSampler(texUnit, sampler);
     }
 }
 
@@ -156,6 +203,7 @@ void Renderer::setModelTransform(const glm::mat4& transform) {
     auto data = glm::value_ptr(transform);
     glUniformMatrix4fv(location, 1, GL_FALSE, data);
 }
+
 
 void Renderer::render() {
     gbuffer_->bind();
@@ -179,15 +227,18 @@ void Renderer::render() {
     updateViewport();
     clearBuffers();
 
-    // Use our shader
-    glUseProgram(postProcess_->ref());
-    GLint texID = postProcess_->uniformLocation("renderedTexture");
+    //glUseProgram(postProcess_->ref());
 
-    // Bind our texture in Texture Unit 0
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, gbuffer_->get(0));
-    // Set our "renderedTexture" sampler to user Texture Unit 0
-    glUniform1i(texID, 0);
+    setProgram(postProcess_);
+    setUniformsForCurrentProgram();
+
+    TextureBinder binder { postProcess_ };
+    binder
+        .bind("renderedTexture", gbuffer_->get(0))
+        .bind("normalTexture", gbuffer_->get(1))
+        .bind("specularTexture", gbuffer_->get(2))
+        .bind("depthTexture", gbuffer_->get(3))
+        ;
 
     drawMesh(screenQuad_);
 }

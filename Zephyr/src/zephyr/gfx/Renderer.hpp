@@ -73,7 +73,9 @@ private:
     void toggleVSync();
     void drawMesh(const MeshPtr& mesh);
     void setMaterial(const MaterialPtr& material);
+    void setProgram(const ProgramPtr& program);
     void setModelTransform(const glm::mat4& transform);
+    void setUniformsForCurrentProgram();
 
     Viewport viewport_;
 

@@ -12,6 +12,7 @@
 #include <zephyr/time/ActionScheduler.hpp>
 #include <zephyr/gfx/CameraComponent.hpp>
 #include <zephyr/effects/DayNightCycle.hpp>
+#include <zephyr/effects/CameraMotionBlur.hpp>
 
 using zephyr::core::Config;
 using zephyr::gfx::Renderer;
@@ -21,6 +22,7 @@ using zephyr::time::Clock;
 using zephyr::time::ClockManager;
 using zephyr::time::TaskletScheduler;
 using zephyr::effects::DayNightCycle;
+using zephyr::effects::CameraMotionBlur;
 
 // temporary
 #include <zephyr/demo/LandscapeScene.hpp>
@@ -63,6 +65,7 @@ private:
 
     std::unique_ptr<gfx::CameraController> cameraController;
 
+    std::unique_ptr<CameraMotionBlur> cameraBlur;
     std::unique_ptr<DayNightCycle> dayNightCycle;
 
 };

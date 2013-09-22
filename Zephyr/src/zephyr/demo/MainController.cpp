@@ -13,6 +13,9 @@ namespace demo {
 
 using namespace gfx;
 
+double prevTime;
+
+
 MainController::MainController(Root& root)
 : root(root)
 , config(root.config())
@@ -42,6 +45,14 @@ MainController::MainController(Root& root)
         suzanne->rotateX(M_PI * dt / 5);
         return true;
     });
+
+    taskletScheduler.add([this](double t, double dt) {
+        cameraBlur->update(dt);
+        return true;
+    });
+
+    prevTime = clock.time();
+
 }
 
 void MainController::initCamera() {
@@ -61,6 +72,10 @@ void MainController::initCamera() {
     cameraController = util::make_unique<gfx::CameraController>(camera, clock);
     core::registerHandler(root.dispatcher(), input::msg::INPUT_SYSTEM,
                 cameraController.get(), &CameraController::handle);
+
+    cameraBlur = util::make_unique<effects::CameraMotionBlur>(renderer);
+    core::registerHandler(root.dispatcher(), input::msg::INPUT_SYSTEM,
+            cameraBlur.get(), &CameraMotionBlur::handle);
 }
 
 
@@ -99,6 +114,9 @@ void MainController::update() {
 
     landscape->graph.update();
     submitGeometry();
+
+    std::cout << "FPS: " << 1 / (time - prevTime) << std::endl;
+    prevTime = time;
 }
 
 

@@ -18,7 +18,8 @@ uniform sampler2D diffuseTexture;
 
 uniform uvec4 viewport;
 
-uniform vec4 specColor;
+vec3 specColor = vec3(1, 1, 1);
+uniform float spec;
 
 #ifdef DIFFUSE_UNIFORM
     uniform vec4 diffuseColor;
@@ -28,6 +29,9 @@ uniform vec4 specColor;
 
 //out vec4 outputColor;
 layout(location = 0) out vec3 outputColor;
+layout(location = 1) out vec3 outputNormal;
+layout(location = 2) out vec4 outputSpecular;
+layout(location = 3) out float outputDepth;
 
 vec3 computeSunlight();
 		
@@ -77,12 +81,9 @@ void main()
     float diffuse = atten * cutoff * lambert(unit);
     float spec = atten * cutoff * phong(unit, lightDir);
 
-    vec4 specColor = vec4(1, 1, 1, 1);
-
-    
     // Full light output    
     vec3 total = ambient + sunComponent + diffuse * lightColor;
-    vec4 col = diffuseColor * vec4(total, 1) + spec * specColor;
+    vec3 col = vec3(diffuseColor) * total + spec * specColor;
     // HDR adjustment
     col = col / hdrMax;
     
@@ -90,13 +91,14 @@ void main()
     col = gammaCorrect(col);
 #endif
 
-    outputColor = vec3(col);
+    outputColor = col.rgb;
 
-    /*
+    outputNormal = normalize(worldNorm.xyz);
+
+    outputSpecular = vec4(specColor, spec);
+
     vec4 ndcPos = windowToNdc(gl_FragCoord.xy);
-    outputColor = col;
     float depth = 0.5 * ndcPos.z + 0.5;
-    outputColor = mix(col, vec4(1.0), pow(depth, 5));
-    */
+    outputDepth = depth;
 }
 

@@ -31,6 +31,10 @@
       <file>resources/sun.frag</file>
   </frag-shader>
   
+  <frag-shader name="norm">
+      <file>resources/normals.frag</file>
+  </frag-shader>
+  
   
   <frag-shader name="gamma">
       <file>resources/gamma.frag</file>
@@ -46,6 +50,7 @@
     <shader>phong</shader>
     <shader>sun</shader>
     <shader>gamma</shader>
+    <shader>norm</shader>
   </program>
   
   
@@ -55,6 +60,7 @@
     <shader>phong</shader>
     <shader>sun</shader>
     <shader>gamma</shader>
+    <shader>norm</shader>
   </program>
   
   <program name="debug-wire">
@@ -90,6 +96,7 @@
       <vec4 name="diffuseColor" value="0.2 0.6 0.2 1.0" />
       <float name="spec" value="1" />
       <float name="specHardness" value="50" />
+      <vec4 name="specColor" value="1 0 0 1.0" />
     </uniforms>
   </material>
   
@@ -137,6 +144,7 @@
   <program name="post">
     <shader>trivial</shader>
     <shader>post</shader>
+    <shader>norm</shader>
   </program>
   
   
