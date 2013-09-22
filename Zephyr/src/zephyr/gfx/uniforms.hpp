@@ -118,7 +118,7 @@ struct SingleUniform<GLint, 1>: Uniform {
     { }
 
     void set(GLint location) const override {
-        glUniform1f(location, value);
+        glUniform1i(location, value);
     }
 };
 
@@ -134,7 +134,7 @@ struct SingleUniform<GLint, 2>: Uniform {
     { }
 
     void set(GLint location) const override {
-        glUniform2f(location, first, second);
+        glUniform2i(location, first, second);
     }
 };
 
@@ -152,7 +152,7 @@ struct SingleUniform<GLint, 3>: Uniform {
     { }
 
     void set(GLint location) const override {
-        glUniform3f(location, first, second, third);
+        glUniform3i(location, first, second, third);
     }
 };
 
@@ -173,7 +173,7 @@ struct SingleUniform<GLint, 4>: Uniform {
     { }
 
     void set(GLint location) const override {
-        glUniform4f(location, first, second, third, fourth);
+        glUniform4i(location, first, second, third, fourth);
     }
 };
 
@@ -195,7 +195,7 @@ struct SingleUniform<GLuint, 1>: Uniform {
     { }
 
     void set(GLint location) const override {
-        glUniform1f(location, value);
+        glUniform1ui(location, value);
     }
 };
 
@@ -211,7 +211,7 @@ struct SingleUniform<GLuint, 2>: Uniform {
     { }
 
     void set(GLint location) const override {
-        glUniform2f(location, first, second);
+        glUniform2ui(location, first, second);
     }
 };
 
@@ -229,7 +229,7 @@ struct SingleUniform<GLuint, 3>: Uniform {
     { }
 
     void set(GLint location) const override {
-        glUniform3f(location, first, second, third);
+        glUniform3ui(location, first, second, third);
     }
 };
 
@@ -250,7 +250,7 @@ struct SingleUniform<GLuint, 4>: Uniform {
     { }
 
     void set(GLint location) const override {
-        glUniform4f(location, first, second, third, fourth);
+        glUniform4ui(location, first, second, third, fourth);
     }
 };
 
@@ -387,32 +387,32 @@ inline UniformPtr unif1i(GLint v) {
     return std::make_shared<uniform1i>(v);
 }
 
-inline UniformPtr unif1i(GLint v1, GLint v2) {
+inline UniformPtr unif2i(GLint v1, GLint v2) {
     return std::make_shared<uniform2i>(v1, v2);
 }
 
-inline UniformPtr unif1i(GLint v1, GLint v2, GLint v3) {
+inline UniformPtr unif3i(GLint v1, GLint v2, GLint v3) {
     return std::make_shared<uniform3i>(v1, v2, v3);
 }
 
-inline UniformPtr unif1i(GLint v1, GLint v2, GLint v3, GLint v4) {
+inline UniformPtr unif4i(GLint v1, GLint v2, GLint v3, GLint v4) {
     return std::make_shared<uniform4i>(v1, v2, v3, v4);
 }
 
 inline UniformPtr unif1ui(GLuint v) {
-    return std::make_shared<uniform1i>(v);
+    return std::make_shared<uniform1ui>(v);
 }
 
-inline UniformPtr unif1ui(GLuint v1, GLuint v2) {
-    return std::make_shared<uniform2i>(v1, v2);
+inline UniformPtr unif2ui(GLuint v1, GLuint v2) {
+    return std::make_shared<uniform2ui>(v1, v2);
 }
 
-inline UniformPtr unif1ui(GLuint v1, GLuint v2, GLuint v3) {
-    return std::make_shared<uniform3i>(v1, v2, v3);
+inline UniformPtr unif3ui(GLuint v1, GLuint v2, GLuint v3) {
+    return std::make_shared<uniform3ui>(v1, v2, v3);
 }
 
-inline UniformPtr unif1ui(GLuint v1, GLuint v2, GLuint v3, GLuint v4) {
-    return std::make_shared<uniform4i>(v1, v2, v3, v4);
+inline UniformPtr unif4ui(GLuint v1, GLuint v2, GLuint v3, GLuint v4) {
+    return std::make_shared<uniform4ui>(v1, v2, v3, v4);
 }
 
 inline UniformPtr

@@ -10,6 +10,8 @@ uniform sampler2D depthTexture;
 
 vec3 normToColor(vec3 n);
 
+uniform uvec4 viewport;
+
 
 uniform bool blurActive;
 uniform vec2 blurDir;
@@ -34,7 +36,7 @@ vec3 computeMotionBlur(vec3 color) {
             blurColor += coeff * texture(renderedTexture, pos).rgb;
         }   
         blurColor /= norm;
-        return mix(blurColor, color, 0.3f);
+        return mix(blurColor, color, 0.7f);
     } else {
         return color;
     }
@@ -46,11 +48,20 @@ void main() {
     vec3 specular = texture(specularTexture, uv).rgb;
     float depth = texture(depthTexture, uv).r;
 
-    outputColor = normToColor(normal);
     outputColor = vec3(depth);
     outputColor = specular;
     
-    outputColor = computeMotionBlur(color);
+    float x = gl_FragCoord.x;
+    float y = gl_FragCoord.y;
+
+    vec2 d = 2.0 * gl_FragCoord.xy - viewport.zw;
+
+    d /= viewport.zw;
+    
+    float r2 = length(d);
+    float a = 1 - pow(r2 / 1.3, 5) / 2;
+    outputColor = mix(vec3(0, 0, 0), computeMotionBlur(color), a);
+
 }
 
 

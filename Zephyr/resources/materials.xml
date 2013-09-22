@@ -69,7 +69,7 @@
   </program> 
   
   <texture name="normal">
-    <file>resources/normal.jpg</file>
+    <file>resources/noisec.jpg</file>
   </texture>
   
   <material name="debug">
@@ -126,12 +126,13 @@
   <!-- Cube material -->
     
   <texture name="cube">
-     <file>resources/cube.png</file>
+     <file>resources/uv.png</file>
   </texture>
     
   <material name="cube">
     <program>main-prog-texture</program>
     <texture slot="diffuseTexture" ref="cube" />
+    <texture slot="normalTexture" ref="normal" />
     <uniforms>
       <float name="spec" value="1" />
       <float name="specHardness" value="20" />

@@ -17,10 +17,10 @@ namespace gfx {
 static const GLfloat screenQuadVertices[] = {
     -1.0f, -1.0f, 0.0f,
     -1.0f,  1.0f, 0.0f,
-    1.0f, -1.0f, 0.0f,
+     1.0f, -1.0f, 0.0f,
     -1.0f,  1.0f, 0.0f,
-    1.0f,  1.0f, 0.0f,
-    1.0f, -1.0f, 0.0f,
+     1.0f,  1.0f, 0.0f,
+     1.0f, -1.0f, 0.0f,
 };
 
 
@@ -47,6 +47,7 @@ void Renderer::updateViewport() {
     bool changed = w != viewport_.width() || h != viewport_.height();
     viewport_.set(0, 0, w, h);
     glViewport(0, 0, w, h);
+    std::cout << w << " x " << h << std::endl;
 
     if (changed) {
         gbuffer_ = util::make_unique<FrameBuffer>(4, w, h);
@@ -108,7 +109,9 @@ public:
 
     TextureBinder& bind(GLint index, GLuint texture) {
         glActiveTexture(GL_TEXTURE0 + nextFreeUnit_);
+        std::cout << "Binding texture " << texture << " to texture unit " << nextFreeUnit_ << std::endl;
         glBindTexture(GL_TEXTURE_2D, texture);
+        std::cout << "Binding uniform " << index << " to texture unit " << nextFreeUnit_ << std::endl;
         glUniform1i(index, nextFreeUnit_);
 
         GLuint sampler;
@@ -117,6 +120,7 @@ public:
         glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        std::cout << "Binding sampler " << sampler << " to texture unit " << nextFreeUnit_ << std::endl;
         glBindSampler(nextFreeUnit_, sampler);
 
         glActiveTexture(GL_TEXTURE0);
@@ -131,6 +135,13 @@ public:
         }
         return *this;
     }
+
+//    ~TextureBinder() {
+//        while (nextFreeUnit_ -- > 0) {
+//            glActiveTexture(GL_TEXTURE0 + nextFreeUnit_);
+//            glBindTexture(GL_TEXTURE_2D, 0);
+//        }
+//    }
 
 private:
     GLint nextFreeUnit_;
@@ -164,6 +175,7 @@ void Renderer::setProgram(const ProgramPtr& program) {
 void Renderer::setMaterial(const MaterialPtr& material) {
     setProgram(material->program);
     setUniformsForCurrentProgram();
+
     for (const auto& local : material->uniforms) {
         const std::string& name = local.first;
         GLint slot = currentProgram_->uniformLocation(name);
@@ -178,7 +190,7 @@ void Renderer::setMaterial(const MaterialPtr& material) {
         if (samplerUniform < 0) continue;
 
         binder.bind(samplerUniform, texPair.second->ref());
-//
+
 //        const TexturePtr& texture = texPair.second;
 //
 //        glUniform1i(samplerUniform, texUnit);
@@ -194,7 +206,9 @@ void Renderer::setMaterial(const MaterialPtr& material) {
 //        glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 //
 //        glBindSampler(texUnit, sampler);
+//        ++ texUnit;
     }
+    std::cout << "- - - - - - - -- - - ---- - - - - - - - -  - - - - " << std::endl;
 }
 
 
@@ -226,8 +240,6 @@ void Renderer::render() {
     gbuffer_->unbind();
     updateViewport();
     clearBuffers();
-
-    //glUseProgram(postProcess_->ref());
 
     setProgram(postProcess_);
     setUniformsForCurrentProgram();

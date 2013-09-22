@@ -14,7 +14,9 @@ layout (std140) uniform CameraMatrices
 
 uniform vec3 ambient;
 uniform float hdrMax;
+
 uniform sampler2D diffuseTexture;
+uniform sampler2D normalTexture;
 
 uniform uvec4 viewport;
 
@@ -22,9 +24,15 @@ vec3 specColor = vec3(1, 1, 1);
 uniform float spec;
 
 #ifdef DIFFUSE_UNIFORM
+
     uniform vec4 diffuseColor;
+    vec3 worldNormal = worldNorm;
+
 #elif defined DIFFUSE_TEXTURE
+
     vec4 diffuseColor = texture(diffuseTexture, texCoord);
+    vec3 worldNormal = worldNorm * texture(normalTexture, texCoord).z ;
+
 #endif    
 
 //out vec4 outputColor;
@@ -33,7 +41,7 @@ layout(location = 1) out vec3 outputNormal;
 layout(location = 2) out vec4 outputSpecular;
 layout(location = 3) out float outputDepth;
 
-vec3 computeSunlight();
+vec3 computeSunlight(vec3 worldNormal);
 		
 float lambert(vec3 dir);
 float phong(vec3 dir, vec3 lightDir);
@@ -49,7 +57,7 @@ float lightAtten = 0.1;
 float lightFocus = 15;
 
 #ifdef GAMMA
-    vec4 gammaCorrect(vec4 color);
+vec4 gammaCorrect(vec4 color);
 #endif
 
 vec4 windowToNdc(vec2 xy) {
@@ -65,7 +73,7 @@ vec4 windowToNdc(vec2 xy) {
 void main()
 {
     // Day-night cycle
-    vec3 sunComponent = computeSunlight();
+    vec3 sunComponent = computeSunlight(worldNormal);
     
     lightPos = vec3(viewMatrix * vec4(lightPos, 1));
     lightAt = vec3(viewMatrix * vec4(lightAt, 1));
@@ -93,7 +101,7 @@ void main()
 
     outputColor = col.rgb;
 
-    outputNormal = normalize(worldNorm.xyz);
+    outputNormal = normalize(worldNormal.xyz);
 
     outputSpecular = vec4(specColor, spec);
 
