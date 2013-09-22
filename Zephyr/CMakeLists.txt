@@ -42,6 +42,7 @@ add_executable(game
     ${SRC}/gfx/Renderer.cpp
     ${SRC}/gfx/GraphicsSystem.cpp
     ${SRC}/gfx/Texture.cpp
+    ${SRC}/gfx/FrameBuffer.cpp
     ${SRC}/gfx/uniform_parser.cpp
     ${SRC}/scene/SceneGraph.cpp
     ${SRC}/scene/SceneManager.cpp

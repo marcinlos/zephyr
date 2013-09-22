@@ -22,6 +22,7 @@ using zephyr::resources::ResourceSystem;
 namespace zephyr {
 namespace gfx {
 
+
 class GraphicsSystem {
 public:
 
@@ -30,7 +31,7 @@ public:
         Scheduler& scheduler,
         ResourceSystem& resources
     )
-    : renderer_ { util::make_unique<Renderer>() }
+    : renderer_ { util::make_unique<Renderer>(resources) }
     , debug_ { util::make_unique<DebugDrawer>(*renderer_, resources) }
     {
         auto invoker = core::wrapAsTask([this]() {

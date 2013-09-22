@@ -2,17 +2,31 @@
  * @file Renderer.cpp
  */
 
+#include <zephyr/gfx/Renderer.hpp>
+#include <zephyr/gfx/MeshBuilder.hpp>
+#include <zephyr/util/make_unique.hpp>
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
-#include <zephyr/gfx/Renderer.hpp>
 
 
 namespace zephyr {
 namespace gfx {
 
 
-Renderer::Renderer() {
+static const GLfloat screenQuadVertices[] = {
+    -1.0f, -1.0f, 0.0f,
+    -1.0f,  1.0f, 0.0f,
+    1.0f, -1.0f, 0.0f,
+    -1.0f,  1.0f, 0.0f,
+    1.0f,  1.0f, 0.0f,
+    1.0f, -1.0f, 0.0f,
+};
+
+
+
+
+Renderer::Renderer(ResourceSystem& res) {
     glewInit();
     glfwSwapInterval(vsync_);
 
@@ -20,6 +34,18 @@ Renderer::Renderer() {
     setDepthTest();
 
     updateViewport();
+
+    int width = viewport_.width();
+    int height = viewport_.height();
+
+    gbuffer_ = util::make_unique<FrameBuffer>(3, width, height);
+    screenQuad_ = MeshBuilder()
+            .setBuffer(screenQuadVertices).attribute(0, 3)
+            .create();
+
+    // Create and compile our GLSL program from the shaders
+    postProcess_ = res.program("post");
+    //
 }
 
 void Renderer::updateViewport() {
@@ -132,6 +158,7 @@ void Renderer::setModelTransform(const glm::mat4& transform) {
 }
 
 void Renderer::render() {
+    gbuffer_->bind();
     updateViewport();
     clearBuffers();
 
@@ -147,6 +174,22 @@ void Renderer::render() {
         hook();
     }
     renderables_.clear();
+
+    gbuffer_->unbind();
+    updateViewport();
+    clearBuffers();
+
+    // Use our shader
+    glUseProgram(postProcess_->ref());
+    GLint texID = postProcess_->uniformLocation("renderedTexture");
+
+    // Bind our texture in Texture Unit 0
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, gbuffer_->get(0));
+    // Set our "renderedTexture" sampler to user Texture Unit 0
+    glUniform1i(texID, 0);
+
+    drawMesh(screenQuad_);
 }
 
 

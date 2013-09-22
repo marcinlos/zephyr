@@ -26,7 +26,8 @@ uniform vec4 specColor;
     vec4 diffuseColor = texture(diffuseTexture, texCoord);
 #endif    
 
-out vec4 outputColor;
+//out vec4 outputColor;
+layout(location = 0) out vec3 outputColor;
 
 vec3 computeSunlight();
 		
@@ -89,7 +90,7 @@ void main()
     col = gammaCorrect(col);
 #endif
 
-    outputColor = col;
+    outputColor = vec3(col);
 
     /*
     vec4 ndcPos = windowToNdc(gl_FragCoord.xy);

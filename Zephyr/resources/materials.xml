@@ -112,5 +112,35 @@
       <float name="specHardness" value="2" />
     </uniforms>
   </material>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <vertex-shader name="trivial">
+    <file>resources/trivial.vert</file>
+  </vertex-shader>
+  
+  <frag-shader name="post">
+    <file>resources/post.frag</file>
+  </frag-shader>
+  
+  <program name="post">
+    <shader>trivial</shader>
+    <shader>post</shader>
+  </program>
+  
+  
+  
+  
 
 </materials>

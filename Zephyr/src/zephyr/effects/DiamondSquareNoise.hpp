@@ -32,7 +32,7 @@ namespace diamond {
             std::uniform_real_distribution<float> randGen;
 
             Generator()
-            : engine { static_cast<unsigned>(std::time(nullptr)) }
+            : engine { static_cast<unsigned>(srand(std::time(nullptr)), rand()) }
             , randGen { -1, 1 }
             { }
 

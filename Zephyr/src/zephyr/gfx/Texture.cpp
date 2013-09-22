@@ -29,6 +29,21 @@ TexturePtr makeTexture() {
     return newTexture(tex, TexDim::_1D, 256);
 }
 
+TexturePtr makeRgbTexture(std::uint32_t width, std::uint32_t height) {
+    GLuint tex;
+
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    return newTexture(tex, TexDim::_2D, width, height);
+}
+
 
 TexturePtr makeNoise(int size) {
     using effects::diamond::noise;

@@ -10,6 +10,8 @@
 #include <zephyr/gfx/objects.h>
 #include <zephyr/gfx/uniforms.hpp>
 #include <zephyr/gfx/UniformManager.hpp>
+#include <zephyr/gfx/FrameBuffer.hpp>
+#include <zephyr/resources/ResourceSystem.hpp>
 #include <vector>
 #include <unordered_map>
 
@@ -20,7 +22,7 @@ namespace gfx {
 class Renderer {
 public:
 
-    Renderer();
+    Renderer(ResourceSystem& res);
 
     void render();
 
@@ -76,6 +78,10 @@ private:
     Viewport viewport_;
 
     bool vsync_ = true;
+
+    std::unique_ptr<FrameBuffer> gbuffer_;
+    ProgramPtr postProcess_;
+    MeshPtr screenQuad_;
 
     std::vector<Renderable> renderables_;
 

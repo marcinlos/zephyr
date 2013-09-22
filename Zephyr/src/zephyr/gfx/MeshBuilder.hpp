@@ -77,6 +77,17 @@ public:
         return *this;
     }
 
+    template <typename ItemType, std::size_t N>
+    MeshBuilder& setBuffer(const ItemType (&data)[N]) {
+        updateMinSize(N);
+        vertexBuffer_ = bindNewBuffer(GL_ARRAY_BUFFER);
+
+        std::size_t size = sizeof(data);
+        glBufferData(GL_ARRAY_BUFFER, size, &data[0], GL_STATIC_DRAW);
+
+        return *this;
+    }
+
     MeshBuilder& setBuffer(GLuint buffer) {
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
         vertexBuffer_ = buffer;
