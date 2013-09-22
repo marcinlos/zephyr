@@ -27,6 +27,14 @@ void LandscapeScene::build() {
     NodePtr suzanne = newNode(sceneRoot);
     sceneRoot->addChild("suzanne", suzanne);
 
+    NodePtr cube = newNode(sceneRoot);
+    sceneRoot->addChild("cube", cube);
+    cube->translate(-2.8f, -1.0f, -1.7f).rotateY(0.3f);
+
+    NodePtr ico = newNode(sceneRoot);
+    sceneRoot->addChild("ico", ico);
+    ico->translate(1.8f, -1.0f, -1.0f).rotateY(0.3f);
+
     NodePtr ministar = newNode(sceneRoot);
     sceneRoot->addChild(ministar);
     ministar->translate(1, 2, 3).scale(0.2f);
@@ -44,6 +52,8 @@ void LandscapeScene::build() {
 
     items.push_back({ ministar, res.entities["star"] });
     items.push_back({ sun, res.entities["star"] });
+    items.push_back({ cube, res.entities["cube"] });
+    items.push_back({ ico, res.entities["ico"] });
 }
 
 void LandscapeScene::createResources() {
@@ -59,13 +69,15 @@ void LandscapeScene::createResources() {
     res.meshes["suzanne"] = loadObjMesh("resources/suzanne.obj");
     res.meshes["star"] = gfx::makeStar(7, 0.3f);
     res.meshes["container"] = loadObjMesh("resources/container.obj", NormCalc::SPLIT);
-
+    res.meshes["cube"] = loadObjMesh("resources/cube.obj", NormCalc::SPLIT);
+    res.meshes["ico"] = loadObjMesh("resources/ico.obj");
 
     res.entities["ground"] = newEntity(terrain, res.meshes["quad"]);
     res.entities["suzanne"] = newEntity(suzanne, res.meshes["suzanne"]);
     res.entities["star"] = newEntity(res.material("white-solid"), res.meshes["star"]);
     res.entities["container"] = newEntity(mat, res.meshes["container"]);
-
+    res.entities["cube"] = newEntity(res.material("cube"), res.meshes["cube"]);
+    res.entities["ico"] = newEntity(res.material("ico"), res.meshes["ico"]);
 }
 
 

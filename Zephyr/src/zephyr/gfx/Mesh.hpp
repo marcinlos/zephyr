@@ -28,6 +28,7 @@ struct MeshData {
     std::vector<glm::vec4> vertices;
     std::vector<glm::vec4> colors;
     std::vector<glm::vec3> normals;
+    std::vector<glm::vec2> uv;
     std::vector<GLuint> indices;
 };
 
@@ -103,6 +104,14 @@ inline std::vector<glm::vec3> generateNormalsAvg(
     return normals;
 }
 
+
+template <typename IndexIter, typename DataIter, typename OutIter>
+void duplicate(DataIter data, IndexIter begin, IndexIter end, OutIter out) {
+    while (begin != end) {
+        *out++ = *(data + *begin++);
+    }
+}
+
 template <typename IndexType>
 inline std::pair<
     std::vector<glm::vec4>,
@@ -136,12 +145,12 @@ generateNormalsSplit(
     return std::make_pair(std::move(newVertices), std::move(normals));
 }
 
-template <typename IndexType>
-inline std::vector<glm::vec3> generateNormals(
-        const std::vector<glm::vec4>& vertices,
-        const std::vector<IndexType>& indices) {
-    return generateNormalsAvg(vertices, indices);
-}
+//template <typename IndexType>
+//inline std::vector<glm::vec3> generateNormals(
+//        const std::vector<glm::vec4>& vertices,
+//        const std::vector<IndexType>& indices) {
+//    return generateNormalsAvg(vertices, indices);
+//}
 
 MeshData loadObjData(const char* path, NormCalc strategy = NormCalc::AVG);
 

@@ -38,7 +38,7 @@ public:
         generateIndices();
 
         modify();
-        auto normals = generateNormals(vertices, indices);
+        auto normals = generateNormalsAvg(vertices, indices);
         return MeshBuilder()
                 .setBuffer(vertices)
                     .attribute(0, 4, 0)

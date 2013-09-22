@@ -68,11 +68,6 @@
     <shader>debug-frag</shader>
   </program> 
   
-
-  <texture name="terrain">
-     <file>resources/terr.png</file>
-  </texture>
-  
   <texture name="normal">
     <file>resources/normal.jpg</file>
   </texture>
@@ -110,9 +105,15 @@
   </material>
   
   
+  
+  <!-- Terrain material -->
+   
+  <texture name="terrain">
+     <file>resources/terr.png</file>
+  </texture>
+  
   <material name="terrain">
     <program>main-prog-texture</program>
-    <texture slot="dupa" ref="normal" />
     <texture slot="diffuseTexture" ref="terrain" />
     <uniforms>
       <float name="spec" value="0.1" />
@@ -122,16 +123,35 @@
   
   
   
+  <!-- Cube material -->
+    
+  <texture name="cube">
+     <file>resources/cube.png</file>
+  </texture>
+    
+  <material name="cube">
+    <program>main-prog-texture</program>
+    <texture slot="diffuseTexture" ref="cube" />
+    <uniforms>
+      <float name="spec" value="1" />
+      <float name="specHardness" value="20" />
+    </uniforms>
+  </material>
   
   
+  <!-- Icosahedron material -->
+  
+  <material name="ico">
+    <program>main-prog-diffuse</program>
+    <uniforms>
+      <vec4 name="diffuseColor" value="0.9 0.2 0.1 1.0" />
+      <float name="spec" value="1.8" />
+      <float name="specHardness" value="120" />
+    </uniforms>
+  </material>
   
   
-  
-  
-  
-  
-  
-  
+  <!-- Post-processing program -->
   
   <vertex-shader name="trivial">
     <file>resources/trivial.vert</file>
@@ -146,9 +166,6 @@
     <shader>post</shader>
     <shader>norm</shader>
   </program>
-  
-  
-  
   
 
 </materials>
