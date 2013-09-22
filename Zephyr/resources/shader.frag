@@ -3,7 +3,7 @@
 
 in vec3 camPos;
 in vec3 worldNorm;
-in vec3 camNorm;
+//in vec3 camNorm;
 in vec2 texCoord;
 
 layout (std140) uniform CameraMatrices 
@@ -31,9 +31,11 @@ uniform float spec;
 #elif defined DIFFUSE_TEXTURE
 
     vec4 diffuseColor = texture(diffuseTexture, texCoord);
-    vec3 worldNormal = worldNorm * texture(normalTexture, texCoord).z ;
+    vec3 worldNormal = worldNorm + texture(normalTexture, texCoord).xyz ;
 
 #endif    
+
+vec3 camNorm = vec3(viewMatrix * vec4(worldNormal, 0));
 
 //out vec4 outputColor;
 layout(location = 0) out vec3 outputColor;
@@ -43,8 +45,8 @@ layout(location = 3) out float outputDepth;
 
 vec3 computeSunlight(vec3 worldNormal);
 		
-float lambert(vec3 dir);
-float phong(vec3 dir, vec3 lightDir);
+float lambert(vec3 dir, vec3 camNorm);
+float phong(vec3 dir, vec3 lightDir, vec3 camNorm);
 
 float attenuation(float d, float strength);
 float computeCutoff(vec3 dist, vec3 lightDir, float focus);
@@ -86,12 +88,12 @@ void main()
 
     float atten = attenuation(len, lightAtten);
     float cutoff = computeCutoff(unit, lightDir, lightFocus);
-    float diffuse = atten * cutoff * lambert(unit);
-    float spec = atten * cutoff * phong(unit, lightDir);
+    float diffuse = atten * cutoff * lambert(unit, camNorm);
+    float specular = atten * cutoff * phong(unit, lightDir, camNorm);
 
     // Full light output    
     vec3 total = ambient + sunComponent + diffuse * lightColor;
-    vec3 col = vec3(diffuseColor) * total + spec * specColor;
+    vec3 col = vec3(diffuseColor) * total + specular * specColor;
     // HDR adjustment
     col = col / hdrMax;
     
@@ -99,6 +101,7 @@ void main()
     col = gammaCorrect(col);
 #endif
 
+    //outputColor = vec3(diffuseColor);
     outputColor = col.rgb;
 
     outputNormal = normalize(worldNormal.xyz);

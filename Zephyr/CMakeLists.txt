@@ -47,6 +47,7 @@ add_executable(game
     ${SRC}/gfx/uniform_parser.cpp
     ${SRC}/scene/SceneGraph.cpp
     ${SRC}/scene/SceneManager.cpp
+    ${SRC}/effects/CameraMotionBlur.cpp
     ${SRC}/Root.cpp
     
     ${SRC}/demo/MainController.cpp

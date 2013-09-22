@@ -109,9 +109,7 @@ public:
 
     TextureBinder& bind(GLint index, GLuint texture) {
         glActiveTexture(GL_TEXTURE0 + nextFreeUnit_);
-        std::cout << "Binding texture " << texture << " to texture unit " << nextFreeUnit_ << std::endl;
         glBindTexture(GL_TEXTURE_2D, texture);
-        std::cout << "Binding uniform " << index << " to texture unit " << nextFreeUnit_ << std::endl;
         glUniform1i(index, nextFreeUnit_);
 
         GLuint sampler;
@@ -120,7 +118,6 @@ public:
         glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        std::cout << "Binding sampler " << sampler << " to texture unit " << nextFreeUnit_ << std::endl;
         glBindSampler(nextFreeUnit_, sampler);
 
         glActiveTexture(GL_TEXTURE0);
@@ -135,13 +132,6 @@ public:
         }
         return *this;
     }
-
-//    ~TextureBinder() {
-//        while (nextFreeUnit_ -- > 0) {
-//            glActiveTexture(GL_TEXTURE0 + nextFreeUnit_);
-//            glBindTexture(GL_TEXTURE_2D, 0);
-//        }
-//    }
 
 private:
     GLint nextFreeUnit_;
@@ -184,31 +174,13 @@ void Renderer::setMaterial(const MaterialPtr& material) {
         }
     }
     TextureBinder binder { currentProgram_ };
-//    int texUnit = 0;
+
     for (const auto& texPair : material->textures) {
         GLint samplerUniform = texPair.first;
         if (samplerUniform < 0) continue;
 
         binder.bind(samplerUniform, texPair.second->ref());
-
-//        const TexturePtr& texture = texPair.second;
-//
-//        glUniform1i(samplerUniform, texUnit);
-//
-//        glActiveTexture(GL_TEXTURE0 + texUnit);
-//        glBindTexture(textureType(texture->dim), texture->ref());
-//
-//        GLuint sampler;
-//        glGenSamplers(1, &sampler);
-//        glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-//        glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-//        glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//        glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//
-//        glBindSampler(texUnit, sampler);
-//        ++ texUnit;
     }
-    std::cout << "- - - - - - - -- - - ---- - - - - - - - -  - - - - " << std::endl;
 }
 
 

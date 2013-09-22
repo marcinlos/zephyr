@@ -45,11 +45,13 @@ vec3 computeMotionBlur(vec3 color) {
 void main() {
     vec3 color = texture(renderedTexture, uv).rgb;
     vec3 normal = texture(normalTexture, uv).xyz;
-    vec3 specular = texture(specularTexture, uv).rgb;
+    vec4 specular = texture(specularTexture, uv);
     float depth = texture(depthTexture, uv).r;
 
     outputColor = vec3(depth);
-    outputColor = specular;
+    outputColor = specular.aaa;
+    outputColor = color;
+    outputColor = normToColor(normal);
     
     float x = gl_FragCoord.x;
     float y = gl_FragCoord.y;
@@ -60,8 +62,8 @@ void main() {
     
     float r2 = length(d);
     float a = 1 - pow(r2 / 1.3, 5) / 2;
-    outputColor = mix(vec3(0, 0, 0), computeMotionBlur(color), a);
-
+    //outputColor = mix(vec3(0, 0, 0), computeMotionBlur(color), a);
+    outputColor = computeMotionBlur(color);
 }
 
 

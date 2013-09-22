@@ -69,7 +69,7 @@
   </program> 
   
   <texture name="normal">
-    <file>resources/noisec.jpg</file>
+    <file>resources/normcube.png</file>
   </texture>
   
   <material name="debug">

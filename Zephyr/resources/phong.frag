@@ -1,6 +1,5 @@
 #define GAMMA
 
-in vec3 camNorm;
 in vec3 camPos;
 
 uniform float spec;
@@ -23,7 +22,7 @@ float attenuation(float d, float strength) {
 /**
  * @param dir Normalized direction (light soure -> point)
  */
-float lambert(vec3 dir) {
+float lambert(vec3 dir, vec3 camNorm) {
     vec3 n = normalize(camNorm);
     float angleFactor = clamp(-dot(dir, n), 0, 1);
     return angleFactor;
@@ -32,7 +31,7 @@ float lambert(vec3 dir) {
 /**
  * @param lightDir Normalized direction of light
  */
-float phong(vec3 dir, vec3 lightDir) {
+float phong(vec3 dir, vec3 lightDir, vec3 camNorm) {
     vec3 n = normalize(camNorm);
     vec3 toCam = -normalize(vec3(camPos));
     vec3 ref = 2 * dot(dir, n) * n - dir;
