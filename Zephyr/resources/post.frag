@@ -51,5 +51,6 @@ void main() {
     outputColor = specular;
     
     outputColor = computeMotionBlur(color);
-    //outputColor = color;
 }
+
+

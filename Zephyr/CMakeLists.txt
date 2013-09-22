@@ -41,6 +41,7 @@ add_executable(game
     ${SRC}/gfx/HackyRenderer.cpp
     ${SRC}/gfx/Renderer.cpp
     ${SRC}/gfx/GraphicsSystem.cpp
+    ${SRC}/gfx/Mesh.cpp
     ${SRC}/gfx/Texture.cpp
     ${SRC}/gfx/FrameBuffer.cpp
     ${SRC}/gfx/uniform_parser.cpp
