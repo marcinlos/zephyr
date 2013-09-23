@@ -28,26 +28,20 @@ MainController::MainController(Root& root)
     initMainTask();
 
     dayNightCycle = util::make_unique<DayNightCycle>(root);
-    taskletScheduler.add([this](double time, double){
-        dayNightCycle->apply(time);
-        return true;
-    });
+    taskletScheduler.add([this](double t, double dt){
+        dayNightCycle->apply(t);
 
-    taskletScheduler.add([this](double, double) {
         glm::vec3 pos = this->root.vars().get<glm::vec3>("sunPos");
         scene::NodePtr sun = landscape->graph.root()->child("sun");
         sun->translateTo(5.0f * pos).translateY(10.0f);
-        return true;
-    });
 
-    taskletScheduler.add([this](double t, double dt) {
         scene::NodePtr suzanne = landscape->graph.root()->child("suzanne");
         suzanne->rotateX(M_PI * dt / 5);
-        return true;
-    });
 
-    taskletScheduler.add([this](double t, double dt) {
         cameraBlur->update(dt);
+
+        lights->update();
+
         return true;
     });
 
@@ -80,6 +74,8 @@ void MainController::initCamera() {
     pipelineController = util::make_unique<PipelineController>(renderer);
     core::registerHandler(root.dispatcher(), input::msg::INPUT_SYSTEM,
             pipelineController.get(), &PipelineController::handle);
+
+    lights = util::make_unique<Lights>(renderer, *camera);
 }
 
 

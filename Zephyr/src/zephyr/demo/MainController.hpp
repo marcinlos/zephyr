@@ -14,20 +14,22 @@
 #include <zephyr/effects/DayNightCycle.hpp>
 #include <zephyr/effects/CameraMotionBlur.hpp>
 
+// temporary
+#include <zephyr/demo/LandscapeScene.hpp>
+#include <zephyr/gfx/CameraController.hpp>
+#include <zephyr/demo/PipelineController.hpp>
+#include <zephyr/demo/Lights.hpp>
+
 using zephyr::core::Config;
 using zephyr::gfx::Renderer;
 using zephyr::gfx::Camera;
 using zephyr::gfx::CameraComponent;
+using zephyr::gfx::CameraController;
 using zephyr::time::Clock;
 using zephyr::time::ClockManager;
 using zephyr::time::TaskletScheduler;
 using zephyr::effects::DayNightCycle;
 using zephyr::effects::CameraMotionBlur;
-
-// temporary
-#include <zephyr/demo/LandscapeScene.hpp>
-#include <zephyr/gfx/CameraController.hpp>
-#include <zephyr/demo/PipelineController.hpp>
 
 namespace zephyr {
 namespace demo {
@@ -64,8 +66,9 @@ private:
     // temporary
     std::unique_ptr<LandscapeScene> landscape;
 
-    std::unique_ptr<gfx::CameraController> cameraController;
+    std::unique_ptr<CameraController> cameraController;
     std::unique_ptr<PipelineController> pipelineController;
+    std::unique_ptr<Lights> lights;
 
     std::unique_ptr<CameraMotionBlur> cameraBlur;
     std::unique_ptr<DayNightCycle> dayNightCycle;

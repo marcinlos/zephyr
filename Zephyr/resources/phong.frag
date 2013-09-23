@@ -24,7 +24,7 @@ float attenuation(float d, float strength) {
  */
 float lambert(vec3 dir, vec3 camNorm) {
     vec3 n = normalize(camNorm);
-    float angleFactor = clamp(-dot(dir, n), 0, 1);
+    float angleFactor = clamp(dot(dir, n), 0, 1);
     return angleFactor;
 }
 

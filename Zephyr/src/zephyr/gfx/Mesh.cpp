@@ -26,6 +26,12 @@ MeshPtr vertexArrayFrom(const MeshData& data) {
     if (!data.indices.empty()) {
         builder.setIndices(data.indices);
     }
+    if (!data.tangents.empty()) {
+        builder.setBuffer(data.tangents).attribute(4, 3);
+    }
+    if (!data.bitangents.empty()) {
+        builder.setBuffer(data.bitangents).attribute(5, 3);
+    }
     return builder.create();
 }
 
@@ -188,15 +194,29 @@ MeshData loadObjData(const char* path, NormCalc strategy) {
     ObjFileContent obj = loader.parse();
     MeshData data;
     if (strategy == NormCalc::SPLIT) {
-        auto pair = std::tie(data.vertices, data.normals);
-        pair = generateNormalsSplit(obj.vertices, obj.indices);
-        if (!obj.texCoords.empty()) {
-            data.uv.reserve(data.vertices.size());
-            duplicate(
-                begin(obj.texCoords),
-                begin(obj.indices),
-                end(obj.indices),
-                back_inserter(data.uv));
+        if (obj.texCoords.empty()) {
+            auto pair = std::tie(data.vertices, data.normals);
+            pair = generateNormalsSplit(obj.vertices, obj.indices);
+        } else {
+            TangentSpace tg;
+            auto pair = std::tie(data.vertices, tg);
+            pair = generateTangentSpaceSplit(obj.vertices, obj.texCoords, obj.indices);
+
+            std::size_t count = data.vertices.size();
+            data.uv.reserve(count);
+            data.normals.reserve(count);
+            data.tangents.reserve(count);
+            data.bitangents.reserve(count);
+
+            auto from = begin(obj.indices), to = end(obj.indices);
+            duplicate(begin(obj.texCoords), from, to, back_inserter(data.uv));
+//            duplicate(begin(tg.normals), from, to, back_inserter(data.normals));
+//            duplicate(begin(tg.tangents), from, to, back_inserter(data.tangents));
+//            duplicate(begin(tg.bitangents), from, to, back_inserter(data.bitangents));
+            data.normals = std::move(tg.normals);
+            data.tangents = std::move(tg.tangents);
+            data.bitangents = std::move(tg.bitangents);
+
         }
     } else {
         if (strategy == NormCalc::FIRST) {

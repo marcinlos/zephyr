@@ -4,7 +4,10 @@ uniform vec3 sunDirection;
 uniform float sunIntensity;
 uniform vec3 sunColor;
 
-vec3 computeSunlight(vec3 worldNormal) {
-    float dirFactor = dot(normalize(worldNormal), sunDirection);
+/**
+ * @param n Worldspace suface normal
+ */
+vec3 computeSunlight(vec3 n) {
+    float dirFactor = dot(-n, sunDirection);
     return sunIntensity * clamp(dirFactor, 0, 1) * sunColor;
 }

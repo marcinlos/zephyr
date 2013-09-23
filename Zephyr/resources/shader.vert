@@ -21,7 +21,7 @@ out vec2 texCoord;
 
 out vec3 camPos;
 out vec3 worldNorm;
-out vec3 camNorm;
+//out vec3 camNorm;
 
 out vec3 tangent;
 out vec3 bitangent;
@@ -29,17 +29,18 @@ out vec3 bitangent;
 
 void main() 
 {
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * position;
+    mat4 modelView = viewMatrix * modelMatrix;
+    gl_Position = projectionMatrix * modelView * position;
 
     diffuseColor = color;
     
     vec4 hn = vec4(vertexNormal, 0);
     
-    camPos = vec3(viewMatrix * modelMatrix * position);
+    camPos = vec3(modelView * position);
     worldNorm = vec3(modelMatrix * hn);
-    camNorm = vec3(viewMatrix * modelMatrix * hn);
+    //camNorm = vec3(modelView * hn);
     texCoord = inTexCoord;
 
-    /*tangent = inTangent;
-    bitangent = outBitangent;*/
+    tangent = vec3(modelMatrix * vec4(inTangent, 0));
+    bitangent = vec3(modelMatrix * vec4(inBitangent, 0));
 }

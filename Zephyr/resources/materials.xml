@@ -80,7 +80,7 @@
     <program>main-prog-diffuse</program>
     <uniforms>
       <vec4 name="diffuseColor" value="0.7 0.2 0.2 1.0" />
-      <float name="spec" value="0.9" />
+      <float name="spec" value="0.6" />
       <float name="specHardness" value="4" />
     </uniforms>
   </material>
@@ -112,9 +112,14 @@
      <file>resources/terr.png</file>
   </texture>
   
+  <texture name="terrain-normal">
+    <file>resources/noisec.jpg</file>
+  </texture>
+  
   <material name="terrain">
     <program>main-prog-texture</program>
     <texture slot="diffuseTexture" ref="terrain" />
+    <texture slot="normalTexture" ref="terrain-normal" />
     <uniforms>
       <float name="spec" value="0.1" />
       <float name="specHardness" value="2" />
@@ -126,7 +131,7 @@
   <!-- Cube material -->
     
   <texture name="cube">
-     <file>resources/uv.png</file>
+     <file>resources/cube.png</file>
   </texture>
     
   <material name="cube">
@@ -134,7 +139,7 @@
     <texture slot="diffuseTexture" ref="cube" />
     <texture slot="normalTexture" ref="normal" />
     <uniforms>
-      <float name="spec" value="1" />
+      <float name="spec" value="0.5" />
       <float name="specHardness" value="20" />
     </uniforms>
   </material>
@@ -146,7 +151,7 @@
     <program>main-prog-diffuse</program>
     <uniforms>
       <vec4 name="diffuseColor" value="0.9 0.2 0.1 1.0" />
-      <float name="spec" value="1.8" />
+      <float name="spec" value="0.9" />
       <float name="specHardness" value="120" />
     </uniforms>
   </material>

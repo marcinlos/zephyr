@@ -38,18 +38,41 @@ public:
         generateIndices();
 
         modify();
-        auto normals = generateNormalsAvg(vertices, indices);
+
+        MeshData data;
+        TangentSpace tg;
+        auto pair = std::tie(data.vertices, tg);
+        pair = generateTangentSpaceSplit(vertices, texture, indices);
+
+        std::size_t count = data.vertices.size();
+        data.uv.reserve(count);
+        data.normals.reserve(count);
+        data.tangents.reserve(count);
+        data.bitangents.reserve(count);
+
+        auto from = begin(indices), to = end(indices);
+        duplicate(begin(texture), from, to, back_inserter(data.uv));
+//            duplicate(begin(tg.normals), from, to, back_inserter(data.normals));
+//            duplicate(begin(tg.tangents), from, to, back_inserter(data.tangents));
+//            duplicate(begin(tg.bitangents), from, to, back_inserter(data.bitangents));
+        data.normals = std::move(tg.normals);
+        data.tangents = std::move(tg.tangents);
+        data.bitangents = std::move(tg.bitangents);
+
+        return vertexArrayFrom(data);
+        /*
+        //auto normals = generateNormalsAvg(vertices, indices);
+        auto data = generateTangentSpaceSplit(vertices, texture, indices);
+        duplicate(begin(texture), , back_inserter(data.uv));
         return MeshBuilder()
-                .setBuffer(vertices)
-                    .attribute(0, 4, 0)
-                .setBuffer(colors)
-                    .attribute(1, 4, 0)
-                .setBuffer(normals)
-                    .attribute(2, 3, 0)
-                .setBuffer(texture)
-                    .attribute(3, 2, 0)
+                .setBuffer(data.first).attribute(0, 4)
+                .setBuffer(colors).attribute(1, 4)
+                .setBuffer(data.second.normals).attribute(2, 3)
+                .setBuffer(texture).attribute(3, 2)
+                .setBuffer(data.second.tangents).attribute(4, 3)
+                .setBuffer(data.second.bitangents).attribute(5, 3)
                 .setIndices(indices)
-                .create();
+                .create();*/
     }
 
     virtual ~TerrainGenerator() = default;

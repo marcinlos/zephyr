@@ -5,6 +5,8 @@ in vec3 camPos;
 in vec3 worldNorm;
 //in vec3 camNorm;
 in vec2 texCoord;
+in vec3 tangent;
+in vec3 bitangent;
 
 layout (std140) uniform CameraMatrices 
 {
@@ -31,7 +33,13 @@ uniform float spec;
 #elif defined DIFFUSE_TEXTURE
 
     vec4 diffuseColor = texture(diffuseTexture, texCoord);
-    vec3 worldNormal = worldNorm + texture(normalTexture, texCoord).xyz ;
+
+    vec3 n = normalize(worldNorm);
+    vec3 t = normalize(tangent);
+    vec3 b = normalize(bitangent);
+
+    vec3 texNorm = 2 * texture(normalTexture, texCoord).xyz - 1.0;
+    vec3 worldNormal = normalize(mat3(t, b, n) * texNorm);
 
 #endif    
 
@@ -43,7 +51,7 @@ layout(location = 1) out vec3 outputNormal;
 layout(location = 2) out vec4 outputSpecular;
 layout(location = 3) out float outputDepth;
 
-vec3 computeSunlight(vec3 worldNormal);
+vec3 computeSunlight(vec3 n);
 		
 float lambert(vec3 dir, vec3 camNorm);
 float phong(vec3 dir, vec3 lightDir, vec3 camNorm);
@@ -52,11 +60,15 @@ float attenuation(float d, float strength);
 float computeCutoff(vec3 dist, vec3 lightDir, float focus);
 
 // light    
-vec3 lightPos = vec3(1, 2, 3);
-vec3 lightAt = vec3(-1, -1, 0);
+uniform vec3 lightPos;
+uniform vec3 lightAt;
+
+
+//vec3 lightPos = vec3(1, 2, 3);
+//vec3 lightAt = vec3(-1, -1, 0);
 vec3 lightColor = vec3(1, 1, 1);
-float lightAtten = 0.1;
-float lightFocus = 15;
+float lightAtten = 0.05;
+float lightFocus = 10;
 
 #ifdef GAMMA
 vec4 gammaCorrect(vec4 color);
@@ -77,11 +89,11 @@ void main()
     // Day-night cycle
     vec3 sunComponent = computeSunlight(worldNormal);
     
-    lightPos = vec3(viewMatrix * vec4(lightPos, 1));
-    lightAt = vec3(viewMatrix * vec4(lightAt, 1));
+    vec3 camLightPos = vec3(viewMatrix * vec4(lightPos, 1));
+    vec3 camLightAt = vec3(viewMatrix * vec4(lightAt, 1));
     
-    vec3 lightDir = normalize(lightAt - lightPos);
-    vec3 dist = lightPos - camPos;
+    vec3 lightDir = -normalize(camLightPos - camLightAt);
+    vec3 dist = camLightPos - camPos;
 
     float len = length(dist);
     vec3 unit = dist / len;
@@ -104,7 +116,7 @@ void main()
     //outputColor = vec3(diffuseColor);
     outputColor = col.rgb;
 
-    outputNormal = normalize(worldNormal.xyz);
+    outputNormal = normalize(worldNormal);
 
     outputSpecular = vec4(specColor, spec);
 

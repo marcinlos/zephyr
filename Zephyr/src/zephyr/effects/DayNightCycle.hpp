@@ -36,7 +36,7 @@ public:
     glm::vec3 calculateSunPosition(float t) {
         glm::vec4 pos { 1, 0, 0, 1 };
         pos = glm::rotate<float>(360 * t, 0, 0, 1) * pos;
-        pos = glm::rotate<float>(-50, 1, 0, 0) * pos;
+        pos = glm::rotate<float>(50, 1, 0, 0) * pos;
         return glm::vec3 { pos };
     }
 
