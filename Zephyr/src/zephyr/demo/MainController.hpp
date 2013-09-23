@@ -27,6 +27,7 @@ using zephyr::effects::CameraMotionBlur;
 // temporary
 #include <zephyr/demo/LandscapeScene.hpp>
 #include <zephyr/gfx/CameraController.hpp>
+#include <zephyr/demo/PipelineController.hpp>
 
 namespace zephyr {
 namespace demo {
@@ -64,6 +65,7 @@ private:
     std::unique_ptr<LandscapeScene> landscape;
 
     std::unique_ptr<gfx::CameraController> cameraController;
+    std::unique_ptr<PipelineController> pipelineController;
 
     std::unique_ptr<CameraMotionBlur> cameraBlur;
     std::unique_ptr<DayNightCycle> dayNightCycle;

@@ -76,6 +76,10 @@ void MainController::initCamera() {
     cameraBlur = util::make_unique<effects::CameraMotionBlur>(renderer);
     core::registerHandler(root.dispatcher(), input::msg::INPUT_SYSTEM,
             cameraBlur.get(), &CameraMotionBlur::handle);
+
+    pipelineController = util::make_unique<PipelineController>(renderer);
+    core::registerHandler(root.dispatcher(), input::msg::INPUT_SYSTEM,
+            pipelineController.get(), &PipelineController::handle);
 }
 
 

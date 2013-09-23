@@ -52,6 +52,7 @@ add_executable(game
     
     ${SRC}/demo/MainController.cpp
     ${SRC}/demo/LandscapeScene.cpp
+    ${SRC}/demo/PipelineController.cpp
     src/Zephyr.cpp)
 
     

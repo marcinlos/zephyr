@@ -13,6 +13,7 @@
 
 using zephyr::core::Message;
 using zephyr::gfx::Renderer;
+using zephyr::input::InputState;
 namespace events = zephyr::input::msg;
 
 namespace zephyr {
@@ -30,7 +31,7 @@ public:
 private:
     void updateUniforms(glm::vec2 blur);
 
-    input::InputState input;
+    InputState input;
     Renderer& renderer;
 
     bool active = false;

@@ -21,7 +21,7 @@ void CameraMotionBlur::handle(const Message& message) {
         float dx =   pos.x - input.mouse().x;
         float dy = -(pos.y - input.mouse().y);
 
-        const float treshold = 60.0f;
+        const float treshold = 20.0f;
         prevDelta = glm::vec2 { dx, dy };
         if (glm::length2(prevDelta) > treshold) {
             active = true;

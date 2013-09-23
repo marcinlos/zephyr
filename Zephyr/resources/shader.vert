@@ -4,6 +4,8 @@ layout(location = 0) in vec4 position;
 layout(location = 1) in vec4 color;
 layout(location = 2) in vec3 vertexNormal;
 layout(location = 3) in vec2 inTexCoord;
+layout(location = 4) in vec3 inTangent;
+layout(location = 5) in vec3 inBitangent;
 
 layout (std140) uniform CameraMatrices 
 {
@@ -21,6 +23,9 @@ out vec3 camPos;
 out vec3 worldNorm;
 out vec3 camNorm;
 
+out vec3 tangent;
+out vec3 bitangent;
+
 
 void main() 
 {
@@ -34,4 +39,7 @@ void main()
     worldNorm = vec3(modelMatrix * hn);
     camNorm = vec3(viewMatrix * modelMatrix * hn);
     texCoord = inTexCoord;
+
+    /*tangent = inTangent;
+    bitangent = outBitangent;*/
 }
