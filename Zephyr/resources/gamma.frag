@@ -2,8 +2,7 @@
 
 const float gammaCorrection = 2.2;
 
-vec4 gammaCorrect(vec4 color) {
-    vec4 gamma = vec4(1 / gammaCorrection);
-    gamma.w = 1.0;
+vec3 gammaCorrect(vec3 color) {
+    vec3 gamma = vec3(1 / gammaCorrection);
     return pow(color, gamma);
 }

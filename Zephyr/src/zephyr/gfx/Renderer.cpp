@@ -47,7 +47,6 @@ void Renderer::updateViewport() {
     bool changed = w != viewport_.width() || h != viewport_.height();
     viewport_.set(0, 0, w, h);
     glViewport(0, 0, w, h);
-    std::cout << w << " x " << h << std::endl;
 
     if (changed) {
         gbuffer_ = util::make_unique<FrameBuffer>(4, w, h);

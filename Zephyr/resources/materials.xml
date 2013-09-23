@@ -123,6 +123,7 @@
     <uniforms>
       <float name="spec" value="0.1" />
       <float name="specHardness" value="2" />
+      <bool name="useBumpMap" value="1" />
     </uniforms>
   </material>
   
@@ -141,6 +142,7 @@
     <uniforms>
       <float name="spec" value="0.5" />
       <float name="specHardness" value="20" />
+      <bool name="useBumpMap" value="1" />
     </uniforms>
   </material>
   

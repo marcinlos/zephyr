@@ -26,26 +26,15 @@ vec3 specColor = vec3(1, 1, 1);
 uniform float spec;
 
 #ifdef DIFFUSE_UNIFORM
-
     uniform vec4 diffuseColor;
-    vec3 worldNormal = worldNorm;
-
 #elif defined DIFFUSE_TEXTURE
-
     vec4 diffuseColor = texture(diffuseTexture, texCoord);
-
-    vec3 n = normalize(worldNorm);
-    vec3 t = normalize(tangent);
-    vec3 b = normalize(bitangent);
-
-    vec3 texNorm = 2 * texture(normalTexture, texCoord).xyz - 1.0;
-    vec3 worldNormal = normalize(mat3(t, b, n) * texNorm);
-
 #endif    
 
-vec3 camNorm = vec3(viewMatrix * vec4(worldNormal, 0));
+vec3 worldNormal = worldNorm;
 
-//out vec4 outputColor;
+uniform bool useBumpMap;
+
 layout(location = 0) out vec3 outputColor;
 layout(location = 1) out vec3 outputNormal;
 layout(location = 2) out vec4 outputSpecular;
@@ -71,7 +60,7 @@ float lightAtten = 0.05;
 float lightFocus = 10;
 
 #ifdef GAMMA
-vec4 gammaCorrect(vec4 color);
+vec3 gammaCorrect(vec3 color);
 #endif
 
 vec4 windowToNdc(vec2 xy) {
@@ -83,9 +72,23 @@ vec4 windowToNdc(vec2 xy) {
     return ndcPos;
 }
 
+void checkBumpMap() {
+    if (useBumpMap) {
+        vec3 n = normalize(worldNorm);
+        vec3 t = normalize(tangent);
+        vec3 b = normalize(bitangent);
+
+        vec3 texNorm = 2 * texture(normalTexture, texCoord).xyz - 1.0;
+        worldNormal = normalize(mat3(t, b, n) * texNorm);
+    }
+}
+
 
 void main()
 {
+    checkBumpMap();
+    vec3 camNorm = vec3(viewMatrix * vec4(worldNormal, 0));
+
     // Day-night cycle
     vec3 sunComponent = computeSunlight(worldNormal);
     

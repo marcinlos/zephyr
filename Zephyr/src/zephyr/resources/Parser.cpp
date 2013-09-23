@@ -105,6 +105,10 @@ gfx::UniformPtr parseUniformValue(const std::string& type,
         glm::vec4 v;
         ss >> v.x >> v.y >> v.z >> v.w;
         return unif4f(v);
+    } else if (type == "bool") {
+        bool b;
+        ss >> b;
+        return unif1i(b);
     } else {
         std::clog << "Unsupported value type: " << type << "... Sorry :(\n";
         return nullptr;
