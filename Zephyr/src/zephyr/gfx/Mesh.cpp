@@ -222,7 +222,15 @@ MeshData loadObjData(const char* path, NormCalc strategy) {
         if (strategy == NormCalc::FIRST) {
             data.normals = generateNormalsFirst(obj.vertices, obj.indices);
         } else {
-            data.normals = generateNormalsAvg(obj.vertices, obj.indices);
+            if (obj.texCoords.empty()) {
+                data.normals = generateNormalsAvg(obj.vertices, obj.indices);
+            } else {
+                TangentSpace tg = generateTangentSpaceAvg(obj.vertices, obj.texCoords, obj.indices);
+                data.normals = std::move(tg.normals);
+                data.tangents = std::move(tg.tangents);
+                data.bitangents = std::move(tg.bitangents);
+            }
+
         }
         data.vertices = std::move(obj.vertices);
         data.indices = std::move(obj.indices);

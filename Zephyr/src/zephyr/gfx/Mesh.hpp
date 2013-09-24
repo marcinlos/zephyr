@@ -60,6 +60,13 @@ enum class NormCalc {
     SPLIT
 };
 
+
+struct TangentSpace {
+    std::vector<glm::vec3> normals;
+    std::vector<glm::vec3> tangents;
+    std::vector<glm::vec3> bitangents;
+};
+
 template <typename IndexType>
 inline std::vector<glm::vec3> generateNormalsFirst(
         const std::vector<glm::vec4>& vertices,
@@ -76,6 +83,59 @@ inline std::vector<glm::vec3> generateNormalsFirst(
     }
     return normals;
 }
+
+template <typename IndexType>
+TangentSpace generateTangentSpaceAvg(
+        const std::vector<glm::vec4>& vertices,
+        const std::vector<glm::vec2>& tex,
+        const std::vector<IndexType>& indices) {
+    std::size_t count = vertices.size();
+
+    std::vector<glm::vec3> normals(count);
+    std::vector<glm::vec3> tangents(count);
+    std::vector<glm::vec3> bitangents(count);
+
+
+    std::vector<int> times(count);
+    for (std::size_t i = 0; i < indices.size(); i += 3) {
+        GLuint idx[] = {
+            indices[i],
+            indices[i + 2],
+            indices[i + 1]
+        };
+        glm::vec3 ab { vertices[idx[1]] - vertices[idx[0]] };
+        glm::vec3 ac { vertices[idx[2]] - vertices[idx[0]] };
+        glm::vec3 n = glm::cross(ab, ac);
+
+        glm::vec2 abUV { tex[idx[1]] - tex[idx[0]] };
+        glm::vec2 acUV { tex[idx[2]] - tex[idx[0]] };
+
+        float det = abUV.x * acUV.y - abUV.y * acUV.x;
+        float inv = 1.0f / det;
+
+        glm::vec3 t = inv * (ab * acUV.y - ac * abUV.y);
+        glm::vec3 b = inv * (ac * abUV.x - ab * acUV.x);
+
+        for (int j = 0; j < 3; ++ j) {
+            int k = idx[j];
+            float c = 1.0f / ++ times[k];
+            normals[k] += n;
+            tangents[k] += t;
+            bitangents[k] += b;
+        }
+    }
+    for (auto& n : normals) {
+        n = glm::normalize(n);
+    }
+    return TangentSpace {
+        std::move(normals),
+        std::move(tangents),
+        std::move(bitangents)
+    };
+}
+
+
+
 
 template <typename IndexType>
 inline std::vector<glm::vec3> generateNormalsAvg(
@@ -114,11 +174,6 @@ void duplicate(DataIter data, IndexIter begin, IndexIter end, OutIter out) {
     }
 }
 
-struct TangentSpace {
-    std::vector<glm::vec3> normals;
-    std::vector<glm::vec3> tangents;
-    std::vector<glm::vec3> bitangents;
-};
 
 template <typename IndexType>
 inline std::pair<

@@ -66,7 +66,7 @@ void LandscapeScene::createResources() {
 
     effects::SimpleTerrainGenerator gen(100.0f, 8, 25.0f);
     res.meshes["quad"] = gen.create();
-    res.meshes["suzanne"] = loadObjMesh("resources/suzanne2.obj", NormCalc::SPLIT);
+    res.meshes["suzanne"] = loadObjMesh("resources/suzanne2.obj");
     res.meshes["star"] = gfx::makeStar(7, 0.3f);
     res.meshes["container"] = loadObjMesh("resources/container.obj", NormCalc::SPLIT);
     res.meshes["cube"] = loadObjMesh("resources/cube.obj", NormCalc::SPLIT);
