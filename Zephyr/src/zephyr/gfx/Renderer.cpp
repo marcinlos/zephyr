@@ -10,21 +10,26 @@
 #include <GLFW/glfw3.h>
 
 
+// for hack
+#include <zephyr/gfx/solids.hpp>
+
 namespace zephyr {
 namespace gfx {
 
 
 static const GLfloat screenQuadVertices[] = {
-    -1.0f, -1.0f, 0.0f,
-    -1.0f,  1.0f, 0.0f,
-     1.0f, -1.0f, 0.0f,
-    -1.0f,  1.0f, 0.0f,
-     1.0f,  1.0f, 0.0f,
-     1.0f, -1.0f, 0.0f,
+    -1.0f, -1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
 };
 
 
-Renderer::Renderer(ResourceSystem& res) {
+Renderer::Renderer(ResourceSystem& res)
+: resources_(res)
+{
     glewInit();
     glfwSwapInterval(vsync_);
 
@@ -38,6 +43,14 @@ Renderer::Renderer(ResourceSystem& res) {
             .create();
 
     postProcess_ = res.program("post");
+    hack_skybox_ = res.program("skybox-prog");
+
+    std::vector<glm::vec4> vertices = makeBoxVertices(5);
+    std::vector<std::uint16_t> indices = makeBoxTrianglesIndices<std::uint16_t>();
+    hack_box_ = MeshBuilder()
+            .setBuffer(vertices).attribute(0, 4)
+            .setIndices(indices)
+            .create();
 }
 
 void Renderer::updateViewport() {
@@ -189,11 +202,32 @@ void Renderer::setModelTransform(const glm::mat4& transform) {
     glUniformMatrix4fv(location, 1, GL_FALSE, data);
 }
 
+void Renderer::hack_skybox() {
+
+    setProgram(hack_skybox_);
+    setUniformsForCurrentProgram();
+
+    TexturePtr texture = resources_.texture("skybox");
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture->ref());
+    auto idx = hack_skybox_->uniformLocation("cubeTex");
+    glUniform1i(idx, 0);
+    glCullFace(GL_FRONT);
+    glDepthFunc(GL_LEQUAL);
+
+    drawMesh(hack_box_);
+
+    setCulling();
+}
+
 
 void Renderer::render() {
     gbuffer_->bind();
     updateViewport();
     clearBuffers();
+
+    hack_skybox();
 
     for (auto& hook : preRenderHooks_) {
         hook();

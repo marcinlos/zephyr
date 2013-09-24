@@ -15,14 +15,14 @@ namespace gfx {
 
 inline std::vector<glm::vec4> makeBoxVertices(float a) {
     return {
-        a * glm::vec4 { -1, -1,  1, 1 },
-        a * glm::vec4 {  1, -1,  1, 1 },
-        a * glm::vec4 {  1,  1,  1, 1 },
-        a * glm::vec4 { -1,  1,  1, 1 },
-        a * glm::vec4 { -1, -1, -1, 1 },
-        a * glm::vec4 {  1, -1, -1, 1 },
-        a * glm::vec4 {  1,  1, -1, 1 },
-        a * glm::vec4 { -1,  1, -1, 1 },
+        glm::vec4 { -a, -a,  a, 1 },
+        glm::vec4 {  a, -a,  a, 1 },
+        glm::vec4 {  a,  a,  a, 1 },
+        glm::vec4 { -a,  a,  a, 1 },
+        glm::vec4 { -a, -a, -a, 1 },
+        glm::vec4 {  a, -a, -a, 1 },
+        glm::vec4 {  a,  a, -a, 1 },
+        glm::vec4 { -a,  a, -a, 1 },
     };
 }
 

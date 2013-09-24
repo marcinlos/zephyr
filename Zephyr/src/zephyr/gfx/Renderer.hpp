@@ -77,7 +77,13 @@ private:
     void setModelTransform(const glm::mat4& transform);
     void setUniformsForCurrentProgram();
 
+    void hack_skybox();
+
+    ProgramPtr hack_skybox_;
+    MeshPtr hack_box_;
+
     Viewport viewport_;
+    ResourceSystem resources_;
 
     bool vsync_ = true;
 

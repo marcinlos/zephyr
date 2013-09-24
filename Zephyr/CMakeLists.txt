@@ -48,6 +48,7 @@ add_executable(game
     ${SRC}/scene/SceneGraph.cpp
     ${SRC}/scene/SceneManager.cpp
     ${SRC}/effects/CameraMotionBlur.cpp
+    ${SRC}/effects/DayNightCycle.cpp
     ${SRC}/Root.cpp
     
     ${SRC}/demo/MainController.cpp

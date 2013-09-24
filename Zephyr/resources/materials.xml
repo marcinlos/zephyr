@@ -82,16 +82,24 @@
       <vec4 name="diffuseColor" value="0.7 0.2 0.2 1.0" />
       <float name="spec" value="0.6" />
       <float name="specHardness" value="4" />
+      <bool name="useBumpMap" value="0" />
     </uniforms>
   </material>
   
+  
+  <texture name="rough-norm">
+    <file>resources/noisec.jpg</file>
+  </texture>
+  
   <material name="suzanne">
     <program>main-prog-diffuse</program>
+    <texture slot="normalTexture" ref="terrain-normal" />
     <uniforms>
       <vec4 name="diffuseColor" value="0.2 0.6 0.2 1.0" />
       <float name="spec" value="1" />
       <float name="specHardness" value="50" />
       <vec4 name="specColor" value="1 0 0 1.0" />
+      <bool name="useBumpMap" value="1" />
     </uniforms>
   </material>
   
@@ -101,9 +109,28 @@
       <vec4 name="diffuseColor" value="1 1 1 1.0" />
       <float name="spec" value="1" />
       <float name="specHardness" value="80" />
+	  <bool name="useBumpMap" value="0" />
     </uniforms>
   </material>
   
+  <!-- Skybox -->
+  
+  <vertex-shader name="skybox-vert">
+    <file>resources/skybox.vert</file>
+  </vertex-shader>
+  
+  <frag-shader name="skybox-frag">
+    <file>resources/skybox.frag</file>
+  </frag-shader>
+  
+  <program name="skybox-prog">
+    <shader>skybox-vert</shader>
+    <shader>skybox-frag</shader>
+  </program>
+  
+  <texture name="skybox">
+    <file>resources/cubemap.png</file>
+  </texture>
   
   
   <!-- Terrain material -->
@@ -155,6 +182,7 @@
       <vec4 name="diffuseColor" value="0.9 0.2 0.1 1.0" />
       <float name="spec" value="0.9" />
       <float name="specHardness" value="120" />
+      <bool name="useBumpMap" value="0" />
     </uniforms>
   </material>
   
